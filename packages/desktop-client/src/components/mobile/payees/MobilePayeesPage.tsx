@@ -85,6 +85,21 @@ export function MobilePayeesPage() {
     [navigate, ruleCounts],
   );
 
+  const handlePayeeDelete = useCallback(async (payee: PayeeEntity) => {
+    try {
+      await send('api/payee-delete', { id: payee.id });
+      // The payees list will automatically update through the usePayees hook
+    } catch (error) {
+      console.error('Failed to delete payee:', error);
+      // You might want to show a toast notification here
+    }
+  }, []);
+
+  const handlePayeeEdit = useCallback((payee: PayeeEntity) => {
+    console.log('Edit payee:', payee.name);
+    // TODO: Implement edit functionality
+  }, []);
+
   return (
     <Page header={<MobilePageHeader title={t('Payees')} />} padding={0}>
       <View
@@ -116,6 +131,8 @@ export function MobilePayeesPage() {
         ruleCounts={ruleCounts}
         isLoading={isLoading}
         onPayeePress={handlePayeePress}
+        onPayeeDelete={handlePayeeDelete}
+        onPayeeEdit={handlePayeeEdit}
       />
     </Page>
   );

@@ -1,3 +1,4 @@
+import { GridList, GridListItem } from 'react-aria-components';
 import { Trans } from 'react-i18next';
 
 import { AnimatedLoading } from '@actual-app/components/icons/AnimatedLoading';
@@ -16,6 +17,8 @@ type PayeesListProps = {
   ruleCounts: Map<string, number>;
   isLoading?: boolean;
   onPayeePress: (payee: PayeeEntity) => void;
+  onPayeeDelete?: (payee: PayeeEntity) => void;
+  onPayeeEdit?: (payee: PayeeEntity) => void;
 };
 
 export function PayeesList({
@@ -23,6 +26,8 @@ export function PayeesList({
   ruleCounts,
   isLoading = false,
   onPayeePress,
+  onPayeeDelete,
+  onPayeeEdit,
 }: PayeesListProps) {
   if (isLoading && payees.length === 0) {
     return (
@@ -66,14 +71,23 @@ export function PayeesList({
     <View
       style={{ flex: 1, paddingBottom: MOBILE_NAV_HEIGHT, overflow: 'auto' }}
     >
-      {payees.map(payee => (
-        <PayeesListItem
-          key={payee.id}
-          payee={payee}
-          ruleCount={ruleCounts.get(payee.id) ?? 0}
-          onPress={() => onPayeePress(payee)}
-        />
-      ))}
+      <GridList
+        className="relative flex-1 overflow-auto"
+        aria-label="Payees"
+        items={payees}
+      >
+        {payee => (
+          <GridListItem key={payee.id} id={payee.id} textValue={payee.name}>
+            <PayeesListItem
+              payee={payee}
+              ruleCount={ruleCounts.get(payee.id) ?? 0}
+              onPress={() => onPayeePress(payee)}
+              onDelete={onPayeeDelete ? () => onPayeeDelete(payee) : undefined}
+              onEdit={onPayeeEdit ? () => onPayeeEdit(payee) : undefined}
+            />
+          </GridListItem>
+        )}
+      </GridList>
       {isLoading && (
         <View
           style={{
