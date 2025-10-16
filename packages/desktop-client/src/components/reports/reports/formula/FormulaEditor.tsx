@@ -1,9 +1,12 @@
-import React, { useMemo, useRef, useState, useCallback } from 'react';
+import React, { useMemo } from 'react';
 
-import Editor, { type Monaco } from '@monaco-editor/react';
-import { type editor } from 'monaco-editor';
+import { EditorView } from '@codemirror/view';
+import CodeMirror, {
+  EditorState,
+  type ReactCodeMirrorProps,
+} from '@uiw/react-codemirror';
 
-import { registerExcelFormulaLanguage } from './registerExcelFormulaLanguage';
+import { excelFormulaExtension } from './codeMirror-excelLanguage';
 
 import { useTheme } from '@desktop-client/style/theme';
 
@@ -15,12 +18,9 @@ type FormulaEditorProps = {
   mode: FormulaMode;
   height?: string;
   disabled?: boolean;
-  editorOptions?: editor.IStandaloneEditorConstructionOptions;
-  onEditorReady?: (
-    editor: editor.IStandaloneCodeEditor,
-    monaco: Monaco,
-  ) => void;
-  onBeforeMount?: (monaco: Monaco) => void;
+  queries?: Record<string, unknown>;
+  singleLine?: boolean;
+  showLineNumbers?: boolean;
 };
 
 export function FormulaEditor({
@@ -29,14 +29,11 @@ export function FormulaEditor({
   mode,
   height = '100%',
   disabled = false,
-  editorOptions = {},
-  onEditorReady,
-  onBeforeMount,
+  queries,
+  singleLine = false,
+  showLineNumbers = true,
 }: FormulaEditorProps) {
-  const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null);
-  const monacoRef = useRef<Monaco | null>(null);
   const [activeTheme] = useTheme();
-  const [languageId, setLanguageId] = useState(`excelFormula-${mode}`);
 
   const isDarkTheme = useMemo(() => {
     if (activeTheme === 'dark' || activeTheme === 'midnight') {
@@ -48,59 +45,56 @@ export function FormulaEditor({
     return false;
   }, [activeTheme]);
 
-  const handleEditorWillMount = useCallback(
-    (monaco: Monaco) => {
-      monacoRef.current = monaco;
-      const id = registerExcelFormulaLanguage(monaco, mode);
-      setLanguageId(id);
-      onBeforeMount?.(monaco);
-    },
-    [mode, onBeforeMount],
+  const extensions = useMemo(
+    () => [
+      ...(singleLine
+        ? [
+            EditorState.transactionFilter.of(tr =>
+              tr.newDoc.lines > 1
+                ? [
+                    tr,
+                    {
+                      changes: {
+                        from: 0,
+                        to: tr.newDoc.length,
+                        insert: tr.newDoc.sliceString(0, undefined, ' '),
+                      },
+                      sequential: true,
+                    },
+                  ]
+                : [tr],
+            ),
+          ]
+        : []),
+      ...excelFormulaExtension(mode, queries, isDarkTheme),
+      EditorView.lineWrapping,
+      EditorView.editable.of(!disabled),
+    ],
+    [mode, queries, isDarkTheme, disabled, singleLine],
   );
 
-  const handleEditorDidMount = useCallback(
-    (editor: editor.IStandaloneCodeEditor, monaco: Monaco) => {
-      monacoRef.current = monaco;
-      editorRef.current = editor;
-      onEditorReady?.(editor, monaco);
-    },
-    [onEditorReady],
-  );
-
-  const defaultOptions: editor.IStandaloneEditorConstructionOptions = {
-    minimap: { enabled: false },
-    fontSize: 14,
-    lineNumbers: 'off',
-    glyphMargin: false,
-    folding: false,
-    lineDecorationsWidth: 0,
-    lineNumbersMinChars: 0,
-    renderLineHighlight: 'none',
-    scrollBeyondLastLine: false,
-    wordWrap: 'on',
-    overviewRulerLanes: 0,
-    hideCursorInOverviewRuler: true,
-    automaticLayout: true,
-    fixedOverflowWidgets: true,
-    readOnly: disabled,
-  };
-
-  const mergedOptions = {
-    ...defaultOptions,
-    ...editorOptions,
-  };
+  const codeMirrorTheme: ReactCodeMirrorProps['theme'] = isDarkTheme
+    ? 'dark'
+    : 'light';
 
   return (
-    <Editor
-      height={height}
-      defaultLanguage={languageId}
-      language={languageId}
+    <CodeMirror
       value={value}
-      onChange={newValue => onChange(newValue || '')}
-      beforeMount={handleEditorWillMount}
-      onMount={handleEditorDidMount}
-      theme={isDarkTheme ? 'excelFormulaDark' : 'excelFormulaLight'}
-      options={mergedOptions}
+      height={height}
+      theme={codeMirrorTheme}
+      extensions={extensions}
+      onChange={onChange}
+      editable={!disabled}
+      basicSetup={{
+        lineNumbers: showLineNumbers,
+        foldGutter: false,
+        highlightActiveLine: true,
+        highlightActiveLineGutter: false,
+      }}
+      style={{
+        fontSize: '14px',
+        border: 'none',
+      }}
     />
   );
 }

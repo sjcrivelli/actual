@@ -11,7 +11,7 @@ export IS_GENERIC_BROWSER=1
 export REACT_APP_BACKEND_WORKER_HASH=`ls "$ROOT"/../public/kcab/kcab.worker.*.js |  sed 's/.*kcab\.worker\.\(.*\)\.js/\1/'`
 export REACT_APP_PLUGIN_SERVICE_WORKER_HASH=`ls "$ROOT"/../service-worker/plugin-sw.*.js |  sed 's/.*plugin-sw\.\(.*\)\.js/\1/'`
 
-NODE_OPTIONS="--max-old-space-size=8192" yarn build
+yarn build
 
 rm -fr build-stats
 mkdir build-stats

@@ -43,11 +43,11 @@ export NODE_OPTIONS="--max-old-space-size=4096"
 
 yarn workspace plugins-service build
 yarn workspace loot-core build:node
-NODE_OPTIONS="--max-old-space-size=8192" yarn workspace @actual-app/web build --mode=desktop # electron specific build
+yarn workspace @actual-app/web build --mode=desktop # electron specific build
 
 # required for running the sync-server server
 yarn workspace loot-core build:browser
-NODE_OPTIONS="--max-old-space-size=8192" yarn workspace @actual-app/web build:browser
+yarn workspace @actual-app/web build:browser
 yarn workspace @actual-app/sync-server build
 
 yarn workspace desktop-electron update-client

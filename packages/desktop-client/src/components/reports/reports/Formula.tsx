@@ -6,15 +6,12 @@ import { Button } from '@actual-app/components/button';
 import { useResponsive } from '@actual-app/components/hooks/useResponsive';
 import { theme } from '@actual-app/components/theme';
 import { View } from '@actual-app/components/view';
-import { type Monaco } from '@monaco-editor/react';
-import { type editor } from 'monaco-editor';
 
 import { send } from 'loot-core/platform/client/fetch';
 import { type FormulaWidget } from 'loot-core/types/models';
 
 import { FormulaEditor } from './formula/FormulaEditor';
 import { QueryManager } from './formula/QueryManager';
-import { updateCompletionProvider } from './formula/registerExcelFormulaLanguage';
 
 import { EditablePageHeaderTitle } from '@desktop-client/components/EditablePageHeaderTitle';
 import { MobileBackButton } from '@desktop-client/components/mobile/MobileBackButton';
@@ -53,7 +50,6 @@ function FormulaInner({ widget }: FormulaInnerProps) {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { isNarrowWidth } = useResponsive();
-  const monacoRef = useRef<Monaco | null>(null);
 
   const queriesRef = useRef(widget?.meta?.queries || {});
   const [queriesVersion, setQueriesVersion] = useState(0);
@@ -73,9 +69,6 @@ function FormulaInner({ widget }: FormulaInnerProps) {
   const handleQueriesChange = useCallback(
     (newQueries: typeof queriesRef.current) => {
       queriesRef.current = newQueries;
-      if (monacoRef.current) {
-        updateCompletionProvider(monacoRef.current, 'query', newQueries);
-      }
       setQueriesVersion(v => v + 1);
     },
     [],
@@ -137,13 +130,6 @@ function FormulaInner({ widget }: FormulaInnerProps) {
       }),
     );
   }
-
-  const handleEditorReady = useCallback(
-    (editor: editor.IStandaloneCodeEditor, monaco: Monaco) => {
-      monacoRef.current = monaco;
-    },
-    [],
-  );
 
   const displayValue = useCallback(() => {
     if (isExecuting) return t('Calculating...');
@@ -260,12 +246,9 @@ function FormulaInner({ widget }: FormulaInnerProps) {
               value={formula}
               onChange={setFormula}
               mode="query"
-              onEditorReady={handleEditorReady}
-              editorOptions={{
-                padding: { top: 4, bottom: 4 },
-                lineDecorationsWidth: 4,
-                wrappingIndent: 'indent',
-              }}
+              queries={queriesRef.current}
+              singleLine={false}
+              showLineNumbers={true}
             />
           </View>
         </View>

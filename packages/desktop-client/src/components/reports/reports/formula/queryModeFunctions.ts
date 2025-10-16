@@ -1,908 +1,775 @@
-/* eslint-disable no-template-curly-in-string */
 import { t } from 'i18next';
-import { type languages } from 'monaco-editor';
 
-export const queryModeFunctions: Omit<languages.CompletionItem, 'range'>[] = [
-  // Math and Trigonometry
-  {
-    label: 'SUM',
-    kind: 1,
-    insertText: 'SUM(${1:range})',
-    insertTextRules: 4,
-    documentation: t(
-      'Returns the sum of all numbers in a range.\n\nSyntax: SUM(Number1, Number2, ...NumberN)',
+export type FunctionDef = {
+  name: string;
+  description: string;
+  parameters: Array<{ name: string; description: string }>;
+};
+
+// Excel formula functions for CodeMirror (Query Mode) - Complete set
+export const queryModeFunctions: Record<string, FunctionDef> = {
+  // Math and Aggregation Functions
+  SUM: {
+    name: 'SUM',
+    description: t('Returns the sum of all numbers in a range.'),
+    parameters: [
+      { name: 'numbers', description: 'Number1, Number2, ...NumberN' },
+    ],
+  },
+  AVERAGE: {
+    name: 'AVERAGE',
+    description: t('Returns the average of all numbers in a range.'),
+    parameters: [
+      { name: 'numbers', description: 'Number1, Number2, ...NumberN' },
+    ],
+  },
+  AVERAGEA: {
+    name: 'AVERAGEA',
+    description: t('Returns the average, including text and logical values.'),
+    parameters: [{ name: 'values', description: 'Value1, Value2, ...ValueN' }],
+  },
+  COUNT: {
+    name: 'COUNT',
+    description: t('Counts the number of numeric values.'),
+    parameters: [{ name: 'values', description: 'Value1, Value2, ...ValueN' }],
+  },
+  COUNTA: {
+    name: 'COUNTA',
+    description: t('Counts non-empty values.'),
+    parameters: [{ name: 'values', description: 'Value1, Value2, ...ValueN' }],
+  },
+  COUNTBLANK: {
+    name: 'COUNTBLANK',
+    description: t('Counts empty cells.'),
+    parameters: [{ name: 'range', description: 'Range' }],
+  },
+  COUNTIF: {
+    name: 'COUNTIF',
+    description: t('Counts cells that meet a criteria.'),
+    parameters: [
+      { name: 'range', description: 'Range' },
+      { name: 'criteria', description: 'Criteria' },
+    ],
+  },
+  COUNTIFS: {
+    name: 'COUNTIFS',
+    description: t('Counts cells that meet multiple criteria.'),
+    parameters: [
+      { name: 'range1', description: 'Range1' },
+      { name: 'criteria1', description: 'Criteria1' },
+    ],
+  },
+  MAX: {
+    name: 'MAX',
+    description: t('Returns the maximum value.'),
+    parameters: [
+      { name: 'numbers', description: 'Number1, Number2, ...NumberN' },
+    ],
+  },
+  MAXA: {
+    name: 'MAXA',
+    description: t(
+      'Returns the maximum value, including text and logical values.',
     ),
+    parameters: [{ name: 'values', description: 'Value1, Value2, ...ValueN' }],
   },
-  {
-    label: 'AVERAGE',
-    kind: 1,
-    insertText: 'AVERAGE(${1:range})',
-    insertTextRules: 4,
-    documentation: t(
-      'Returns the average of all numbers in a range.\n\nSyntax: AVERAGE(Number1, Number2, ...NumberN)',
+  MIN: {
+    name: 'MIN',
+    description: t('Returns the minimum value.'),
+    parameters: [
+      { name: 'numbers', description: 'Number1, Number2, ...NumberN' },
+    ],
+  },
+  MINA: {
+    name: 'MINA',
+    description: t(
+      'Returns the minimum value, including text and logical values.',
     ),
+    parameters: [{ name: 'values', description: 'Value1, Value2, ...ValueN' }],
   },
-  {
-    label: 'AVERAGEA',
-    kind: 1,
-    insertText: 'AVERAGEA(${1:range})',
-    insertTextRules: 4,
-    documentation: t(
-      'Returns the average, including text and logical values.\n\nSyntax: AVERAGEA(Value1, Value2, ...ValueN)',
-    ),
+  ABS: {
+    name: 'ABS',
+    description: t('Returns the absolute value of a number.'),
+    parameters: [{ name: 'number', description: 'Number' }],
   },
-  {
-    label: 'COUNT',
-    kind: 1,
-    insertText: 'COUNT(${1:range})',
-    insertTextRules: 4,
-    documentation: t(
-      'Counts the number of numeric values.\n\nSyntax: COUNT(Value1, Value2, ...ValueN)',
-    ),
+  ROUND: {
+    name: 'ROUND',
+    description: t('Rounds a number to specified decimals.'),
+    parameters: [
+      { name: 'number', description: 'Number' },
+      { name: 'decimals', description: 'Decimals' },
+    ],
   },
-  {
-    label: 'COUNTA',
-    kind: 1,
-    insertText: 'COUNTA(${1:range})',
-    insertTextRules: 4,
-    documentation: t(
-      'Counts non-empty values.\n\nSyntax: COUNTA(Value1, Value2, ...ValueN)',
-    ),
+  ROUNDDOWN: {
+    name: 'ROUNDDOWN',
+    description: t('Rounds down to specified decimals.'),
+    parameters: [
+      { name: 'number', description: 'Number' },
+      { name: 'decimals', description: 'Decimals' },
+    ],
   },
-  {
-    label: 'COUNTBLANK',
-    kind: 1,
-    insertText: 'COUNTBLANK(${1:range})',
-    insertTextRules: 4,
-    documentation: t('Counts empty cells.\n\nSyntax: COUNTBLANK(Range)'),
+  ROUNDUP: {
+    name: 'ROUNDUP',
+    description: t('Rounds up to specified decimals.'),
+    parameters: [
+      { name: 'number', description: 'Number' },
+      { name: 'decimals', description: 'Decimals' },
+    ],
   },
-  {
-    label: 'COUNTIF',
-    kind: 1,
-    insertText: 'COUNTIF(${1:range}, ${2:criteria})',
-    insertTextRules: 4,
-    documentation: t(
-      'Counts cells that meet a criteria.\n\nSyntax: COUNTIF(Range, Criteria)',
-    ),
+  FLOOR: {
+    name: 'FLOOR',
+    description: t('Rounds down to nearest multiple of significance.'),
+    parameters: [
+      { name: 'number', description: 'Number' },
+      { name: 'significance', description: 'Significance' },
+    ],
   },
-  {
-    label: 'COUNTIFS',
-    kind: 1,
-    insertText: 'COUNTIFS(${1:range1}, ${2:criteria1})',
-    insertTextRules: 4,
-    documentation: t(
-      'Counts cells that meet multiple criteria.\n\nSyntax: COUNTIFS(Range1, Criteria1, Range2, Criteria2, ...)',
-    ),
+  CEILING: {
+    name: 'CEILING',
+    description: t('Rounds up to nearest multiple of significance.'),
+    parameters: [
+      { name: 'number', description: 'Number' },
+      { name: 'significance', description: 'Significance' },
+    ],
   },
-  {
-    label: 'MAX',
-    kind: 1,
-    insertText: 'MAX(${1:range})',
-    insertTextRules: 4,
-    documentation: t(
-      'Returns the maximum value.\n\nSyntax: MAX(Number1, Number2, ...NumberN)',
-    ),
+  POWER: {
+    name: 'POWER',
+    description: t('Returns base raised to the power of exponent.'),
+    parameters: [
+      { name: 'base', description: 'Base' },
+      { name: 'exponent', description: 'Exponent' },
+    ],
   },
-  {
-    label: 'MAXA',
-    kind: 1,
-    insertText: 'MAXA(${1:range})',
-    insertTextRules: 4,
-    documentation: t(
-      'Returns the maximum value, including text and logical values.\n\nSyntax: MAXA(Value1, Value2, ...ValueN)',
-    ),
+  SQRT: {
+    name: 'SQRT',
+    description: t('Returns the square root.'),
+    parameters: [{ name: 'number', description: 'Number' }],
   },
-  {
-    label: 'MIN',
-    kind: 1,
-    insertText: 'MIN(${1:range})',
-    insertTextRules: 4,
-    documentation: t(
-      'Returns the minimum value.\n\nSyntax: MIN(Number1, Number2, ...NumberN)',
-    ),
+  MOD: {
+    name: 'MOD',
+    description: t('Returns the remainder of division.'),
+    parameters: [
+      { name: 'dividend', description: 'Dividend' },
+      { name: 'divisor', description: 'Divisor' },
+    ],
   },
-  {
-    label: 'MINA',
-    kind: 1,
-    insertText: 'MINA(${1:range})',
-    insertTextRules: 4,
-    documentation: t(
-      'Returns the minimum value, including text and logical values.\n\nSyntax: MINA(Value1, Value2, ...ValueN)',
-    ),
+  PI: {
+    name: 'PI',
+    description: t('Returns the value of PI.'),
+    parameters: [],
   },
-  {
-    label: 'ABS',
-    kind: 1,
-    insertText: 'ABS(${1:number})',
-    insertTextRules: 4,
-    documentation: t(
-      'Returns the absolute value of a number.\n\nSyntax: ABS(Number)',
-    ),
+  SIN: {
+    name: 'SIN',
+    description: t('Returns the sine of an angle.'),
+    parameters: [{ name: 'angle', description: 'Angle' }],
   },
-  {
-    label: 'ROUND',
-    kind: 1,
-    insertText: 'ROUND(${1:number}, ${2:decimals})',
-    insertTextRules: 4,
-    documentation: t(
-      'Rounds a number to specified decimals.\n\nSyntax: ROUND(Number, Decimals)',
-    ),
+  COS: {
+    name: 'COS',
+    description: t('Returns the cosine of an angle.'),
+    parameters: [{ name: 'angle', description: 'Angle' }],
   },
-  {
-    label: 'ROUNDDOWN',
-    kind: 1,
-    insertText: 'ROUNDDOWN(${1:number}, ${2:decimals})',
-    insertTextRules: 4,
-    documentation: t(
-      'Rounds down to specified decimals.\n\nSyntax: ROUNDDOWN(Number, Decimals)',
-    ),
+  TAN: {
+    name: 'TAN',
+    description: t('Returns the tangent of an angle.'),
+    parameters: [{ name: 'angle', description: 'Angle' }],
   },
-  {
-    label: 'ROUNDUP',
-    kind: 1,
-    insertText: 'ROUNDUP(${1:number}, ${2:decimals})',
-    insertTextRules: 4,
-    documentation: t(
-      'Rounds up to specified decimals.\n\nSyntax: ROUNDUP(Number, Decimals)',
-    ),
+  LN: {
+    name: 'LN',
+    description: t('Returns the natural logarithm.'),
+    parameters: [{ name: 'number', description: 'Number' }],
   },
-  {
-    label: 'FLOOR',
-    kind: 1,
-    insertText: 'FLOOR(${1:number}, ${2:significance})',
-    insertTextRules: 4,
-    documentation: t(
-      'Rounds down to nearest multiple of significance.\n\nSyntax: FLOOR(Number, Significance)',
-    ),
+  LOG: {
+    name: 'LOG',
+    description: t('Returns the logarithm to specified base.'),
+    parameters: [
+      { name: 'number', description: 'Number' },
+      { name: 'base', description: 'Base' },
+    ],
   },
-  {
-    label: 'CEILING',
-    kind: 1,
-    insertText: 'CEILING(${1:number}, ${2:significance})',
-    insertTextRules: 4,
-    documentation: t(
-      'Rounds up to nearest multiple of significance.\n\nSyntax: CEILING(Number, Significance)',
-    ),
+  LOG10: {
+    name: 'LOG10',
+    description: t('Returns the base-10 logarithm.'),
+    parameters: [{ name: 'number', description: 'Number' }],
   },
-  {
-    label: 'POWER',
-    kind: 1,
-    insertText: 'POWER(${1:base}, ${2:exponent})',
-    insertTextRules: 4,
-    documentation: t(
-      'Returns base raised to the power of exponent.\n\nSyntax: POWER(Base, Exponent)',
-    ),
+  EXP: {
+    name: 'EXP',
+    description: t('Returns e raised to the power of number.'),
+    parameters: [{ name: 'number', description: 'Number' }],
   },
-  {
-    label: 'SQRT',
-    kind: 1,
-    insertText: 'SQRT(${1:number})',
-    insertTextRules: 4,
-    documentation: t('Returns the square root.\n\nSyntax: SQRT(Number)'),
+  PRODUCT: {
+    name: 'PRODUCT',
+    description: t('Returns the product of all numbers.'),
+    parameters: [
+      { name: 'numbers', description: 'Number1, Number2, ...NumberN' },
+    ],
   },
-  {
-    label: 'MOD',
-    kind: 1,
-    insertText: 'MOD(${1:dividend}, ${2:divisor})',
-    insertTextRules: 4,
-    documentation: t(
-      'Returns the remainder of division.\n\nSyntax: MOD(Dividend, Divisor)',
-    ),
+  SUMIF: {
+    name: 'SUMIF',
+    description: t('Sums cells that meet a criteria.'),
+    parameters: [
+      { name: 'range', description: 'Range' },
+      { name: 'criteria', description: 'Criteria' },
+      { name: 'sum_range', description: 'SumRange' },
+    ],
   },
-  {
-    label: 'PI',
-    kind: 1,
-    insertText: 'PI()',
-    insertTextRules: 4,
-    documentation: t('Returns the value of PI.\n\nSyntax: PI()'),
+  SUMIFS: {
+    name: 'SUMIFS',
+    description: t('Sums cells that meet multiple criteria.'),
+    parameters: [
+      { name: 'sum_range', description: 'SumRange' },
+      { name: 'range1', description: 'Range1' },
+      { name: 'criteria1', description: 'Criteria1' },
+    ],
   },
-  {
-    label: 'SIN',
-    kind: 1,
-    insertText: 'SIN(${1:angle})',
-    insertTextRules: 4,
-    documentation: t('Returns the sine of an angle.\n\nSyntax: SIN(Angle)'),
+  SUMPRODUCT: {
+    name: 'SUMPRODUCT',
+    description: t('Multiplies corresponding elements and returns the sum.'),
+    parameters: [
+      { name: 'array1', description: 'Array1' },
+      { name: 'array2', description: 'Array2' },
+    ],
   },
-  {
-    label: 'COS',
-    kind: 1,
-    insertText: 'COS(${1:angle})',
-    insertTextRules: 4,
-    documentation: t('Returns the cosine of an angle.\n\nSyntax: COS(Angle)'),
-  },
-  {
-    label: 'TAN',
-    kind: 1,
-    insertText: 'TAN(${1:angle})',
-    insertTextRules: 4,
-    documentation: t('Returns the tangent of an angle.\n\nSyntax: TAN(Angle)'),
-  },
-  {
-    label: 'LN',
-    kind: 1,
-    insertText: 'LN(${1:number})',
-    insertTextRules: 4,
-    documentation: t('Returns the natural logarithm.\n\nSyntax: LN(Number)'),
-  },
-  {
-    label: 'LOG',
-    kind: 1,
-    insertText: 'LOG(${1:number}, ${2:base})',
-    insertTextRules: 4,
-    documentation: t(
-      'Returns the logarithm to specified base.\n\nSyntax: LOG(Number, Base)',
-    ),
-  },
-  {
-    label: 'LOG10',
-    kind: 1,
-    insertText: 'LOG10(${1:number})',
-    insertTextRules: 4,
-    documentation: t('Returns the base-10 logarithm.\n\nSyntax: LOG10(Number)'),
-  },
-  {
-    label: 'EXP',
-    kind: 1,
-    insertText: 'EXP(${1:number})',
-    insertTextRules: 4,
-    documentation: t(
-      'Returns e raised to the power of number.\n\nSyntax: EXP(Number)',
-    ),
-  },
-  {
-    label: 'PRODUCT',
-    kind: 1,
-    insertText: 'PRODUCT(${1:range})',
-    insertTextRules: 4,
-    documentation: t(
-      'Returns the product of all numbers.\n\nSyntax: PRODUCT(Number1, Number2, ...NumberN)',
-    ),
-  },
-  {
-    label: 'SUMIF',
-    kind: 1,
-    insertText: 'SUMIF(${1:range}, ${2:criteria}, ${3:sum_range})',
-    insertTextRules: 4,
-    documentation: t(
-      'Sums cells that meet a criteria.\n\nSyntax: SUMIF(Range, Criteria, SumRange)',
-    ),
-  },
-  {
-    label: 'SUMIFS',
-    kind: 1,
-    insertText: 'SUMIFS(${1:sum_range}, ${2:range1}, ${3:criteria1})',
-    insertTextRules: 4,
-    documentation: t(
-      'Sums cells that meet multiple criteria.\n\nSyntax: SUMIFS(SumRange, Range1, Criteria1, ...)',
-    ),
-  },
-  {
-    label: 'SUMPRODUCT',
-    kind: 1,
-    insertText: 'SUMPRODUCT(${1:array1}, ${2:array2})',
-    insertTextRules: 4,
-    documentation: t(
-      'Multiplies corresponding elements and returns the sum.\n\nSyntax: SUMPRODUCT(Array1, Array2, ...ArrayN)',
-    ),
-  },
-  {
-    label: 'SUMSQ',
-    kind: 1,
-    insertText: 'SUMSQ(${1:range})',
-    insertTextRules: 4,
-    documentation: t(
-      'Returns the sum of the squares.\n\nSyntax: SUMSQ(Number1, Number2, ...NumberN)',
-    ),
+  SUMSQ: {
+    name: 'SUMSQ',
+    description: t('Returns the sum of the squares.'),
+    parameters: [
+      { name: 'numbers', description: 'Number1, Number2, ...NumberN' },
+    ],
   },
 
   // Statistical Functions
-  {
-    label: 'MEDIAN',
-    kind: 1,
-    insertText: 'MEDIAN(${1:range})',
-    insertTextRules: 4,
-    documentation: t(
-      'Returns the median value.\n\nSyntax: MEDIAN(Number1, Number2, ...NumberN)',
-    ),
+  MEDIAN: {
+    name: 'MEDIAN',
+    description: t('Returns the median value.'),
+    parameters: [
+      { name: 'numbers', description: 'Number1, Number2, ...NumberN' },
+    ],
   },
-  {
-    label: 'MODE',
-    kind: 1,
-    insertText: 'MODE(${1:range})',
-    insertTextRules: 4,
-    documentation: t(
-      'Returns the most frequently occurring value.\n\nSyntax: MODE(Number1, Number2, ...NumberN)',
-    ),
+  MODE: {
+    name: 'MODE',
+    description: t('Returns the most frequently occurring value.'),
+    parameters: [
+      { name: 'numbers', description: 'Number1, Number2, ...NumberN' },
+    ],
   },
-  {
-    label: 'STDEV',
-    kind: 1,
-    insertText: 'STDEV(${1:range})',
-    insertTextRules: 4,
-    documentation: t(
-      'Returns the standard deviation of a sample.\n\nSyntax: STDEV(Number1, Number2, ...NumberN)',
-    ),
+  STDEV: {
+    name: 'STDEV',
+    description: t('Returns the standard deviation of a sample.'),
+    parameters: [
+      { name: 'numbers', description: 'Number1, Number2, ...NumberN' },
+    ],
   },
-  {
-    label: 'STDEVP',
-    kind: 1,
-    insertText: 'STDEVP(${1:range})',
-    insertTextRules: 4,
-    documentation: t(
-      'Returns the standard deviation of a population.\n\nSyntax: STDEVP(Number1, Number2, ...NumberN)',
-    ),
+  STDEVP: {
+    name: 'STDEVP',
+    description: t('Returns the standard deviation of a population.'),
+    parameters: [
+      { name: 'numbers', description: 'Number1, Number2, ...NumberN' },
+    ],
   },
-  {
-    label: 'VAR',
-    kind: 1,
-    insertText: 'VAR(${1:range})',
-    insertTextRules: 4,
-    documentation: t(
-      'Returns the variance of a sample.\n\nSyntax: VAR(Value1, Value2, ...ValueN)',
-    ),
+  VAR: {
+    name: 'VAR',
+    description: t('Returns the variance of a sample.'),
+    parameters: [{ name: 'values', description: 'Value1, Value2, ...ValueN' }],
   },
-  {
-    label: 'VARP',
-    kind: 1,
-    insertText: 'VARP(${1:range})',
-    insertTextRules: 4,
-    documentation: t(
-      'Returns the variance of a population.\n\nSyntax: VARP(Value1, Value2, ...ValueN)',
-    ),
+  VARP: {
+    name: 'VARP',
+    description: t('Returns the variance of a population.'),
+    parameters: [{ name: 'values', description: 'Value1, Value2, ...ValueN' }],
   },
-  {
-    label: 'PERCENTILE',
-    kind: 1,
-    insertText: 'PERCENTILE(${1:range}, ${2:k})',
-    insertTextRules: 4,
-    documentation: t(
-      'Returns the k-th percentile.\n\nSyntax: PERCENTILE(Array, K)',
-    ),
+  PERCENTILE: {
+    name: 'PERCENTILE',
+    description: t('Returns the k-th percentile.'),
+    parameters: [
+      { name: 'array', description: 'Array' },
+      { name: 'k', description: 'K' },
+    ],
   },
-  {
-    label: 'QUARTILE',
-    kind: 1,
-    insertText: 'QUARTILE(${1:range}, ${2:quart})',
-    insertTextRules: 4,
-    documentation: t(
-      'Returns the quartile of a dataset.\n\nSyntax: QUARTILE(Array, Quart)',
-    ),
+  QUARTILE: {
+    name: 'QUARTILE',
+    description: t('Returns the quartile of a dataset.'),
+    parameters: [
+      { name: 'array', description: 'Array' },
+      { name: 'quart', description: 'Quart' },
+    ],
   },
-  {
-    label: 'RANK',
-    kind: 1,
-    insertText: 'RANK(${1:value}, ${2:array}, ${3:order})',
-    insertTextRules: 4,
-    documentation: t(
-      'Returns the rank of a number in a list.\n\nSyntax: RANK(Value, Array, Order)',
-    ),
+  RANK: {
+    name: 'RANK',
+    description: t('Returns the rank of a number in a list.'),
+    parameters: [
+      { name: 'value', description: 'Value' },
+      { name: 'array', description: 'Array' },
+      { name: 'order', description: 'Order' },
+    ],
   },
 
   // Logical Functions
-  {
-    label: 'IF',
-    kind: 1,
-    insertText: 'IF(${1:condition}, ${2:value_if_true}, ${3:value_if_false})',
-    insertTextRules: 4,
-    documentation: t(
-      'Returns one value if condition is TRUE, another if FALSE.\n\nSyntax: IF(Condition, ValueIfTrue, ValueIfFalse)',
+  IF: {
+    name: 'IF',
+    description: t('Returns one value if condition is TRUE, another if FALSE.'),
+    parameters: [
+      { name: 'condition', description: 'Condition' },
+      { name: 'value_if_true', description: 'ValueIfTrue' },
+      { name: 'value_if_false', description: 'ValueIfFalse' },
+    ],
+  },
+  IFS: {
+    name: 'IFS',
+    description: t(
+      'Checks multiple conditions and returns corresponding values.',
     ),
+    parameters: [
+      { name: 'condition1', description: 'Condition1' },
+      { name: 'value1', description: 'Value1' },
+    ],
   },
-  {
-    label: 'IFS',
-    kind: 1,
-    insertText:
-      'IFS(${1:condition1}, ${2:value1}, ${3:condition2}, ${4:value2})',
-    insertTextRules: 4,
-    documentation: t(
-      'Checks multiple conditions and returns corresponding values.\n\nSyntax: IFS(Condition1, Value1, Condition2, Value2, ...)',
+  AND: {
+    name: 'AND',
+    description: t('Returns TRUE if all arguments are TRUE.'),
+    parameters: [
+      {
+        name: 'conditions',
+        description: 'Condition1, Condition2, ...ConditionN',
+      },
+    ],
+  },
+  OR: {
+    name: 'OR',
+    description: t('Returns TRUE if any argument is TRUE.'),
+    parameters: [
+      {
+        name: 'conditions',
+        description: 'Condition1, Condition2, ...ConditionN',
+      },
+    ],
+  },
+  XOR: {
+    name: 'XOR',
+    description: t('Returns TRUE if odd number of arguments are TRUE.'),
+    parameters: [
+      {
+        name: 'conditions',
+        description: 'Condition1, Condition2, ...ConditionN',
+      },
+    ],
+  },
+  NOT: {
+    name: 'NOT',
+    description: t('Reverses the logical value.'),
+    parameters: [{ name: 'condition', description: 'Condition' }],
+  },
+  TRUE: {
+    name: 'TRUE',
+    description: t('Returns the logical value TRUE.'),
+    parameters: [],
+  },
+  FALSE: {
+    name: 'FALSE',
+    description: t('Returns the logical value FALSE.'),
+    parameters: [],
+  },
+  IFERROR: {
+    name: 'IFERROR',
+    description: t('Returns value if no error, otherwise returns alternative.'),
+    parameters: [
+      { name: 'value', description: 'Value' },
+      { name: 'value_if_error', description: 'ValueIfError' },
+    ],
+  },
+  IFNA: {
+    name: 'IFNA',
+    description: t(
+      'Returns value if not #N/A error, otherwise returns alternative.',
     ),
+    parameters: [
+      { name: 'value', description: 'Value' },
+      { name: 'value_if_na', description: 'ValueIfNA' },
+    ],
   },
-  {
-    label: 'AND',
-    kind: 1,
-    insertText: 'AND(${1:condition1}, ${2:condition2})',
-    insertTextRules: 4,
-    documentation: t(
-      'Returns TRUE if all arguments are TRUE.\n\nSyntax: AND(Condition1, Condition2, ...ConditionN)',
+  SWITCH: {
+    name: 'SWITCH',
+    description: t(
+      'Matches expression against values and returns corresponding result.',
     ),
-  },
-  {
-    label: 'OR',
-    kind: 1,
-    insertText: 'OR(${1:condition1}, ${2:condition2})',
-    insertTextRules: 4,
-    documentation: t(
-      'Returns TRUE if any argument is TRUE.\n\nSyntax: OR(Condition1, Condition2, ...ConditionN)',
-    ),
-  },
-  {
-    label: 'XOR',
-    kind: 1,
-    insertText: 'XOR(${1:condition1}, ${2:condition2})',
-    insertTextRules: 4,
-    documentation: t(
-      'Returns TRUE if odd number of arguments are TRUE.\n\nSyntax: XOR(Condition1, Condition2, ...ConditionN)',
-    ),
-  },
-  {
-    label: 'NOT',
-    kind: 1,
-    insertText: 'NOT(${1:condition})',
-    insertTextRules: 4,
-    documentation: t('Reverses the logical value.\n\nSyntax: NOT(Condition)'),
-  },
-  {
-    label: 'TRUE',
-    kind: 1,
-    insertText: 'TRUE()',
-    insertTextRules: 4,
-    documentation: t('Returns the logical value TRUE.\n\nSyntax: TRUE()'),
-  },
-  {
-    label: 'FALSE',
-    kind: 1,
-    insertText: 'FALSE()',
-    insertTextRules: 4,
-    documentation: t('Returns the logical value FALSE.\n\nSyntax: FALSE()'),
-  },
-  {
-    label: 'IFERROR',
-    kind: 1,
-    insertText: 'IFERROR(${1:value}, ${2:value_if_error})',
-    insertTextRules: 4,
-    documentation: t(
-      'Returns value if no error, otherwise returns alternative.\n\nSyntax: IFERROR(Value, ValueIfError)',
-    ),
-  },
-  {
-    label: 'IFNA',
-    kind: 1,
-    insertText: 'IFNA(${1:value}, ${2:value_if_na})',
-    insertTextRules: 4,
-    documentation: t(
-      'Returns value if not #N/A error, otherwise returns alternative.\n\nSyntax: IFNA(Value, ValueIfNA)',
-    ),
-  },
-  {
-    label: 'SWITCH',
-    kind: 1,
-    insertText: 'SWITCH(${1:expression}, ${2:value1}, ${3:result1})',
-    insertTextRules: 4,
-    documentation: t(
-      'Matches expression against values and returns corresponding result.\n\nSyntax: SWITCH(Expression, Value1, Result1, ...)',
-    ),
+    parameters: [
+      { name: 'expression', description: 'Expression' },
+      { name: 'value1', description: 'Value1' },
+      { name: 'result1', description: 'Result1' },
+    ],
   },
 
   // Text Functions
-  {
-    label: 'CONCATENATE',
-    kind: 1,
-    insertText: 'CONCATENATE(${1:text1}, ${2:text2})',
-    insertTextRules: 4,
-    documentation: t(
-      'Combines several text strings into one.\n\nSyntax: CONCATENATE(“Text1”, “Text2”, ...“TextN”)\n\nNote: You can also use the & operator.',
+  CONCATENATE: {
+    name: 'CONCATENATE',
+    description: t('Combines several text strings into one.'),
+    parameters: [{ name: 'texts', description: 'Text1, Text2, ...TextN' }],
+  },
+  UPPER: {
+    name: 'UPPER',
+    description: t('Converts text to uppercase.'),
+    parameters: [{ name: 'text', description: 'Text' }],
+  },
+  LOWER: {
+    name: 'LOWER',
+    description: t('Converts text to lowercase.'),
+    parameters: [{ name: 'text', description: 'Text' }],
+  },
+  PROPER: {
+    name: 'PROPER',
+    description: t('Capitalizes first letter of each word.'),
+    parameters: [{ name: 'text', description: 'Text' }],
+  },
+  LEFT: {
+    name: 'LEFT',
+    description: t('Returns leftmost characters from text.'),
+    parameters: [
+      { name: 'text', description: 'Text' },
+      { name: 'num_chars', description: 'Number' },
+    ],
+  },
+  RIGHT: {
+    name: 'RIGHT',
+    description: t('Returns rightmost characters from text.'),
+    parameters: [
+      { name: 'text', description: 'Text' },
+      { name: 'num_chars', description: 'Number' },
+    ],
+  },
+  MID: {
+    name: 'MID',
+    description: t('Returns substring from specified position.'),
+    parameters: [
+      { name: 'text', description: 'Text' },
+      { name: 'start_pos', description: 'Start_position' },
+      { name: 'length', description: 'Length' },
+    ],
+  },
+  LEN: {
+    name: 'LEN',
+    description: t('Returns length of text.'),
+    parameters: [{ name: 'text', description: 'Text' }],
+  },
+  TRIM: {
+    name: 'TRIM',
+    description: t('Removes extra spaces from text.'),
+    parameters: [{ name: 'text', description: 'Text' }],
+  },
+  SUBSTITUTE: {
+    name: 'SUBSTITUTE',
+    description: t('Replaces occurrences of text.'),
+    parameters: [
+      { name: 'text', description: 'Text' },
+      { name: 'old_text', description: 'Old_text' },
+      { name: 'new_text', description: 'New_text' },
+    ],
+  },
+  REPLACE: {
+    name: 'REPLACE',
+    description: t('Replaces substring at specified position.'),
+    parameters: [
+      { name: 'text', description: 'Text' },
+      { name: 'start_pos', description: 'Start_position' },
+      { name: 'length', description: 'Length' },
+      { name: 'new_text', description: 'New_text' },
+    ],
+  },
+  FIND: {
+    name: 'FIND',
+    description: t('Finds text within text (case-sensitive).'),
+    parameters: [
+      { name: 'find_text', description: 'Text1' },
+      { name: 'within_text', description: 'Text2' },
+    ],
+  },
+  SEARCH: {
+    name: 'SEARCH',
+    description: t(
+      'Finds text within text (case-insensitive, supports wildcards).',
     ),
+    parameters: [
+      { name: 'search_text', description: 'Search_string' },
+      { name: 'text', description: 'Text' },
+    ],
   },
-  {
-    label: 'UPPER',
-    kind: 1,
-    insertText: 'UPPER(${1:text})',
-    insertTextRules: 4,
-    documentation: t('Converts text to uppercase.\n\nSyntax: UPPER(Text)'),
+  TEXT: {
+    name: 'TEXT',
+    description: t('Converts number to text with format.'),
+    parameters: [
+      { name: 'value', description: 'Number' },
+      { name: 'format', description: 'Format' },
+    ],
   },
-  {
-    label: 'LOWER',
-    kind: 1,
-    insertText: 'LOWER(${1:text})',
-    insertTextRules: 4,
-    documentation: t('Converts text to lowercase.\n\nSyntax: LOWER(Text)'),
+  REPT: {
+    name: 'REPT',
+    description: t('Repeats text specified number of times.'),
+    parameters: [
+      { name: 'text', description: 'Text' },
+      { name: 'number', description: 'Number' },
+    ],
   },
-  {
-    label: 'PROPER',
-    kind: 1,
-    insertText: 'PROPER(${1:text})',
-    insertTextRules: 4,
-    documentation: t(
-      'Capitalizes first letter of each word.\n\nSyntax: PROPER(“Text”)',
-    ),
+  CHAR: {
+    name: 'CHAR',
+    description: t('Converts number to character.'),
+    parameters: [{ name: 'number', description: 'Number' }],
   },
-  {
-    label: 'LEFT',
-    kind: 1,
-    insertText: 'LEFT(${1:text}, ${2:num_chars})',
-    insertTextRules: 4,
-    documentation: t(
-      'Returns leftmost characters from text.\n\nSyntax: LEFT(“Text”, Number)',
-    ),
+  CODE: {
+    name: 'CODE',
+    description: t('Returns numeric code for first character.'),
+    parameters: [{ name: 'text', description: 'Text' }],
   },
-  {
-    label: 'RIGHT',
-    kind: 1,
-    insertText: 'RIGHT(${1:text}, ${2:num_chars})',
-    insertTextRules: 4,
-    documentation: t(
-      'Returns rightmost characters from text.\n\nSyntax: RIGHT(“Text”, Number)',
-    ),
-  },
-  {
-    label: 'MID',
-    kind: 1,
-    insertText: 'MID(${1:text}, ${2:start_pos}, ${3:length})',
-    insertTextRules: 4,
-    documentation: t(
-      'Returns substring from specified position.\n\nSyntax: MID(Text, Start_position, Length)',
-    ),
-  },
-  {
-    label: 'LEN',
-    kind: 1,
-    insertText: 'LEN(${1:text})',
-    insertTextRules: 4,
-    documentation: t('Returns length of text.\n\nSyntax: LEN(“Text”)'),
-  },
-  {
-    label: 'TRIM',
-    kind: 1,
-    insertText: 'TRIM(${1:text})',
-    insertTextRules: 4,
-    documentation: t('Removes extra spaces from text.\n\nSyntax: TRIM(“Text”)'),
-  },
-  {
-    label: 'SUBSTITUTE',
-    kind: 1,
-    insertText: 'SUBSTITUTE(${1:text}, ${2:old_text}, ${3:new_text})',
-    insertTextRules: 4,
-    documentation: t(
-      'Replaces occurrences of text.\n\nSyntax: SUBSTITUTE(Text, Old_text, New_text, [Occurrence])',
-    ),
-  },
-  {
-    label: 'REPLACE',
-    kind: 1,
-    insertText:
-      'REPLACE(${1:text}, ${2:start_pos}, ${3:length}, ${4:new_text})',
-    insertTextRules: 4,
-    documentation: t(
-      'Replaces substring at specified position.\n\nSyntax: REPLACE(Text, Start_position, Length, New_text)',
-    ),
-  },
-  {
-    label: 'FIND',
-    kind: 1,
-    insertText: 'FIND(${1:find_text}, ${2:within_text})',
-    insertTextRules: 4,
-    documentation: t(
-      'Finds text within text (case-sensitive).\n\nSyntax: FIND(“Text1”, “Text2”[, Number])',
-    ),
-  },
-  {
-    label: 'SEARCH',
-    kind: 1,
-    insertText: 'SEARCH(${1:search_text}, ${2:text})',
-    insertTextRules: 4,
-    documentation: t(
-      'Finds text within text (case-insensitive, supports wildcards).\n\nSyntax: SEARCH(Search_string, Text[, Start_position])',
-    ),
-  },
-  {
-    label: 'TEXT',
-    kind: 1,
-    insertText: 'TEXT(${1:value}, ${2:format})',
-    insertTextRules: 4,
-    documentation: t(
-      'Converts number to text with format.\n\nSyntax: TEXT(Number, Format)',
-    ),
-  },
-  {
-    label: 'REPT',
-    kind: 1,
-    insertText: 'REPT(${1:text}, ${2:number})',
-    insertTextRules: 4,
-    documentation: t(
-      'Repeats text specified number of times.\n\nSyntax: REPT(“Text”, Number)',
-    ),
-  },
-  {
-    label: 'CHAR',
-    kind: 1,
-    insertText: 'CHAR(${1:number})',
-    insertTextRules: 4,
-    documentation: t('Converts number to character.\n\nSyntax: CHAR(Number)'),
-  },
-  {
-    label: 'CODE',
-    kind: 1,
-    insertText: 'CODE(${1:text})',
-    insertTextRules: 4,
-    documentation: t(
-      'Returns numeric code for first character.\n\nSyntax: CODE(“Text”)',
-    ),
-  },
-  {
-    label: 'EXACT',
-    kind: 1,
-    insertText: 'EXACT(${1:text1}, ${2:text2})',
-    insertTextRules: 4,
-    documentation: t(
-      'Returns TRUE if texts are exactly the same.\n\nSyntax: EXACT(Text, Text)',
-    ),
+  EXACT: {
+    name: 'EXACT',
+    description: t('Returns TRUE if texts are exactly the same.'),
+    parameters: [
+      { name: 'text1', description: 'Text' },
+      { name: 'text2', description: 'Text' },
+    ],
   },
 
   // Date and Time Functions
-  {
-    label: 'DATE',
-    kind: 1,
-    insertText: 'DATE(${1:year}, ${2:month}, ${3:day})',
-    insertTextRules: 4,
-    documentation: t(
-      'Returns date as number of days since null date.\n\nSyntax: DATE(Year, Month, Day)',
-    ),
+  DATE: {
+    name: 'DATE',
+    description: t('Returns date as number of days since null date.'),
+    parameters: [
+      { name: 'year', description: 'Year' },
+      { name: 'month', description: 'Month' },
+      { name: 'day', description: 'Day' },
+    ],
   },
-  {
-    label: 'TODAY',
-    kind: 1,
-    insertText: 'TODAY()',
-    insertTextRules: 4,
-    documentation: t('Returns current date.\n\nSyntax: TODAY()'),
+  TODAY: {
+    name: 'TODAY',
+    description: t('Returns current date.'),
+    parameters: [],
   },
-  {
-    label: 'NOW',
-    kind: 1,
-    insertText: 'NOW()',
-    insertTextRules: 4,
-    documentation: t('Returns current date and time.\n\nSyntax: NOW()'),
+  NOW: {
+    name: 'NOW',
+    description: t('Returns current date and time.'),
+    parameters: [],
   },
-  {
-    label: 'YEAR',
-    kind: 1,
-    insertText: 'YEAR(${1:date})',
-    insertTextRules: 4,
-    documentation: t('Returns the year from a date.\n\nSyntax: YEAR(Number)'),
+  YEAR: {
+    name: 'YEAR',
+    description: t('Returns the year from a date.'),
+    parameters: [{ name: 'date', description: 'Number' }],
   },
-  {
-    label: 'MONTH',
-    kind: 1,
-    insertText: 'MONTH(${1:date})',
-    insertTextRules: 4,
-    documentation: t('Returns the month from a date.\n\nSyntax: MONTH(Number)'),
+  MONTH: {
+    name: 'MONTH',
+    description: t('Returns the month from a date.'),
+    parameters: [{ name: 'date', description: 'Number' }],
   },
-  {
-    label: 'DAY',
-    kind: 1,
-    insertText: 'DAY(${1:date})',
-    insertTextRules: 4,
-    documentation: t('Returns the day from a date.\n\nSyntax: DAY(Number)'),
+  DAY: {
+    name: 'DAY',
+    description: t('Returns the day from a date.'),
+    parameters: [{ name: 'date', description: 'Number' }],
   },
-  {
-    label: 'WEEKDAY',
-    kind: 1,
-    insertText: 'WEEKDAY(${1:date}, ${2:type})',
-    insertTextRules: 4,
-    documentation: t(
-      'Returns day of week (1-7).\n\nSyntax: WEEKDAY(Date, Type)',
-    ),
+  WEEKDAY: {
+    name: 'WEEKDAY',
+    description: t('Returns day of week (1-7).'),
+    parameters: [
+      { name: 'date', description: 'Date' },
+      { name: 'type', description: 'Type' },
+    ],
   },
-  {
-    label: 'EDATE',
-    kind: 1,
-    insertText: 'EDATE(${1:start_date}, ${2:months})',
-    insertTextRules: 4,
-    documentation: t(
-      'Returns date shifted by specified months.\n\nSyntax: EDATE(Startdate, Months)',
-    ),
+  EDATE: {
+    name: 'EDATE',
+    description: t('Returns date shifted by specified months.'),
+    parameters: [
+      { name: 'start_date', description: 'Startdate' },
+      { name: 'months', description: 'Months' },
+    ],
   },
-  {
-    label: 'EOMONTH',
-    kind: 1,
-    insertText: 'EOMONTH(${1:start_date}, ${2:months})',
-    insertTextRules: 4,
-    documentation: t(
-      'Returns last day of month after specified months.\n\nSyntax: EOMONTH(Startdate, Months)',
-    ),
+  EOMONTH: {
+    name: 'EOMONTH',
+    description: t('Returns last day of month after specified months.'),
+    parameters: [
+      { name: 'start_date', description: 'Startdate' },
+      { name: 'months', description: 'Months' },
+    ],
   },
-  {
-    label: 'DAYS',
-    kind: 1,
-    insertText: 'DAYS(${1:end_date}, ${2:start_date})',
-    insertTextRules: 4,
-    documentation: t(
-      'Calculates difference between dates in days.\n\nSyntax: DAYS(Date2, Date1)',
-    ),
+  DAYS: {
+    name: 'DAYS',
+    description: t('Calculates difference between dates in days.'),
+    parameters: [
+      { name: 'end_date', description: 'Date2' },
+      { name: 'start_date', description: 'Date1' },
+    ],
   },
-  {
-    label: 'DATEDIF',
-    kind: 1,
-    insertText: 'DATEDIF(${1:start_date}, ${2:end_date}, “${3:D}”)',
-    insertTextRules: 4,
-    documentation: t(
-      'Calculates distance between dates.\n\nUnits: “D” (days), “M” (months), “Y” (years), “MD”, “YM”, “YD”\n\nSyntax: DATEDIF(Date1, Date2, Unit)',
-    ),
+  DATEDIF: {
+    name: 'DATEDIF',
+    description: t('Calculates distance between dates.'),
+    parameters: [
+      { name: 'start_date', description: 'Date1' },
+      { name: 'end_date', description: 'Date2' },
+      { name: 'unit', description: 'Unit' },
+    ],
   },
-  {
-    label: 'NETWORKDAYS',
-    kind: 1,
-    insertText: 'NETWORKDAYS(${1:start_date}, ${2:end_date})',
-    insertTextRules: 4,
-    documentation: t(
-      'Returns number of working days between dates.\n\nSyntax: NETWORKDAYS(Date1, Date2[, Holidays])',
-    ),
+  NETWORKDAYS: {
+    name: 'NETWORKDAYS',
+    description: t('Returns number of working days between dates.'),
+    parameters: [
+      { name: 'start_date', description: 'Date1' },
+      { name: 'end_date', description: 'Date2' },
+    ],
   },
-  {
-    label: 'WEEKNUM',
-    kind: 1,
-    insertText: 'WEEKNUM(${1:date}, ${2:type})',
-    insertTextRules: 4,
-    documentation: t(
-      'Returns week number of year.\n\nSyntax: WEEKNUM(Date, Type)',
-    ),
+  WEEKNUM: {
+    name: 'WEEKNUM',
+    description: t('Returns week number of year.'),
+    parameters: [
+      { name: 'date', description: 'Date' },
+      { name: 'type', description: 'Type' },
+    ],
   },
 
   // Lookup and Reference
-  {
-    label: 'VLOOKUP',
-    kind: 1,
-    insertText:
-      'VLOOKUP(${1:lookup_value}, ${2:table_array}, ${3:col_index}, ${4:FALSE})',
-    insertTextRules: 4,
-    documentation: t(
-      'Searches vertically in first column and returns value.\n\nSyntax: VLOOKUP(LookupValue, TableArray, ColIndex, RangeLookup)',
-    ),
+  VLOOKUP: {
+    name: 'VLOOKUP',
+    description: t('Searches vertically in first column and returns value.'),
+    parameters: [
+      { name: 'lookup_value', description: 'LookupValue' },
+      { name: 'table_array', description: 'TableArray' },
+      { name: 'col_index', description: 'ColIndex' },
+      { name: 'range_lookup', description: 'RangeLookup' },
+    ],
   },
-  {
-    label: 'HLOOKUP',
-    kind: 1,
-    insertText:
-      'HLOOKUP(${1:lookup_value}, ${2:table_array}, ${3:row_index}, ${4:FALSE})',
-    insertTextRules: 4,
-    documentation: t(
-      'Searches horizontally in first row and returns value.\n\nSyntax: HLOOKUP(LookupValue, TableArray, RowIndex, RangeLookup)',
-    ),
+  HLOOKUP: {
+    name: 'HLOOKUP',
+    description: t('Searches horizontally in first row and returns value.'),
+    parameters: [
+      { name: 'lookup_value', description: 'LookupValue' },
+      { name: 'table_array', description: 'TableArray' },
+      { name: 'row_index', description: 'RowIndex' },
+      { name: 'range_lookup', description: 'RangeLookup' },
+    ],
   },
-  {
-    label: 'INDEX',
-    kind: 1,
-    insertText: 'INDEX(${1:array}, ${2:row}, ${3:column})',
-    insertTextRules: 4,
-    documentation: t(
-      'Returns value at specified row and column.\n\nSyntax: INDEX(Array, Row, Column)',
-    ),
+  INDEX: {
+    name: 'INDEX',
+    description: t('Returns value at specified row and column.'),
+    parameters: [
+      { name: 'array', description: 'Array' },
+      { name: 'row', description: 'Row' },
+      { name: 'column', description: 'Column' },
+    ],
   },
-  {
-    label: 'MATCH',
-    kind: 1,
-    insertText: 'MATCH(${1:lookup_value}, ${2:lookup_array}, ${3:0})',
-    insertTextRules: 4,
-    documentation: t(
-      'Returns position of value in array.\n\nSyntax: MATCH(LookupValue, LookupArray, MatchType)',
-    ),
+  MATCH: {
+    name: 'MATCH',
+    description: t('Returns position of value in array.'),
+    parameters: [
+      { name: 'lookup_value', description: 'LookupValue' },
+      { name: 'lookup_array', description: 'LookupArray' },
+      { name: 'match_type', description: 'MatchType' },
+    ],
   },
-  {
-    label: 'CHOOSE',
-    kind: 1,
-    insertText: 'CHOOSE(${1:index}, ${2:value1}, ${3:value2})',
-    insertTextRules: 4,
-    documentation: t(
-      'Returns value from list based on index.\n\nSyntax: CHOOSE(Index, Value1, Value2, ...ValueN)',
-    ),
+  CHOOSE: {
+    name: 'CHOOSE',
+    description: t('Returns value from list based on index.'),
+    parameters: [
+      { name: 'index', description: 'Index' },
+      { name: 'value1', description: 'Value1' },
+      { name: 'value2', description: 'Value2' },
+    ],
+  },
+  LOOKUP: {
+    name: 'LOOKUP',
+    description: t('Looks up values in a vector or array.'),
+    parameters: [
+      { name: 'lookup_value', description: 'LookupValue' },
+      { name: 'lookup_vector', description: 'LookupVector' },
+    ],
   },
 
   // Information Functions
-  {
-    label: 'ISBLANK',
-    kind: 1,
-    insertText: 'ISBLANK(${1:value})',
-    insertTextRules: 4,
-    documentation: t(
-      'Returns TRUE if value is blank.\n\nSyntax: ISBLANK(Value)',
-    ),
+  ISBLANK: {
+    name: 'ISBLANK',
+    description: t('Returns TRUE if value is blank.'),
+    parameters: [{ name: 'value', description: 'Value' }],
   },
-  {
-    label: 'ISERROR',
-    kind: 1,
-    insertText: 'ISERROR(${1:value})',
-    insertTextRules: 4,
-    documentation: t(
-      'Returns TRUE if value is any error.\n\nSyntax: ISERROR(Value)',
-    ),
+  ISERROR: {
+    name: 'ISERROR',
+    description: t('Returns TRUE if value is any error.'),
+    parameters: [{ name: 'value', description: 'Value' }],
   },
-  {
-    label: 'ISNA',
-    kind: 1,
-    insertText: 'ISNA(${1:value})',
-    insertTextRules: 4,
-    documentation: t(
-      'Returns TRUE if value is #N/A error.\n\nSyntax: ISNA(Value)',
-    ),
+  ISNA: {
+    name: 'ISNA',
+    description: t('Returns TRUE if value is #N/A error.'),
+    parameters: [{ name: 'value', description: 'Value' }],
   },
-  {
-    label: 'ISNUMBER',
-    kind: 1,
-    insertText: 'ISNUMBER(${1:value})',
-    insertTextRules: 4,
-    documentation: t(
-      'Returns TRUE if value is a number.\n\nSyntax: ISNUMBER(Value)',
-    ),
+  ISNUMBER: {
+    name: 'ISNUMBER',
+    description: t('Returns TRUE if value is a number.'),
+    parameters: [{ name: 'value', description: 'Value' }],
   },
-  {
-    label: 'ISTEXT',
-    kind: 1,
-    insertText: 'ISTEXT(${1:value})',
-    insertTextRules: 4,
-    documentation: t('Returns TRUE if value is text.\n\nSyntax: ISTEXT(Value)'),
+  ISTEXT: {
+    name: 'ISTEXT',
+    description: t('Returns TRUE if value is text.'),
+    parameters: [{ name: 'value', description: 'Value' }],
   },
-  {
-    label: 'ISLOGICAL',
-    kind: 1,
-    insertText: 'ISLOGICAL(${1:value})',
-    insertTextRules: 4,
-    documentation: t(
-      'Returns TRUE if value is logical (TRUE/FALSE).\n\nSyntax: ISLOGICAL(Value)',
-    ),
+  ISLOGICAL: {
+    name: 'ISLOGICAL',
+    description: t('Returns TRUE if value is logical (TRUE/FALSE).'),
+    parameters: [{ name: 'value', description: 'Value' }],
   },
-  {
-    label: 'ISREF',
-    kind: 1,
-    insertText: 'ISREF(${1:value})',
-    insertTextRules: 4,
-    documentation: t(
-      'Returns TRUE if value is a reference.\n\nSyntax: ISREF(Value)',
-    ),
+  ISREF: {
+    name: 'ISREF',
+    description: t('Returns TRUE if value is a reference.'),
+    parameters: [{ name: 'value', description: 'Value' }],
   },
 
   // Financial Functions
-  {
-    label: 'PMT',
-    kind: 1,
-    insertText: 'PMT(${1:rate}, ${2:nper}, ${3:pv})',
-    insertTextRules: 4,
-    documentation: t(
-      'Calculates payment for a loan.\n\nSyntax: PMT(Rate, Nper, PV, FV, Type)',
-    ),
+  PMT: {
+    name: 'PMT',
+    description: t('Calculates payment for a loan.'),
+    parameters: [
+      { name: 'rate', description: 'Rate' },
+      { name: 'nper', description: 'Nper' },
+      { name: 'pv', description: 'PV' },
+    ],
   },
-  {
-    label: 'FV',
-    kind: 1,
-    insertText: 'FV(${1:rate}, ${2:nper}, ${3:pmt})',
-    insertTextRules: 4,
-    documentation: t(
-      'Calculates future value of investment.\n\nSyntax: FV(Rate, Nper, PMT, PV, Type)',
-    ),
+  FV: {
+    name: 'FV',
+    description: t('Calculates future value of investment.'),
+    parameters: [
+      { name: 'rate', description: 'Rate' },
+      { name: 'nper', description: 'Nper' },
+      { name: 'pmt', description: 'PMT' },
+    ],
   },
-  {
-    label: 'PV',
-    kind: 1,
-    insertText: 'PV(${1:rate}, ${2:nper}, ${3:pmt})',
-    insertTextRules: 4,
-    documentation: t(
-      'Calculates present value of investment.\n\nSyntax: PV(Rate, Nper, PMT, FV, Type)',
-    ),
+  PV: {
+    name: 'PV',
+    description: t('Calculates present value of investment.'),
+    parameters: [
+      { name: 'rate', description: 'Rate' },
+      { name: 'nper', description: 'Nper' },
+      { name: 'pmt', description: 'PMT' },
+    ],
   },
-  {
-    label: 'NPV',
-    kind: 1,
-    insertText: 'NPV(${1:rate}, ${2:value1}, ${3:value2})',
-    insertTextRules: 4,
-    documentation: t(
-      'Calculates net present value.\n\nSyntax: NPV(Rate, Value1, Value2, ...ValueN)',
-    ),
+  NPV: {
+    name: 'NPV',
+    description: t('Calculates net present value.'),
+    parameters: [
+      { name: 'rate', description: 'Rate' },
+      { name: 'value1', description: 'Value1' },
+      { name: 'value2', description: 'Value2' },
+    ],
   },
-  {
-    label: 'IRR',
-    kind: 1,
-    insertText: 'IRR(${1:values})',
-    insertTextRules: 4,
-    documentation: t(
-      'Calculates internal rate of return.\n\nSyntax: IRR(Values, Guess)',
-    ),
+  IRR: {
+    name: 'IRR',
+    description: t('Calculates internal rate of return.'),
+    parameters: [{ name: 'values', description: 'Values' }],
   },
-  {
-    label: 'RATE',
-    kind: 1,
-    insertText: 'RATE(${1:nper}, ${2:pmt}, ${3:pv})',
-    insertTextRules: 4,
-    documentation: t(
-      'Calculates interest rate per period.\n\nSyntax: RATE(Nper, PMT, PV, FV, Type, Guess)',
-    ),
+  RATE: {
+    name: 'RATE',
+    description: t('Calculates interest rate per period.'),
+    parameters: [
+      { name: 'nper', description: 'Nper' },
+      { name: 'pmt', description: 'PMT' },
+      { name: 'pv', description: 'PV' },
+    ],
   },
-];
+
+  // Query-specific
+  QUERY: {
+    name: 'QUERY',
+    description: t('Execute a query and return the result.'),
+    parameters: [
+      { name: 'queryName', description: 'Name of the query to execute' },
+    ],
+  },
+};

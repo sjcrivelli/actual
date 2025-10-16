@@ -579,7 +579,7 @@ function ActionEditor({
                       textAlign: 'center',
                     }}
                   >
-                    ƒ
+                    abc
                   </span>
                 ) : templated ? (
                   <SvgCode
@@ -594,7 +594,7 @@ function ActionEditor({
                       textAlign: 'center',
                     }}
                   >
-                    abc
+                    ƒ
                   </span>
                 )}
               </Button>
