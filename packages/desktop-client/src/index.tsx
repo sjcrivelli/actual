@@ -7,6 +7,8 @@ import './fonts.scss';
 
 import './i18n';
 
+import './monaco-config';
+
 import React from 'react';
 import { Provider } from 'react-redux';
 
