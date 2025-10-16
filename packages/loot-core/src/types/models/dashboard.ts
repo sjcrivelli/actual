@@ -74,7 +74,8 @@ type SpecializedWidget =
   | SpendingWidget
   | MarkdownWidget
   | SummaryWidget
-  | CalendarWidget;
+  | CalendarWidget
+  | FormulaWidget;
 export type Widget = SpecializedWidget | CustomReportWidget;
 export type NewWidget = Omit<Widget, 'id' | 'tombstone'>;
 
@@ -131,5 +132,23 @@ export type CalendarWidget = AbstractWidget<
     conditions?: RuleConditionEntity[];
     conditionsOp?: 'and' | 'or';
     timeFrame?: TimeFrame;
+  } | null
+>;
+
+export type FormulaWidget = AbstractWidget<
+  'formula-card',
+  {
+    name?: string;
+    formula?: string;
+    fontSize?: number;
+    queriesVersion?: number;
+    queries?: Record<
+      string,
+      {
+        conditions?: RuleConditionEntity[];
+        conditionsOp?: 'and' | 'or';
+        timeFrame?: TimeFrame;
+      }
+    >;
   } | null
 >;

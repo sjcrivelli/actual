@@ -132,6 +132,7 @@ __metadata:
     "@emotion/css": "npm:^11.13.5"
     "@fontsource/redacted-script": "npm:^5.2.8"
     "@juggle/resize-observer": "npm:^3.4.0"
+    "@monaco-editor/react": "npm:^4.7.0"
     "@playwright/test": "npm:1.56.0"
     "@rollup/plugin-inject": "npm:^5.0.5"
     "@swc/core": "npm:^1.13.5"
@@ -155,6 +156,7 @@ __metadata:
     cross-env: "npm:^10.1.0"
     date-fns: "npm:^4.1.0"
     downshift: "npm:9.0.10"
+    hyperformula: "npm:^3.1.0"
     i18next: "npm:^25.5.3"
     i18next-parser: "npm:^9.3.0"
     i18next-resources-to-backend: "npm:^1.2.1"
@@ -164,6 +166,7 @@ __metadata:
     loot-core: "workspace:*"
     mdast-util-newline-to-break: "npm:^2.0.0"
     memoize-one: "npm:^6.0.0"
+    monaco-editor: "npm:^0.54.0"
     pikaday: "npm:1.8.2"
     promise-retry: "npm:^2.0.1"
     prop-types: "npm:^15.8.1"
@@ -2424,6 +2427,28 @@ __metadata:
     lodash: "npm:^4.17.15"
     tmp-promise: "npm:^3.0.2"
   checksum: 10/14e04215bcc3dc4cafe8343893ab869f69ad768272563cbb39e7d2e876dc5e03dde9f0c1b0506308a4d90d945871491b05b77c26521b2b4b38245aeed8085d3b
+  languageName: node
+  linkType: hard
+
+"@monaco-editor/loader@npm:^1.5.0":
+  version: 1.6.1
+  resolution: "@monaco-editor/loader@npm:1.6.1"
+  dependencies:
+    state-local: "npm:^1.0.6"
+  checksum: 10/16e2bc752cf5826805be268b86fd313a7a6f6d19fc6e1254cc66c87c643c753142cea940e8d2e086a9d67c323700d3d1c1cbf51fd51b37a30f787fc41afab405
+  languageName: node
+  linkType: hard
+
+"@monaco-editor/react@npm:^4.7.0":
+  version: 4.7.0
+  resolution: "@monaco-editor/react@npm:4.7.0"
+  dependencies:
+    "@monaco-editor/loader": "npm:^1.5.0"
+  peerDependencies:
+    monaco-editor: ">= 0.25.0 < 1"
+    react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
+    react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
+  checksum: 10/d72392c4ed6faf8d830ba43421461e1b767b5978edba0739457d7781aa9533c66982be7f59bb156a77a2b578eddfb4711f50e0d84f0f0d25d28b5ab11140f5cc
   languageName: node
   linkType: hard
 
@@ -8225,6 +8250,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"chevrotain@npm:^6.5.0":
+  version: 6.5.0
+  resolution: "chevrotain@npm:6.5.0"
+  dependencies:
+    regexp-to-ast: "npm:0.4.0"
+  checksum: 10/e98f7cc12bea6732246a0a2c25028bc076d5ed7dda470403599c595e5eece5d60fe808a7cdb187b938ad3364c308c03f9eb603e2743871c861db497186776efb
+  languageName: node
+  linkType: hard
+
 "chokidar@npm:^3.5.2, chokidar@npm:^3.5.3":
   version: 3.6.0
   resolution: "chokidar@npm:3.6.0"
@@ -9599,6 +9633,13 @@ __metadata:
   dependencies:
     domelementtype: "npm:^2.3.0"
   checksum: 10/809b805a50a9c6884a29f38aec0a4e1b4537f40e1c861950ed47d10b049febe6b79ab72adaeeebb3cc8fc1cd33f34e97048a72a9265103426d93efafa78d3e96
+  languageName: node
+  linkType: hard
+
+"dompurify@npm:3.1.7":
+  version: 3.1.7
+  resolution: "dompurify@npm:3.1.7"
+  checksum: 10/dc637a064306f83cf911caa267ffe1f973552047602020e3b6723c90f67962813edf8a65a0b62e8c9bc13fcd173a2691212a3719bc116226967f46bcd6181277
   languageName: node
   linkType: hard
 
@@ -11966,6 +12007,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"hyperformula@npm:^3.1.0":
+  version: 3.1.0
+  resolution: "hyperformula@npm:3.1.0"
+  dependencies:
+    chevrotain: "npm:^6.5.0"
+    tiny-emitter: "npm:^2.1.0"
+  checksum: 10/d0c03ae7398a2fe3717b07194402df327b7ae9d9c09678f422a68dce2a4a90e29c4d3e3ba3776928a7ab64cbcfee3e13e8c6972b6cfe7b0a68189e39a4e3071a
+  languageName: node
+  linkType: hard
+
 "i18next-parser@npm:^9.3.0":
   version: 9.3.0
   resolution: "i18next-parser@npm:9.3.0"
@@ -13661,6 +13712,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"marked@npm:14.0.0":
+  version: 14.0.0
+  resolution: "marked@npm:14.0.0"
+  bin:
+    marked: bin/marked.js
+  checksum: 10/5f69e58e177bde75fb6145127c939c096d05494c5dff92d73af8a550097d6631c82e919f8a375e3743379a2623418151086b925a902a2be123590b887716f2bb
+  languageName: node
+  linkType: hard
+
 "matcher-collection@npm:^2.0.0":
   version: 2.0.1
   resolution: "matcher-collection@npm:2.0.1"
@@ -14666,6 +14726,16 @@ __metadata:
   version: 3.0.5
   resolution: "mockdate@npm:3.0.5"
   checksum: 10/ff74f43f56a12e1339e838aee623e37b6e4c378173905697f2a006a5c581eea9c71da54fcea76c27e7e744422e49395c668932bf09e67f024841240ffef91fd2
+  languageName: node
+  linkType: hard
+
+"monaco-editor@npm:^0.54.0":
+  version: 0.54.0
+  resolution: "monaco-editor@npm:0.54.0"
+  dependencies:
+    dompurify: "npm:3.1.7"
+    marked: "npm:14.0.0"
+  checksum: 10/654aa19e8ed859627f8c545026e41955fd015eeac4a26330a5176b955e0afbcd590bbfba06fa9f22fa1bc97d7a33100059e26c754f9541b64d753379a6396711
   languageName: node
   linkType: hard
 
@@ -16743,6 +16813,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"regexp-to-ast@npm:0.4.0":
+  version: 0.4.0
+  resolution: "regexp-to-ast@npm:0.4.0"
+  checksum: 10/381f57fa4d056056a50d7bc1365ece93434e1eea87bd3d60144ef6fd85bc4875410757908000c06fbe99ef9554c930c9890e695292b8e49756dfc0762890e777
+  languageName: node
+  linkType: hard
+
 "regexp.prototype.flags@npm:^1.5.1, regexp.prototype.flags@npm:^1.5.3, regexp.prototype.flags@npm:^1.5.4":
   version: 1.5.4
   resolution: "regexp.prototype.flags@npm:1.5.4"
@@ -17930,6 +18007,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"state-local@npm:^1.0.6":
+  version: 1.0.7
+  resolution: "state-local@npm:1.0.7"
+  checksum: 10/1d956043e270861d40a639ff3457938cf61dbc7e25209d21b55060d8dfaf74742b8a1e525ed6fcb0c2d89b7d3e305bb8589bf27392012889456b3ad82a4b7d0a
+  languageName: node
+  linkType: hard
+
 "statuses@npm:2.0.1":
   version: 2.0.1
   resolution: "statuses@npm:2.0.1"
@@ -18561,6 +18645,13 @@ __metadata:
   dependencies:
     semver: "npm:^5.5.0"
   checksum: 10/d51630522317b82355afa32b79ac3a02bcc29ef81e8045a95a2e4dfa736525bf4bcba1394abfb4169188fe42e3a9d9e4b378367f46daeb6b4b945d7cb727f860
+  languageName: node
+  linkType: hard
+
+"tiny-emitter@npm:^2.1.0":
+  version: 2.1.0
+  resolution: "tiny-emitter@npm:2.1.0"
+  checksum: 10/75633f4de4f47f43af56aff6162f25b87be7efc6f669fda256658f3c3f4a216f23dc0d13200c6fafaaf1b0c7142f0201352fb06aec0b77f68aea96be898f4516
   languageName: node
   linkType: hard
 

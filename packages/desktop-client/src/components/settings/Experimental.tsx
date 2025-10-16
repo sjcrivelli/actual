@@ -152,6 +152,9 @@ export function ExperimentalFeatures() {
             >
               <Trans>Rule action templating</Trans>
             </FeatureToggle>
+            <FeatureToggle flag="formulaMode">
+              <Trans>Excel formula mode (Formula cards & Rule formulas)</Trans>
+            </FeatureToggle>
             <FeatureToggle
               flag="currency"
               feedbackLink="https://github.com/actualbudget/actual/issues/5191"

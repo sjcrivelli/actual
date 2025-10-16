@@ -1,0 +1,102 @@
+import React, { type Ref, useRef, useState } from 'react';
+
+import { theme } from '@actual-app/components/theme';
+import { View } from '@actual-app/components/view';
+import debounce from 'lodash/debounce';
+
+import { chartTheme } from './chart-theme';
+import { LoadingIndicator } from './LoadingIndicator';
+
+import { PrivacyFilter } from '@desktop-client/components/PrivacyFilter';
+import { useMergedRefs } from '@desktop-client/hooks/useMergedRefs';
+import { useResizeObserver } from '@desktop-client/hooks/useResizeObserver';
+
+const FONT_SIZE_SCALE_FACTOR = 1.6;
+const CONTAINER_MARGIN = 8;
+
+type FormulaResultProps = {
+  value: number | string | null;
+  animate?: boolean;
+  loading?: boolean;
+  error?: string | null;
+  initialFontSize?: number;
+  fontSizeChanged?: (fontSize: number) => void;
+};
+
+export function FormulaResult({
+  value,
+  animate = false,
+  loading = true,
+  error = null,
+  initialFontSize = 14,
+  fontSizeChanged,
+}: FormulaResultProps) {
+  const [fontSize, setFontSize] = useState<number>(initialFontSize);
+  const refDiv = useRef<HTMLDivElement>(null);
+
+  // Format the display value - just show what we got
+  let displayValue: string;
+  if (error) {
+    displayValue = error;
+  } else if (value === null || value === undefined) {
+    displayValue = '';
+  } else {
+    displayValue = String(value);
+  }
+
+  const handleResize = debounce(() => {
+    if (!refDiv.current) return;
+
+    const { clientWidth, clientHeight } = refDiv.current;
+    const width = clientWidth; // no margin required on left and right
+    const height = clientHeight - CONTAINER_MARGIN * 2; // account for margin top and bottom
+
+    const calculatedFontSize = Math.min(
+      (width * FONT_SIZE_SCALE_FACTOR) / displayValue.toString().length,
+      height, // Ensure the text fits vertically by using the height as the limiting factor
+    );
+
+    setFontSize(calculatedFontSize);
+
+    if (calculatedFontSize !== initialFontSize && fontSizeChanged) {
+      fontSizeChanged(calculatedFontSize);
+    }
+  }, 100);
+
+  const ref = useResizeObserver(handleResize);
+  const mergedRef = useMergedRefs(ref, refDiv);
+
+  // Determine color
+  const color = error ? chartTheme.colors.red : theme.pageText;
+
+  return (
+    <>
+      {loading && <LoadingIndicator />}
+      {!loading && (
+        <View
+          ref={mergedRef as Ref<HTMLDivElement>}
+          role="text"
+          aria-label={displayValue}
+          style={{
+            alignItems: 'center',
+            flexGrow: 1,
+            flexShrink: 1,
+            width: '100%',
+            height: '100%',
+            maxWidth: '100%',
+            fontSize,
+            lineHeight: 1,
+            margin: `${CONTAINER_MARGIN}px 0`,
+            justifyContent: 'center',
+            transition: animate ? 'font-size 0.3s ease' : '',
+            color,
+          }}
+        >
+          <span aria-hidden="true">
+            <PrivacyFilter>{displayValue}</PrivacyFilter>
+          </span>
+        </View>
+      )}
+    </>
+  );
+}
