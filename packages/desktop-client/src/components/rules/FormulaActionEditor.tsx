@@ -1,9 +1,13 @@
-import React from 'react';
+import React, { Suspense, lazy } from 'react';
 
 import { theme } from '@actual-app/components/theme';
 import { View } from '@actual-app/components/view';
 
-import { FormulaEditor } from '@desktop-client/components/reports/reports/formula/FormulaEditor';
+const FormulaEditor = lazy(() =>
+  import(
+    '@desktop-client/components/reports/reports/formula/FormulaEditor'
+  ).then(module => ({ default: module.FormulaEditor })),
+);
 
 type FormulaActionEditorProps = {
   value: string;
@@ -35,14 +39,16 @@ export function FormulaActionEditor({
         opacity: disabled ? 0.6 : 1,
       }}
     >
-      <FormulaEditor
-        value={value}
-        onChange={handleChange}
-        mode="transaction"
-        disabled={disabled}
-        singleLine={true}
-        showLineNumbers={false}
-      />
+      <Suspense fallback={<div style={{ height: 32 }} />}>
+        <FormulaEditor
+          value={value}
+          onChange={handleChange}
+          mode="transaction"
+          disabled={disabled}
+          singleLine={true}
+          showLineNumbers={false}
+        />
+      </Suspense>
     </View>
   );
 }

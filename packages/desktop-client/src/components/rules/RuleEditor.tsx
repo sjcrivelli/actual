@@ -529,24 +529,25 @@ function ActionEditor({
           />
 
           <View style={{ flex: 1 }}>
-            <View style={{ display: hasFormula ? 'flex' : 'none', flex: 1 }}>
-              <FormulaActionEditor
-                value={options?.formula || ''}
-                onChange={v => onChange('formula', v, { formula: true })}
-              />
-            </View>
-            <View style={{ display: hasFormula ? 'none' : 'flex', flex: 1 }}>
-              {/* @ts-expect-error fix this */}
-              <GenericInput
-                key={inputKey}
-                field={field}
-                type={templated ? 'string' : type}
-                op={op}
-                value={options?.template ?? value}
-                onChange={v => onChange('value', v)}
-                numberFormatType="currency"
-                inputStyle={{ height: 34 }}
-              />
+            <View style={{ flex: 1 }}>
+              {hasFormula ? (
+                <FormulaActionEditor
+                  value={options?.formula || ''}
+                  onChange={v => onChange('formula', v, { formula: true })}
+                />
+              ) : (
+                // @ts-expect-error fix this
+                <GenericInput
+                  key={inputKey}
+                  field={field}
+                  type={templated ? 'string' : type}
+                  op={op}
+                  value={options?.template ?? value}
+                  onChange={v => onChange('value', v)}
+                  numberFormatType="currency"
+                  inputStyle={{ height: 34 }}
+                />
+              )}
             </View>
           </View>
           {/*Due to that these fields have id's as value it is not helpful to have templating here*/}

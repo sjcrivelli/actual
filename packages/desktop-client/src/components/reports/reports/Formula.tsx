@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useRef, useCallback, Suspense, lazy } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import { useParams } from 'react-router';
 
@@ -10,7 +10,6 @@ import { View } from '@actual-app/components/view';
 import { send } from 'loot-core/platform/client/fetch';
 import { type FormulaWidget } from 'loot-core/types/models';
 
-import { FormulaEditor } from './formula/FormulaEditor';
 import { QueryManager } from './formula/QueryManager';
 
 import { EditablePageHeaderTitle } from '@desktop-client/components/EditablePageHeaderTitle';
@@ -26,6 +25,12 @@ import { useNavigate } from '@desktop-client/hooks/useNavigate';
 import { useWidget } from '@desktop-client/hooks/useWidget';
 import { addNotification } from '@desktop-client/notifications/notificationsSlice';
 import { useDispatch } from '@desktop-client/redux';
+
+const FormulaEditor = lazy(() =>
+  import('./formula/FormulaEditor').then(module => ({
+    default: module.FormulaEditor,
+  })),
+);
 
 export function Formula() {
   const params = useParams();
@@ -242,14 +247,16 @@ function FormulaInner({ widget }: FormulaInnerProps) {
               overflow: 'hidden',
             }}
           >
-            <FormulaEditor
-              value={formula}
-              onChange={setFormula}
-              mode="query"
-              queries={queriesRef.current}
-              singleLine={false}
-              showLineNumbers={true}
-            />
+            <Suspense fallback={<div style={{ padding: 10 }}>Loading...</div>}>
+              <FormulaEditor
+                value={formula}
+                onChange={setFormula}
+                mode="query"
+                queries={queriesRef.current}
+                singleLine={false}
+                showLineNumbers={true}
+              />
+            </Suspense>
           </View>
         </View>
 
