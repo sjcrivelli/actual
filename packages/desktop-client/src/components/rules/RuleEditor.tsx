@@ -1431,8 +1431,8 @@ export function RuleEditor({
                         <ActionEditor
                           action={action}
                           editorStyle={styles.editorPill}
-                          onChange={(name, value) =>
-                            onChangeAction(action, name, value)
+                          onChange={(name, value, extraOptions) =>
+                            onChangeAction(action, name, value, extraOptions)
                           }
                           onDelete={() => onRemoveAction(action)}
                           onAdd={() =>
