@@ -5,12 +5,15 @@ import { HyperFormula } from 'hyperformula';
 import { send } from 'loot-core/platform/client/fetch';
 import * as monthUtils from 'loot-core/shared/months';
 import { q } from 'loot-core/shared/query';
+import { integerToAmount } from 'loot-core/shared/util';
 import {
   type RuleConditionEntity,
   type TimeFrame,
 } from 'loot-core/types/models';
 
 import { useLocale } from './useLocale';
+
+import { getLiveRange } from '@desktop-client/components/reports/getLiveRange';
 
 type QueryConfig = {
   conditions?: RuleConditionEntity[];
@@ -66,7 +69,7 @@ export function useFormulaExecution(
           // For now, we'll use a simplified approach
           // In a real implementation, this would call a backend API
           const data = await fetchQueryData(queryConfig);
-          queryData[queryName] = data;
+          queryData[queryName] = integerToAmount(data, 2);
         }
 
         // Replace QUERY() calls with actual values in the formula
@@ -137,89 +140,24 @@ export function useFormulaExecution(
   return { result, isLoading, error };
 }
 
-// Helper function to calculate date range based on time frame mode
-function getDateRangeForMode(
-  mode: string,
-): { start: string; end: string } | null {
-  const today = monthUtils.currentDay();
-  const currentMonth = monthUtils.currentMonth();
-
+// Helper function to convert timeFrame mode to condition string for getLiveRange
+function timeFrameModeToCondition(mode: TimeFrame['mode']): string | null {
+  // Map timeFrame modes to ReportOptions condition strings
   switch (mode) {
     case 'full':
-      return null; // No date filtering
-
-    case 'thisMonth':
-      return {
-        start: monthUtils.firstDayOfMonth(currentMonth),
-        end: monthUtils.lastDayOfMonth(currentMonth),
-      };
-
-    case 'lastMonth': {
-      const lastMonth = monthUtils.subMonths(currentMonth, 1);
-      return {
-        start: monthUtils.firstDayOfMonth(lastMonth),
-        end: monthUtils.lastDayOfMonth(lastMonth),
-      };
-    }
-
-    case 'last3Months':
-      return {
-        start: monthUtils.firstDayOfMonth(
-          monthUtils.subMonths(currentMonth, 2),
-        ),
-        end: monthUtils.lastDayOfMonth(currentMonth),
-      };
-
-    case 'last6Months':
-      return {
-        start: monthUtils.firstDayOfMonth(
-          monthUtils.subMonths(currentMonth, 5),
-        ),
-        end: monthUtils.lastDayOfMonth(currentMonth),
-      };
-
-    case 'last12Months':
-      return {
-        start: monthUtils.firstDayOfMonth(
-          monthUtils.subMonths(currentMonth, 11),
-        ),
-        end: monthUtils.lastDayOfMonth(currentMonth),
-      };
-
-    case 'yearToDate': {
-      const year = parseInt(currentMonth.slice(0, 4));
-      const yearStart = `${year}-01`;
-      return {
-        start: monthUtils.firstDayOfMonth(yearStart),
-        end: today,
-      };
-    }
-
-    case 'lastYear': {
-      const year = parseInt(currentMonth.slice(0, 4)) - 1;
-      const yearStart = `${year}-01`;
-      const yearEnd = `${year}-12`;
-      return {
-        start: monthUtils.firstDayOfMonth(yearStart),
-        end: monthUtils.lastDayOfMonth(yearEnd),
-      };
-    }
-
-    case 'priorYearToDate': {
-      const year = parseInt(currentMonth.slice(0, 4)) - 1;
-      const yearStart = `${year}-01`;
-      const priorYearMonth = `${year}-${currentMonth.slice(5, 7)}`;
-      return {
-        start: monthUtils.firstDayOfMonth(yearStart),
-        end: monthUtils.lastDayOfMonth(priorYearMonth),
-      };
-    }
-
+      return 'All time';
+    case 'lastYear':
+      return 'Last year';
+    case 'yearToDate':
+      return 'Year to date';
+    case 'priorYearToDate':
+      return 'Prior year to date';
     case 'sliding-window':
-    case 'static':
-      // These require actual start/end dates in the timeFrame
+      // sliding-window requires actual start/end dates, not a condition
       return null;
-
+    case 'static':
+      // static mode uses manually set start/end dates, not a condition
+      return null;
     default:
       return null;
   }
@@ -247,14 +185,51 @@ async function fetchQueryData(config: QueryConfig): Promise<number> {
 
     // Add date range filter if provided
     if (timeFrame && timeFrame.mode) {
-      const dateRange = getDateRangeForMode(timeFrame.mode);
+      let startDate: string | undefined;
+      let endDate: string | undefined;
 
-      if (dateRange) {
+      if (
+        (timeFrame.mode === 'sliding-window' || timeFrame.mode === 'static') &&
+        timeFrame.start &&
+        timeFrame.end
+      ) {
+        // For sliding-window and static modes, use the actual start/end dates from timeFrame
+        startDate = timeFrame.start;
+        endDate = timeFrame.end;
+      } else {
+        // For other modes, use getLiveRange with the appropriate condition
+        const condition = timeFrameModeToCondition(timeFrame.mode);
+        if (condition) {
+          // Get earliest and latest transactions for getLiveRange
+          const earliestTransaction = await send('get-earliest-transaction');
+          const latestTransaction = await send('get-latest-transaction');
+
+          const earliestDate = earliestTransaction
+            ? earliestTransaction.date
+            : monthUtils.currentDay();
+          const latestDate = latestTransaction
+            ? latestTransaction.date
+            : monthUtils.currentDay();
+
+          const [calculatedStart, calculatedEnd] = getLiveRange(
+            condition,
+            earliestDate,
+            latestDate,
+            true, // includeCurrentInterval
+          );
+
+          startDate = calculatedStart;
+          endDate = calculatedEnd;
+        } else {
+          // No valid condition found, skip date filtering entirely
+          // Continue without adding date filter
+        }
+      }
+
+      // Apply the date filter only if we have valid dates
+      if (startDate && endDate) {
         transQuery = transQuery.filter({
-          $and: [
-            { date: { $gte: dateRange.start } },
-            { date: { $lte: dateRange.end } },
-          ],
+          $and: [{ date: { $gte: startDate } }, { date: { $lte: endDate } }],
         });
       }
     }

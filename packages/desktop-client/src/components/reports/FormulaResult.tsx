@@ -1,4 +1,11 @@
-import React, { type Ref, useRef, useState } from 'react';
+import React, {
+  type Ref,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 
 import { theme } from '@actual-app/components/theme';
 import { View } from '@actual-app/components/view';
@@ -33,38 +40,67 @@ export function FormulaResult({
 }: FormulaResultProps) {
   const [fontSize, setFontSize] = useState<number>(initialFontSize);
   const refDiv = useRef<HTMLDivElement>(null);
+  const previousFontSizeRef = useRef<number>(initialFontSize);
 
   // Format the display value - just show what we got
-  let displayValue: string;
-  if (error) {
-    displayValue = error;
-  } else if (value === null || value === undefined) {
-    displayValue = '';
-  } else {
-    displayValue = String(value);
-  }
+  const displayValue = useMemo(() => {
+    if (error) {
+      return error;
+    } else if (value === null || value === undefined) {
+      return '';
+    } else {
+      return String(value);
+    }
+  }, [error, value]);
 
-  const handleResize = debounce(() => {
+  const calculateFontSize = useCallback(() => {
     if (!refDiv.current) return;
 
     const { clientWidth, clientHeight } = refDiv.current;
     const width = clientWidth; // no margin required on left and right
     const height = clientHeight - CONTAINER_MARGIN * 2; // account for margin top and bottom
 
+    // Get the actual display value length at calculation time
+    const valueLength = displayValue.length || 1; // Avoid division by zero
+
     const calculatedFontSize = Math.min(
-      (width * FONT_SIZE_SCALE_FACTOR) / displayValue.toString().length,
+      (width * FONT_SIZE_SCALE_FACTOR) / valueLength,
       height, // Ensure the text fits vertically by using the height as the limiting factor
     );
 
     setFontSize(calculatedFontSize);
 
-    if (calculatedFontSize !== initialFontSize && fontSizeChanged) {
+    // Only call fontSizeChanged if the font size actually changed
+    if (
+      fontSizeChanged &&
+      Math.abs(calculatedFontSize - previousFontSizeRef.current) > 0.5
+    ) {
+      previousFontSizeRef.current = calculatedFontSize;
       fontSizeChanged(calculatedFontSize);
     }
-  }, 100);
+  }, [displayValue, fontSizeChanged]);
 
-  const ref = useResizeObserver(handleResize);
+  // Debounce the calculation to avoid too many recalculations
+  const debouncedCalculateFontSize = useRef(
+    debounce(() => {
+      calculateFontSize();
+    }, 100),
+  );
+
+  // Update the debounced function when calculateFontSize changes
+  useEffect(() => {
+    debouncedCalculateFontSize.current = debounce(() => {
+      calculateFontSize();
+    }, 100);
+  }, [calculateFontSize]);
+
+  const ref = useResizeObserver(() => debouncedCalculateFontSize.current());
   const mergedRef = useMergedRefs(ref, refDiv);
+
+  // Recalculate font size when displayValue changes (non-debounced for immediate update)
+  useEffect(() => {
+    calculateFontSize();
+  }, [displayValue, calculateFontSize]);
 
   // Determine color
   const color = error ? chartTheme.colors.red : theme.pageText;
