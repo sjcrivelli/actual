@@ -152,7 +152,10 @@ export function ExperimentalFeatures() {
             >
               <Trans>Rule action templating</Trans>
             </FeatureToggle>
-            <FeatureToggle flag="formulaMode">
+            <FeatureToggle
+              flag="formulaMode"
+              feedbackLink="https://github.com/actualbudget/actual/issues/5949"
+            >
               <Trans>Excel formula mode (Formula cards & Rule formulas)</Trans>
             </FeatureToggle>
             <FeatureToggle
@@ -164,7 +167,7 @@ export function ExperimentalFeatures() {
             <GlobalFeatureToggle
               prefName="plugins"
               disableToggle={true}
-              feedbackLink="https://github.com/actualbudget/actual/pull/4049"
+              feedbackLink="https://github.com/actualbudget/actual/issues/5950"
             >
               <Trans>Client-Side plugins (soon)</Trans>
             </GlobalFeatureToggle>
