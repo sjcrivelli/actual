@@ -28,6 +28,9 @@ type FormulaResultProps = {
   error?: string | null;
   initialFontSize?: number;
   fontSizeChanged?: (fontSize: number) => void;
+  fontSizeMode?: 'dynamic' | 'static';
+  staticFontSize?: number;
+  customColor?: string | null;
 };
 
 export function FormulaResult({
@@ -37,6 +40,9 @@ export function FormulaResult({
   error = null,
   initialFontSize = 14,
   fontSizeChanged,
+  fontSizeMode = 'dynamic',
+  staticFontSize = 32,
+  customColor = null,
 }: FormulaResultProps) {
   const [fontSize, setFontSize] = useState<number>(initialFontSize);
   const refDiv = useRef<HTMLDivElement>(null);
@@ -94,16 +100,34 @@ export function FormulaResult({
     }, 100);
   }, [calculateFontSize]);
 
-  const ref = useResizeObserver(() => debouncedCalculateFontSize.current());
+  const ref = useResizeObserver(() => {
+    if (fontSizeMode === 'dynamic') {
+      debouncedCalculateFontSize.current();
+    }
+  });
   const mergedRef = useMergedRefs(ref, refDiv);
 
   // Recalculate font size when displayValue changes (non-debounced for immediate update)
+  // Only for dynamic mode
   useEffect(() => {
-    calculateFontSize();
-  }, [displayValue, calculateFontSize]);
+    if (fontSizeMode === 'dynamic') {
+      calculateFontSize();
+    }
+  }, [displayValue, calculateFontSize, fontSizeMode]);
+
+  // Use static font size when in static mode
+  useEffect(() => {
+    if (fontSizeMode === 'static') {
+      setFontSize(staticFontSize);
+    }
+  }, [fontSizeMode, staticFontSize]);
 
   // Determine color
-  const color = error ? chartTheme.colors.red : theme.pageText;
+  const color = customColor
+    ? customColor
+    : error
+      ? chartTheme.colors.red
+      : theme.pageText;
 
   return (
     <>

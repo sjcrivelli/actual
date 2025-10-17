@@ -1,9 +1,18 @@
-import React, { useState, useRef, useCallback, Suspense, lazy } from 'react';
+import {
+  useState,
+  useRef,
+  useCallback,
+  Suspense,
+  lazy,
+  type ChangeEvent,
+} from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import { useParams } from 'react-router';
 
 import { Button } from '@actual-app/components/button';
 import { useResponsive } from '@actual-app/components/hooks/useResponsive';
+import { Input } from '@actual-app/components/input';
+import { Select } from '@actual-app/components/select';
 import { theme } from '@actual-app/components/theme';
 import { View } from '@actual-app/components/view';
 
@@ -19,9 +28,11 @@ import {
   Page,
   PageHeader,
 } from '@desktop-client/components/Page';
+import { FormulaResult } from '@desktop-client/components/reports/FormulaResult';
 import { LoadingIndicator } from '@desktop-client/components/reports/LoadingIndicator';
 import { useFormulaExecution } from '@desktop-client/hooks/useFormulaExecution';
 import { useNavigate } from '@desktop-client/hooks/useNavigate';
+import { useThemeColors } from '@desktop-client/hooks/useThemeColors';
 import { useWidget } from '@desktop-client/hooks/useWidget';
 import { addNotification } from '@desktop-client/notifications/notificationsSlice';
 import { useDispatch } from '@desktop-client/redux';
@@ -55,12 +66,23 @@ function FormulaInner({ widget }: FormulaInnerProps) {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { isNarrowWidth } = useResponsive();
+  const themeColors = useThemeColors();
 
   const queriesRef = useRef(widget?.meta?.queries || {});
   const [queriesVersion, setQueriesVersion] = useState(0);
 
   const [formula, setFormula] = useState(
     widget?.meta?.formula || '=SUM(1, 2, 3)',
+  );
+
+  const [fontSizeMode, setFontSizeMode] = useState<'dynamic' | 'static'>(
+    widget?.meta?.fontSizeMode || 'dynamic',
+  );
+  const [staticFontSize, setStaticFontSize] = useState<number>(
+    widget?.meta?.staticFontSize || 32,
+  );
+  const [colorFormula, setColorFormula] = useState(
+    widget?.meta?.colorFormula || '',
   );
 
   const title = widget?.meta?.name || t('Formula');
@@ -70,6 +92,23 @@ function FormulaInner({ widget }: FormulaInnerProps) {
     isLoading: isExecuting,
     error,
   } = useFormulaExecution(formula, queriesRef.current, queriesVersion);
+
+  // Execute color formula with access to main result via named expression
+  const { result: colorResult, error: colorError } = useFormulaExecution(
+    colorFormula,
+    queriesRef.current,
+    queriesVersion,
+    {
+      RESULT: result ?? 0,
+      ...Object.entries(themeColors).reduce(
+        (acc, [key, value]) => {
+          acc[`theme.${key}`] = value;
+          return acc;
+        },
+        {} as Record<string, string>,
+      ),
+    },
+  );
 
   const handleQueriesChange = useCallback(
     (newQueries: typeof queriesRef.current) => {
@@ -100,6 +139,9 @@ function FormulaInner({ widget }: FormulaInnerProps) {
         name,
         formula,
         queries: queriesRef.current,
+        fontSizeMode,
+        staticFontSize,
+        colorFormula,
       },
     });
   };
@@ -123,6 +165,9 @@ function FormulaInner({ widget }: FormulaInnerProps) {
         ...(widget.meta ?? {}),
         formula,
         queries: queriesRef.current,
+        fontSizeMode,
+        staticFontSize,
+        colorFormula,
       },
     });
 
@@ -136,21 +181,9 @@ function FormulaInner({ widget }: FormulaInnerProps) {
     );
   }
 
-  const displayValue = useCallback(() => {
-    if (isExecuting) return t('Calculating...');
-    if (error) return `${error}`;
-    if (result === null || result === undefined) return '0';
-
-    if (typeof result === 'number') {
-      return new Intl.NumberFormat('en-US', {
-        style: 'decimal',
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2,
-      }).format(result);
-    }
-
-    return String(result);
-  }, [result, isExecuting, error, t])();
+  // Determine the custom color from color formula result
+  const customColor =
+    colorFormula && !colorError && colorResult ? String(colorResult) : null;
 
   return (
     <Page
@@ -228,15 +261,21 @@ function FormulaInner({ widget }: FormulaInnerProps) {
             >
               <Trans>Result:</Trans>
             </div>
-            <div
+            <View
               style={{
-                fontSize: 32,
-                fontWeight: 600,
-                color: error ? theme.errorText : theme.pageText,
+                height: 120,
+                width: '100%',
               }}
             >
-              {displayValue}
-            </div>
+              <FormulaResult
+                value={result}
+                error={error}
+                loading={isExecuting}
+                fontSizeMode={fontSizeMode}
+                staticFontSize={staticFontSize}
+                customColor={customColor}
+              />
+            </View>
           </View>
 
           <View
@@ -247,6 +286,15 @@ function FormulaInner({ widget }: FormulaInnerProps) {
               overflow: 'hidden',
             }}
           >
+            <div
+              style={{
+                fontSize: 13,
+                color: theme.pageTextSubdued,
+                marginBottom: 5,
+              }}
+            >
+              <Trans>Formula:</Trans>
+            </div>
             <Suspense fallback={<div style={{ padding: 10 }}>Loading...</div>}>
               <FormulaEditor
                 value={formula}
@@ -257,6 +305,120 @@ function FormulaInner({ widget }: FormulaInnerProps) {
                 showLineNumbers={true}
               />
             </Suspense>
+          </View>
+
+          <View
+            style={{
+              padding: '0 20px 20px 20px',
+              display: 'flex',
+              flexDirection: 'row',
+              gap: 20,
+              alignItems: 'flex-end',
+            }}
+          >
+            <View>
+              <div
+                style={{
+                  fontSize: 13,
+                  color: theme.pageTextSubdued,
+                  marginBottom: 5,
+                }}
+              >
+                <Trans>Font size:</Trans>
+              </div>
+              <Select
+                value={fontSizeMode}
+                onChange={(value: 'dynamic' | 'static') =>
+                  setFontSizeMode(value)
+                }
+                options={[
+                  ['dynamic', t('Dynamic')],
+                  ['static', t('Static')],
+                ]}
+              />
+            </View>
+
+            {fontSizeMode === 'static' && (
+              <View>
+                <div
+                  style={{
+                    fontSize: 13,
+                    color: theme.pageTextSubdued,
+                    marginBottom: 5,
+                  }}
+                >
+                  <Trans>Font size (px):</Trans>
+                </div>
+                <Input
+                  type="number"
+                  value={String(staticFontSize)}
+                  onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                    setStaticFontSize(Number(e.target.value))
+                  }
+                  min="8"
+                  max="10"
+                />
+              </View>
+            )}
+          </View>
+
+          <View
+            style={{
+              padding: 20,
+              marginbottom: 20,
+            }}
+          >
+            <div
+              style={{
+                fontSize: 13,
+                color: theme.pageTextSubdued,
+                marginBottom: 5,
+              }}
+            >
+              <Trans>Conditional color (optional):</Trans>
+            </div>
+            <View
+              style={{
+                border: `1px solid ${theme.formInputBorder}`,
+                borderRadius: 4,
+                overflow: 'hidden',
+                backgroundColor: theme.tableBackground,
+              }}
+            >
+              <Suspense fallback={<div style={{ height: 32 }} />}>
+                <FormulaEditor
+                  value={colorFormula}
+                  variables={{
+                    RESULT: result ?? 0,
+                    ...Object.entries(themeColors).reduce(
+                      (acc, [key, value]) => {
+                        acc[`theme.${key}`] = value;
+                        return acc;
+                      },
+                      {} as Record<string, string>,
+                    ),
+                  }}
+                  onChange={setColorFormula}
+                  mode="query"
+                  queries={queriesRef.current}
+                  singleLine={true}
+                  showLineNumbers={false}
+                />
+              </Suspense>
+            </View>
+            <div
+              style={{
+                fontSize: 11,
+                color: theme.pageTextSubdued,
+                marginTop: 5,
+              }}
+            >
+              <Trans>
+                Formula that returns a color (e.g., &ldquo;red&rdquo;,
+                &ldquo;#ff0000&rdquo;). Leave blank for default. Use RESULT
+                variable to access the main formula result.
+              </Trans>
+            </div>
           </View>
         </View>
 

@@ -141,6 +141,9 @@ export type FormulaWidget = AbstractWidget<
     name?: string;
     formula?: string;
     fontSize?: number;
+    fontSizeMode?: 'dynamic' | 'static';
+    staticFontSize?: number;
+    colorFormula?: string;
     queriesVersion?: number;
     queries?: Record<
       string,

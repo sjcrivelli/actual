@@ -411,6 +411,7 @@ function getFunctionCompletions(mode: FormulaMode): Completion[] {
 export function excelFormulaAutocomplete(
   mode: FormulaMode,
   queries?: Record<string, unknown>,
+  variables?: Record<string, number | string>,
 ): Extension {
   const functionCompletions = getFunctionCompletions(mode);
 
@@ -427,6 +428,18 @@ export function excelFormulaAutocomplete(
       }))
     : [];
 
+  const variableCompletions: Completion[] = variables
+    ? Object.entries(variables).map(([varName, value]) => ({
+        label: varName,
+        type: 'variable',
+        section: '🔢 Variables',
+        info: t('Variable with value: {{value}}', {
+          value: String(value),
+        }),
+        boost: 20, // Boost variable completions to appear at top
+      }))
+    : [];
+
   return autocompletion({
     override: [
       (context: CompletionContext) => {
@@ -436,6 +449,7 @@ export function excelFormulaAutocomplete(
         }
 
         const suggestions: Completion[] = [
+          ...variableCompletions, // Put variable completions first
           ...queryCompletions, // Put query completions first
           ...functionCompletions,
         ];
@@ -448,6 +462,7 @@ export function excelFormulaAutocomplete(
         const sortedSuggestions = suggestions.sort((a, b) => {
           // Define section priority order
           const sectionOrder: Record<string, number> = {
+            '🔢 Variables': -1,
             '🔍 Query Functions': 0,
             '📊 Math Functions': 1,
             '🔀 Logical Functions': 2,
@@ -646,10 +661,11 @@ export function excelFormulaExtension(
   mode: FormulaMode,
   queries?: Record<string, unknown>,
   isDark?: boolean,
+  variables?: Record<string, number | string>,
 ): Extension[] {
   return [
     excelFormulaLanguage,
-    excelFormulaAutocomplete(mode, queries),
+    excelFormulaAutocomplete(mode, queries, variables),
     excelFormulaHover(mode),
     isDark ? excelFormulaDarkHighlighting : excelFormulaHighlighting,
     isDark ? functionCategoryThemeDark : functionCategoryTheme,

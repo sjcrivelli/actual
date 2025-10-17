@@ -27,6 +27,7 @@ export function useFormulaExecution(
   formula: string,
   queries: QueriesMap,
   queriesVersion?: number,
+  namedExpressions?: Record<string, number | string>,
 ) {
   const locale = useLocale();
   const [result, setResult] = useState<number | string | null>(null);
@@ -96,6 +97,13 @@ export function useFormulaExecution(
           throw new Error('Failed to create sheet');
         }
 
+        // Add named expressions if provided
+        if (namedExpressions) {
+          for (const [name, value] of Object.entries(namedExpressions)) {
+            hfInstance.addNamedExpression(name, String(value));
+          }
+        }
+
         // Set the formula
         hfInstance.setCellContents({ sheet: sheetId, col: 0, row: 0 }, [
           [processedFormula],
@@ -135,7 +143,7 @@ export function useFormulaExecution(
     return () => {
       cancelled = true;
     };
-  }, [formula, queriesVersion, locale, queries]);
+  }, [formula, queriesVersion, locale, queries, namedExpressions]);
 
   return { result, isLoading, error };
 }

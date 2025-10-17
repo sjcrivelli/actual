@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import { useMemo } from 'react';
 
 import { EditorView } from '@codemirror/view';
 import CodeMirror, {
@@ -19,6 +19,7 @@ type FormulaEditorProps = {
   height?: string;
   disabled?: boolean;
   queries?: Record<string, unknown>;
+  variables?: Record<string, number | string>;
   singleLine?: boolean;
   showLineNumbers?: boolean;
 };
@@ -30,6 +31,7 @@ export function FormulaEditor({
   height = '100%',
   disabled = false,
   queries,
+  variables,
   singleLine = false,
   showLineNumbers = true,
 }: FormulaEditorProps) {
@@ -66,11 +68,11 @@ export function FormulaEditor({
             ),
           ]
         : []),
-      ...excelFormulaExtension(mode, queries, isDarkTheme),
+      ...excelFormulaExtension(mode, queries, isDarkTheme, variables),
       EditorView.lineWrapping,
       EditorView.editable.of(!disabled),
     ],
-    [mode, queries, isDarkTheme, disabled, singleLine],
+    [mode, queries, isDarkTheme, disabled, singleLine, variables],
   );
 
   const codeMirrorTheme: ReactCodeMirrorProps['theme'] = isDarkTheme

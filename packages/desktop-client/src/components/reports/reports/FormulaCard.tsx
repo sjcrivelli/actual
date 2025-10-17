@@ -9,6 +9,7 @@ import { FormulaResult } from '@desktop-client/components/reports/FormulaResult'
 import { ReportCard } from '@desktop-client/components/reports/ReportCard';
 import { ReportCardName } from '@desktop-client/components/reports/ReportCardName';
 import { useFormulaExecution } from '@desktop-client/hooks/useFormulaExecution';
+import { useThemeColors } from '@desktop-client/hooks/useThemeColors';
 
 type FormulaCardProps = {
   widgetId: string;
@@ -27,15 +28,40 @@ export function FormulaCard({
 }: FormulaCardProps) {
   const { t } = useTranslation();
   const [nameMenuOpen, setNameMenuOpen] = useState(false);
+  const themeColors = useThemeColors();
 
   const formula = meta?.formula || '=SUM(1, 2, 3)';
   const fontSize = meta?.fontSize;
+  const fontSizeMode = meta?.fontSizeMode || 'dynamic';
+  const staticFontSize = meta?.staticFontSize || 32;
+  const colorFormula = meta?.colorFormula || '';
 
   const { result, isLoading, error } = useFormulaExecution(
     formula,
     meta?.queries || {},
     meta?.queriesVersion,
   );
+
+  // Execute color formula with access to main result via named expression
+  const { result: colorResult, error: colorError } = useFormulaExecution(
+    colorFormula,
+    meta?.queries || {},
+    meta?.queriesVersion,
+    {
+      RESULT: result ?? 0,
+      ...Object.entries(themeColors).reduce(
+        (acc, [key, value]) => {
+          acc[`theme.${key}`] = value;
+          return acc;
+        },
+        {} as Record<string, string>,
+      ),
+    },
+  );
+
+  // Determine the custom color from color formula result
+  const customColor =
+    colorFormula && !colorError && colorResult ? String(colorResult) : null;
 
   return (
     <ReportCard
@@ -100,6 +126,9 @@ export function FormulaCard({
                 fontSize: newSize,
               });
             }}
+            fontSizeMode={fontSizeMode}
+            staticFontSize={staticFontSize}
+            customColor={customColor}
             animate={isEditing ?? false}
           />
         </View>
