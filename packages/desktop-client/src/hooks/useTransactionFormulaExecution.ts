@@ -1,7 +1,5 @@
 import { useState, useEffect } from 'react';
 
-import { HyperFormula } from 'hyperformula';
-
 import { useLocale } from './useLocale';
 
 type TransactionContext = {
@@ -26,9 +24,12 @@ export function useTransactionFormulaExecution(
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    const hfInstance: unknown | null = null;
     let cancelled = false;
 
     async function executeFormula() {
+      const { HyperFormula } = await import('hyperformula');
+
       if (!formula || !formula.startsWith('=')) {
         setResult(null);
         setError('Formula must start with =');
@@ -108,68 +109,18 @@ export function useTransactionFormulaExecution(
 
     return () => {
       cancelled = true;
+      // Clean up HF instance
+      try {
+        if (
+          hfInstance &&
+          typeof hfInstance === 'object' &&
+          'destroy' in hfInstance
+        ) {
+          (hfInstance as { destroy: () => void }).destroy();
+        }
+      } catch {}
     };
   }, [formula, transaction, locale]);
 
   return { result, error };
-}
-
-// Synchronous version for server-side use
-export function executeTransactionFormula(
-  formula: string,
-  transaction: TransactionContext,
-  locale = 'en-US',
-): number | string | boolean | null {
-  if (!formula || !formula.startsWith('=')) {
-    throw new Error('Formula must start with =');
-  }
-
-  try {
-    const hfInstance = HyperFormula.buildEmpty({
-      licenseKey: 'gpl-v3',
-      localeLang: locale,
-    });
-
-    const sheetName = hfInstance.addSheet('Sheet1');
-    const sheetId = hfInstance.getSheetId(sheetName);
-
-    if (sheetId === undefined) {
-      throw new Error('Failed to create sheet');
-    }
-
-    // Add named ranges for each transaction field
-    let row = 1;
-    const fieldValues: Record<string, number | string | boolean> = {
-      today: new Date().toISOString().split('T')[0],
-      ...transaction,
-    };
-
-    for (const [key, value] of Object.entries(fieldValues)) {
-      if (value !== undefined && value !== null) {
-        hfInstance.setCellContents({ sheet: sheetId, col: 0, row }, [[value]]);
-        hfInstance.addNamedExpression(key, `=Sheet1!$A$${row + 1}`);
-        row++;
-      }
-    }
-
-    // Set the formula
-    hfInstance.setCellContents({ sheet: sheetId, col: 0, row: 0 }, [[formula]]);
-
-    // Get the result
-    const cellValue = hfInstance.getCellValue({
-      sheet: sheetId,
-      col: 0,
-      row: 0,
-    });
-
-    // Check if there's an error
-    if (cellValue && typeof cellValue === 'object' && 'type' in cellValue) {
-      throw new Error(`Formula error: ${cellValue.type}`);
-    }
-
-    return cellValue as number | string | boolean;
-  } catch (err) {
-    console.error('Formula execution error:', err);
-    throw err;
-  }
 }

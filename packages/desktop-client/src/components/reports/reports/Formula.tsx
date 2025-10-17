@@ -356,7 +356,7 @@ function FormulaInner({ widget }: FormulaInnerProps) {
                     setStaticFontSize(Number(e.target.value))
                   }
                   min="8"
-                  max="10"
+                  max="200"
                 />
               </View>
             )}
@@ -365,7 +365,7 @@ function FormulaInner({ widget }: FormulaInnerProps) {
           <View
             style={{
               padding: 20,
-              marginbottom: 20,
+              marginBottom: 20,
             }}
           >
             <div

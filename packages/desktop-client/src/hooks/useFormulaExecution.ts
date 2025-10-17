@@ -1,7 +1,5 @@
 import { useState, useEffect } from 'react';
 
-import { HyperFormula } from 'hyperformula';
-
 import { send } from 'loot-core/platform/client/fetch';
 import * as monthUtils from 'loot-core/shared/months';
 import { q } from 'loot-core/shared/query';
@@ -23,6 +21,10 @@ type QueryConfig = {
 
 type QueriesMap = Record<string, QueryConfig>;
 
+function escapeRegExp(s: string) {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
 export function useFormulaExecution(
   formula: string,
   queries: QueriesMap,
@@ -35,9 +37,12 @@ export function useFormulaExecution(
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    const hfInstance: unknown | null = null;
     let cancelled = false;
 
     async function executeFormula() {
+      const { HyperFormula } = await import('hyperformula');
+
       if (!formula || !formula.startsWith('=')) {
         setResult(null);
         setError('Formula must start with =');
@@ -77,7 +82,7 @@ export function useFormulaExecution(
         let processedFormula = formula;
         for (const [queryName, value] of Object.entries(queryData)) {
           const regex = new RegExp(
-            `QUERY\\s*\\(\\s*["']${queryName}["']\\s*\\)`,
+            `QUERY\\s*\\(\\s*["']${escapeRegExp(queryName)}["']\\s*\\)`,
             'gi',
           );
           processedFormula = processedFormula.replace(regex, String(value));
@@ -142,6 +147,15 @@ export function useFormulaExecution(
 
     return () => {
       cancelled = true;
+      try {
+        if (
+          hfInstance &&
+          typeof hfInstance === 'object' &&
+          'destroy' in hfInstance
+        ) {
+          (hfInstance as { destroy: () => void }).destroy();
+        }
+      } catch {}
     };
   }, [formula, queriesVersion, locale, queries, namedExpressions]);
 

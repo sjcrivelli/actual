@@ -95,9 +95,14 @@ export function FormulaResult({
 
   // Update the debounced function when calculateFontSize changes
   useEffect(() => {
+    debouncedCalculateFontSize.current.cancel?.();
     debouncedCalculateFontSize.current = debounce(() => {
       calculateFontSize();
     }, 100);
+
+    return () => {
+      debouncedCalculateFontSize.current.cancel?.();
+    };
   }, [calculateFontSize]);
 
   const ref = useResizeObserver(() => {

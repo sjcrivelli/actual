@@ -511,98 +511,84 @@ export function excelFormulaHover(mode: FormulaMode): Extension {
     mode === 'query' ? queryModeFunctions : transactionModeFunctions;
 
   return hoverTooltip((view, pos) => {
-    const { from, text } = view.state.doc.lineAt(pos);
-    const word = text.match(/\b\w+\b/g);
-
+    const word = view.state.wordAt(pos);
     if (!word) return null;
-
-    // Find which word we're hovering over
-    let start = from;
-    for (const w of word) {
-      const end = start + w.length;
-      if (pos >= start && pos <= end) {
-        const funcDef = functions[w.toUpperCase()];
-        if (funcDef) {
+    const w = view.state.doc.sliceString(word.from, word.to);
+    const upper = w.toUpperCase();
+    const funcDef = functions[upper];
+    if (funcDef) {
+      return {
+        pos: word.from,
+        end: word.to,
+        above: true,
+        create() {
+          const dom = document.createElement('div');
+          dom.className = 'cm-tooltip-hover';
+          Object.assign(dom.style, {
+            padding: '8px',
+            boxShadow:
+              '0 15px 30px 0 rgba(0,0,0,0.11), 0 5px 15px 0 rgba(0,0,0,0.08)',
+            borderWidth: '2px',
+            borderRadius: '4px',
+            borderStyle: 'solid',
+            borderColor: theme.tooltipBorder,
+            backgroundColor: theme.tooltipBackground,
+            color: theme.tooltipText,
+            overflow: 'auto',
+          });
+          const root = createRoot(dom);
+          root.render(
+            <FunctionTooltip
+              name={upper}
+              description={funcDef.description}
+              parameters={funcDef.parameters}
+            />,
+          );
           return {
-            pos: start,
-            end,
-            above: true,
-            create() {
-              const dom = document.createElement('div');
-              dom.className = 'cm-tooltip-hover';
-              // Apply tooltip styles from component library
-              Object.assign(dom.style, {
-                padding: '8px',
-                boxShadow:
-                  '0 15px 30px 0 rgba(0,0,0,0.11), 0 5px 15px 0 rgba(0,0,0,0.08)',
-                borderWidth: '2px',
-                borderRadius: '4px',
-                borderStyle: 'solid',
-                borderColor: theme.tooltipBorder,
-                backgroundColor: theme.tooltipBackground,
-                color: theme.tooltipText,
-                overflow: 'auto',
-              });
-              const root = createRoot(dom);
-              root.render(
-                <FunctionTooltip
-                  name={w.toUpperCase()}
-                  description={funcDef.description}
-                  parameters={funcDef.parameters}
-                />,
-              );
-              return {
-                dom,
-                destroy() {
-                  root.unmount();
-                },
-              };
+            dom,
+            destroy() {
+              root.unmount();
             },
-          } satisfies Tooltip;
-        }
+          };
+        },
+      } satisfies Tooltip;
+    }
 
-        // Check transaction fields
-        if (mode === 'transaction') {
-          const field = transactionFields.find(f => f.label === w);
-          if (field) {
+    // Transaction fields
+    if (mode === 'transaction') {
+      const field = transactionFields.find(f => f.label === w);
+      if (field) {
+        return {
+          pos: word.from,
+          end: word.to,
+          above: true,
+          create() {
+            const dom = document.createElement('div');
+            dom.className = 'cm-tooltip-hover';
+            Object.assign(dom.style, {
+              padding: '8px',
+              boxShadow:
+                '0 15px 30px 0 rgba(0,0,0,0.11), 0 5px 15px 0 rgba(0,0,0,0.08)',
+              borderWidth: '2px',
+              borderRadius: '4px',
+              borderStyle: 'solid',
+              borderColor: theme.tooltipBorder,
+              backgroundColor: theme.tooltipBackground,
+              color: theme.tooltipText,
+              overflow: 'auto',
+            });
+            const root = createRoot(dom);
+            const infoText = typeof field.info === 'string' ? field.info : '';
+            root.render(<FieldTooltip label={field.label} info={infoText} />);
             return {
-              pos: start,
-              end,
-              above: true,
-              create() {
-                const dom = document.createElement('div');
-                dom.className = 'cm-tooltip-hover';
-                // Apply tooltip styles from component library
-                Object.assign(dom.style, {
-                  padding: '8px',
-                  boxShadow:
-                    '0 15px 30px 0 rgba(0,0,0,0.11), 0 5px 15px 0 rgba(0,0,0,0.08)',
-                  borderWidth: '2px',
-                  borderRadius: '4px',
-                  borderStyle: 'solid',
-                  borderColor: theme.tooltipBorder,
-                  backgroundColor: theme.tooltipBackground,
-                  color: theme.tooltipText,
-                  overflow: 'auto',
-                });
-                const root = createRoot(dom);
-                const infoText =
-                  typeof field.info === 'string' ? field.info : '';
-                root.render(
-                  <FieldTooltip label={field.label} info={infoText} />,
-                );
-                return {
-                  dom,
-                  destroy() {
-                    root.unmount();
-                  },
-                };
+              dom,
+              destroy() {
+                root.unmount();
               },
-            } satisfies Tooltip;
-          }
-        }
+            };
+          },
+        } satisfies Tooltip;
       }
-      start = end;
     }
 
     return null;

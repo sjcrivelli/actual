@@ -88,7 +88,7 @@ export class Action {
             );
 
             switch (this.type) {
-              case 'number':
+              case 'number': {
                 const numValue =
                   typeof result === 'number'
                     ? result
@@ -101,7 +101,8 @@ export class Action {
                   object[this.field] = numValue;
                 }
                 break;
-              case 'date':
+              }
+              case 'date': {
                 const parsed = parseDate(String(result));
                 if (parsed && dateFns.isValid(parsed)) {
                   object[this.field] = format(parsed, 'yyyy-MM-dd');
@@ -110,15 +111,18 @@ export class Action {
                   object._ruleErrors.push(error);
                 }
                 break;
-              case 'boolean':
+              }
+              case 'boolean': {
                 object[this.field] =
                   typeof result === 'boolean'
                     ? result
                     : String(result).toLowerCase() === 'true';
                 break;
-              case 'string':
+              }
+              case 'string': {
                 object[this.field] = String(result);
                 break;
+              }
             }
           } catch (err) {
             const error = `Error executing formula for “${this.field}”: ${err instanceof Error ? err.message : String(err)}`;

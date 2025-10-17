@@ -17,6 +17,7 @@ import {
   SvgSubtract,
 } from '@actual-app/components/icons/v0';
 import {
+  SvgAlignLeft,
   SvgCode,
   SvgInformationOutline,
 } from '@actual-app/components/icons/v1';
@@ -501,8 +502,8 @@ function ActionEditor({
   // Even if the feature flag is disabled, we still want to be able to turn off templating
   const actionTemplating = useFeatureFlag('actionTemplating');
   const formulaMode = useFeatureFlag('formulaMode');
-  const isTemplatingEnabled =
-    actionTemplating || formulaMode || templated || hasFormula;
+  const isTemplatingEnabled = actionTemplating || templated;
+  const isFormulaEnabled = formulaMode || hasFormula;
 
   const fields = (
     options?.splitIndex ? getSplitActionFields() : getActionFields()
@@ -551,19 +552,21 @@ function ActionEditor({
             </View>
           </View>
           {/*Due to that these fields have id's as value it is not helpful to have templating here*/}
-          {isTemplatingEnabled &&
+          {isFormulaEnabled &&
             ['payee', 'category', 'account'].indexOf(field) === -1 && (
               <Button
                 variant="bare"
+                isDisabled={templated}
                 style={{
                   padding: 5,
+                  backgroundColor: hasFormula
+                    ? theme.buttonPrimaryBackground
+                    : undefined,
+                  height: 24,
+                  width: 24,
                 }}
                 aria-label={
-                  hasFormula
-                    ? t('Disable formula')
-                    : templated
-                      ? t('Disable templating')
-                      : t('Enable formula')
+                  hasFormula ? t('Disable formula') : t('Enable formula')
                 }
                 onPress={() =>
                   hasFormula
@@ -576,13 +579,12 @@ function ActionEditor({
                     style={{
                       fontSize: 14,
                       fontFamily: 'serif',
-                      minWidth: 30,
                       textAlign: 'center',
                     }}
                   >
-                    abc
+                    ƒ
                   </span>
-                ) : templated ? (
+                ) : hasFormula ? (
                   <SvgCode
                     style={{ width: 12, height: 12, color: 'inherit' }}
                   />
@@ -591,12 +593,35 @@ function ActionEditor({
                     style={{
                       fontSize: 14,
                       fontFamily: 'serif',
-                      minWidth: 30,
                       textAlign: 'center',
                     }}
                   >
                     ƒ
                   </span>
+                )}
+              </Button>
+            )}
+          {isTemplatingEnabled &&
+            ['payee', 'category', 'account'].indexOf(field) === -1 && (
+              <Button
+                variant="bare"
+                isDisabled={hasFormula}
+                style={{
+                  padding: 5,
+                }}
+                aria-label={
+                  templated ? t('Disable templating') : t('Enable templating')
+                }
+                onPress={() => onChange('template', !templated)}
+              >
+                {templated ? (
+                  <SvgCode
+                    style={{ width: 12, height: 12, color: 'inherit' }}
+                  />
+                ) : (
+                  <SvgAlignLeft
+                    style={{ width: 12, height: 12, color: 'inherit' }}
+                  />
                 )}
               </Button>
             )}
@@ -1103,17 +1128,13 @@ export function RuleEditor({
               if (a.type !== 'string') a.value = null;
             }
           } else if (field === 'formula') {
-            if (value) {
-              if (value) {
-                a.options = { ...a.options, formula: value };
-              } else {
-                a.options = { ...a.options, formula: undefined };
-                if (a.type !== 'string') a.value = null;
-              }
-            } else {
+            if (value === undefined) {
               // Disable formula mode
               a.options = { ...a.options, formula: undefined };
               if (a.type !== 'string') a.value = null;
+            } else {
+              // Keep formula mode; allow empty string while editing
+              a.options = { ...a.options, formula: String(value) };
             }
           } else {
             // Handle formula updates

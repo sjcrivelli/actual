@@ -233,8 +233,10 @@ function QueryItem({
   const conditionsRef = useRef<RuleConditionEntity[]>(
     defaultConfig.conditions || [],
   );
-  const conditionsOpRef = useRef<'and' | 'or' | ''>(
-    defaultConfig.conditionsOp || '',
+
+  // Accepting null here to detect changes and make rerender work properly:
+  const conditionsOpRef = useRef<'and' | 'or' | null>(
+    defaultConfig.conditionsOp || null,
   );
 
   useEffect(() => {
@@ -242,7 +244,7 @@ function QueryItem({
       conditionsRef.current = defaultConfig.conditions || [];
     }
 
-    if (conditionsOpRef.current === '') {
+    if (conditionsOpRef.current === null) {
       conditionsOpRef.current = defaultConfig.conditionsOp || 'and';
     }
   }, [defaultConfig]);
@@ -297,7 +299,7 @@ function QueryItem({
 
   const filters = useRuleConditionFilters(
     conditionsRef.current,
-    conditionsOpRef.current as 'and' | 'or',
+    conditionsOpRef.current ?? ('and' as 'and' | 'or'),
   );
 
   const prevFiltersRef = useRef<{
@@ -391,8 +393,8 @@ function QueryItem({
       conditions: filters.conditions,
       conditionsOp: filters.conditionsOp,
       timeFrame: {
-        start: timeRangeRef.current === 'sliding-window' ? startDate : '',
-        end: timeRangeRef.current === 'sliding-window' ? endDate : '',
+        start: startDate,
+        end: endDate,
         mode: timeRangeRef.current as TimeFrame['mode'],
       },
     };

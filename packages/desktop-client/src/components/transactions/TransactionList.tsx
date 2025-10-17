@@ -256,7 +256,7 @@ export function TransactionList({
         dispatch(
           addNotification({
             notification: {
-              type: 'warning',
+              type: 'error',
               message: `Formula errors in rules:\n${afterRules._ruleErrors.join('\n')}`,
               sticky: true,
             },
