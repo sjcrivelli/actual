@@ -17,7 +17,6 @@ import {
   SvgSubtract,
 } from '@actual-app/components/icons/v0';
 import {
-  SvgAlignLeft,
   SvgCode,
   SvgInformationOutline,
 } from '@actual-app/components/icons/v1';
@@ -546,7 +545,7 @@ function ActionEditor({
                   value={options?.template ?? value}
                   onChange={v => onChange('value', v)}
                   numberFormatType="currency"
-                  inputStyle={{ height: 34 }}
+                  inputStyle={{ height: 30 }}
                 />
               )}
             </View>
@@ -608,21 +607,16 @@ function ActionEditor({
                 isDisabled={hasFormula}
                 style={{
                   padding: 5,
+                  backgroundColor: templated
+                    ? theme.buttonPrimaryBackground
+                    : undefined,
                 }}
                 aria-label={
                   templated ? t('Disable templating') : t('Enable templating')
                 }
                 onPress={() => onChange('template', !templated)}
               >
-                {templated ? (
-                  <SvgCode
-                    style={{ width: 12, height: 12, color: 'inherit' }}
-                  />
-                ) : (
-                  <SvgAlignLeft
-                    style={{ width: 12, height: 12, color: 'inherit' }}
-                  />
-                )}
+                <SvgCode style={{ width: 12, height: 12, color: 'inherit' }} />
               </Button>
             )}
         </>

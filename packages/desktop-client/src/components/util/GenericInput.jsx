@@ -309,6 +309,7 @@ export function GenericInput({
             value={value || ''}
             placeholder={t('nothing')}
             onChangeValue={onChange}
+            style={inputStyle}
           />
         );
       }

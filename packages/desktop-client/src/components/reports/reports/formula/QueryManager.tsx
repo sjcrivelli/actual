@@ -432,17 +432,20 @@ function QueryItem({
         conditionsOpRef.current = config.conditionsOp;
         timeRangeRef.current = config.timeFrame.mode;
 
-        // Update state for sliding-window mode
-        if (config.timeFrame.mode === 'sliding-window') {
-          setStartDate(
-            config.timeFrame.start ||
-              monthUtils.dayFromDate(monthUtils.currentMonth()),
-          );
-          setEndDate(config.timeFrame.end || monthUtils.currentDay());
-        }
+        setStartDate(
+          config.timeFrame.start ||
+            monthUtils.dayFromDate(monthUtils.currentMonth()),
+        );
+        setEndDate(config.timeFrame.end || monthUtils.currentDay());
 
         // Update the query
-        sendUpdate(config.conditions, config.conditionsOp);
+        sendUpdate(
+          config.conditions,
+          config.conditionsOp,
+          config.timeFrame.start,
+          config.timeFrame.end,
+          config.timeFrame.mode,
+        );
         setImportJsonText('');
       } else {
         dispatch(

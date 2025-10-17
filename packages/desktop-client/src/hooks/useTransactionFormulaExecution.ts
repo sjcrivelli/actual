@@ -24,7 +24,7 @@ export function useTransactionFormulaExecution(
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const hfInstance: unknown | null = null;
+    let hfInstance: unknown | null = null;
     let cancelled = false;
 
     async function executeFormula() {
@@ -38,14 +38,18 @@ export function useTransactionFormulaExecution(
 
       try {
         // Create HyperFormula instance
-        const hfInstance = HyperFormula.buildEmpty({
+        hfInstance = HyperFormula.buildEmpty({
           licenseKey: 'gpl-v3',
           localeLang: typeof locale === 'string' ? locale : 'en-US',
         });
 
+        const hfInstanceTyped = hfInstance as ReturnType<
+          typeof HyperFormula.buildEmpty
+        >;
+
         // Add a sheet
-        const sheetName = hfInstance.addSheet('Sheet1');
-        const sheetId = hfInstance.getSheetId(sheetName);
+        const sheetName = hfInstanceTyped.addSheet('Sheet1');
+        const sheetId = hfInstanceTyped.getSheetId(sheetName);
 
         if (sheetId === undefined) {
           throw new Error('Failed to create sheet');
@@ -61,12 +65,12 @@ export function useTransactionFormulaExecution(
         for (const [key, value] of Object.entries(fieldValues)) {
           if (value !== undefined && value !== null) {
             // Set the value in a cell
-            hfInstance.setCellContents({ sheet: sheetId, col: 0, row }, [
+            hfInstanceTyped.setCellContents({ sheet: sheetId, col: 0, row }, [
               [value],
             ]);
 
             // Create a named range for this field
-            hfInstance.addNamedExpression(
+            hfInstanceTyped.addNamedExpression(
               key,
               `=Sheet1!$A$${row + 1}`, // +1 because HyperFormula uses 0-based rows but formulas use 1-based
             );
@@ -76,12 +80,12 @@ export function useTransactionFormulaExecution(
         }
 
         // Set the formula in row 0
-        hfInstance.setCellContents({ sheet: sheetId, col: 0, row: 0 }, [
+        hfInstanceTyped.setCellContents({ sheet: sheetId, col: 0, row: 0 }, [
           [formula],
         ]);
 
         // Get the result
-        const cellValue = hfInstance.getCellValue({
+        const cellValue = hfInstanceTyped.getCellValue({
           sheet: sheetId,
           col: 0,
           row: 0,

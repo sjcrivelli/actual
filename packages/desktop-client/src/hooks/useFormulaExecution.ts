@@ -37,7 +37,7 @@ export function useFormulaExecution(
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const hfInstance: unknown | null = null;
+    let hfInstance: unknown | null = null;
     let cancelled = false;
 
     async function executeFormula() {
@@ -89,14 +89,18 @@ export function useFormulaExecution(
         }
 
         // Create HyperFormula instance
-        const hfInstance = HyperFormula.buildEmpty({
+        hfInstance = HyperFormula.buildEmpty({
           licenseKey: 'gpl-v3',
           localeLang: typeof locale === 'string' ? locale : 'en-US',
         });
 
+        const hfInstanceTyped = hfInstance as ReturnType<
+          typeof HyperFormula.buildEmpty
+        >;
+
         // Add a sheet and set the formula in cell A1
-        const sheetName = hfInstance.addSheet('Sheet1');
-        const sheetId = hfInstance.getSheetId(sheetName);
+        const sheetName = hfInstanceTyped.addSheet('Sheet1');
+        const sheetId = hfInstanceTyped.getSheetId(sheetName);
 
         if (sheetId === undefined) {
           throw new Error('Failed to create sheet');
@@ -105,17 +109,20 @@ export function useFormulaExecution(
         // Add named expressions if provided
         if (namedExpressions) {
           for (const [name, value] of Object.entries(namedExpressions)) {
-            hfInstance.addNamedExpression(name, String(value));
+            hfInstanceTyped.addNamedExpression(
+              name,
+              typeof value === 'number' ? value : String(value),
+            );
           }
         }
 
         // Set the formula
-        hfInstance.setCellContents({ sheet: sheetId, col: 0, row: 0 }, [
+        hfInstanceTyped.setCellContents({ sheet: sheetId, col: 0, row: 0 }, [
           [processedFormula],
         ]);
 
         // Get the result
-        const cellValue = hfInstance.getCellValue({
+        const cellValue = hfInstanceTyped.getCellValue({
           sheet: sheetId,
           col: 0,
           row: 0,
