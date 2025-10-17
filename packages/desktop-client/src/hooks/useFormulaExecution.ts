@@ -194,8 +194,16 @@ async function fetchQueryData(config: QueryConfig): Promise<number> {
         timeFrame.end
       ) {
         // For sliding-window and static modes, use the actual start/end dates from timeFrame
-        startDate = timeFrame.start;
-        endDate = timeFrame.end;
+        // Convert month format (YYYY-MM) to full date format (YYYY-MM-DD) if needed
+        startDate =
+          timeFrame.start.includes('-') &&
+          timeFrame.start.split('-').length === 2
+            ? timeFrame.start + '-01'
+            : timeFrame.start;
+        endDate =
+          timeFrame.end.includes('-') && timeFrame.end.split('-').length === 2
+            ? monthUtils.getMonthEnd(timeFrame.end + '-01')
+            : timeFrame.end;
       } else {
         // For other modes, use getLiveRange with the appropriate condition
         const condition = timeFrameModeToCondition(timeFrame.mode);
