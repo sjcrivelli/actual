@@ -81,3 +81,19 @@ Make Actual Budget accessible to more people by helping with the [Internationali
 Thanks to our wonderful sponsors who make Actual Budget possible!
 
 <a href="https://www.netlify.com"> <img src="https://www.netlify.com/v3/img/components/netlify-color-accent.svg" alt="Deploys by Netlify" /> </a>
+
+---
+
+## 🚀 Quick Start (Dev Browser)
+
+To run the Actual dev environment in your browser:
+
+```bash
+yarn server:build
+yarn server:start:pnp
+yarn start:browser
+```
+
+Or use `yarn dev:browser` for one-command startup (see package.json).
+
+Note: `ACTUAL_WEB_DIR` defaults to `packages/desktop-client` if not set in `.env`.

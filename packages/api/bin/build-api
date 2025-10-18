@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+# Build script for @actual-app/api
+set -e
+
+# Compile TypeScript sources
+npx tsc --project tsconfig.dist.json
+
+echo "API build complete."

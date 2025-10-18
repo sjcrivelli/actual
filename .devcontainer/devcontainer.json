@@ -7,5 +7,5 @@
   // "image": "mcr.microsoft.com/devcontainers/typescript-node:0-16",
   "service": "actual-development",
   "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
-  "postCreateCommand": "yarn install"
+  "postCreateCommand": "apt-get update && apt-get install -y jq python3 python3-distutils build-essential pkg-config make g++ git ca-certificates && corepack enable && yarn install --inline-builds --check-cache"
 }

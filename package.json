@@ -18,6 +18,10 @@
     ]
   },
   "scripts": {
+    "server:build": "yarn workspace @actual-app/sync-server build",
+    "server:start:pnp": "cross-env NODE_OPTIONS='--require ./.pnp.cjs' yarn workspace @actual-app/sync-server start",
+    "web:start": "yarn workspace @actual-app/web start",
+    "dev:browser": "npm-run-all --parallel server:start:pnp start:browser",
     "start": "yarn start:browser",
     "start:server": "yarn workspace @actual-app/sync-server start",
     "start:server-monitor": "yarn workspace @actual-app/sync-server start-monitor",
