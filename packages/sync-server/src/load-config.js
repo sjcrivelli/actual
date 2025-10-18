@@ -3,13 +3,12 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-
 import convict from 'convict';
 import createDebug from 'debug';
 import dotenv from 'dotenv';
 
 // Load .env from repo root if present
-dotenv.config({ path: path.resolve(__dirname, '../../.env') });
+dotenv.config({ path: path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../.env") });
 
 const require = createRequire(import.meta.url);
 const debug = createDebug('actual:config');
