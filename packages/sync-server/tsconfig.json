@@ -1,19 +1,26 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
-    // DOM for URL global in Node 16+
-    "lib": ["ES2021"],
-    "module": "node16",
-    "moduleResolution": "node16",
+    "module": "Node16",
+    "moduleResolution": "Node16",
+    "lib": ["ES2021", "DOM"],
     "noEmit": false,
-    "outDir": "build"
+    "outDir": "dist",
+  "allowJs": true,
+    "checkJs": false,
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true
   },
   "include": [
-    "src/**/*",
-    "migrations/**/*",
-    "types/**/*",
-    "app.ts",
-    "bin/**/*"
+    "src/**/*.ts",
+    "src/**/*.js",
+    "types/**/*.d.ts"
   ],
-  "exclude": ["node_modules", "build", "coverage"]
+  "exclude": [
+    "node_modules",
+    "build",
+    "coverage"
+  ]
 }

@@ -3,8 +3,13 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+
 import convict from 'convict';
 import createDebug from 'debug';
+import dotenv from 'dotenv';
+
+// Load .env from repo root if present
+dotenv.config({ path: path.resolve(__dirname, '../../.env') });
 
 const require = createRequire(import.meta.url);
 const debug = createDebug('actual:config');
@@ -12,7 +17,7 @@ const debugSensitive = createDebug('actual-sensitive:config');
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-const projectRoot = path.dirname(__dirname).replace(/[\\/]build$/, '');
+const projectRoot = path.dirname(__dirname).replace(/[\/]build$/, '');
 const defaultDataDir = process.env.ACTUAL_DATA_DIR
   ? process.env.ACTUAL_DATA_DIR
   : fs.existsSync('/data')
@@ -23,10 +28,36 @@ debug(`Project root: '${projectRoot}'`);
 
 export const sqlDir = path.join(__dirname, 'sql');
 
-const actualAppWebBuildPath = path.join(
-  path.dirname(require.resolve('@actual-app/web/package.json')),
-  'build',
-);
+// --- Web path resolution ---
+function resolveWebPath() {
+  // 1. Use ACTUAL_WEB_DIR if set
+  if (process.env.ACTUAL_WEB_DIR) {
+    debug(`Using ACTUAL_WEB_DIR: ${process.env.ACTUAL_WEB_DIR}`);
+    return path.resolve(process.env.ACTUAL_WEB_DIR);
+  }
+  // 2. Try require.resolve('@actual-app/web/package.json')
+  try {
+    const webPkg = require.resolve('@actual-app/web/package.json');
+    debug(`Resolved @actual-app/web/package.json: ${webPkg}`);
+    return path.dirname(webPkg);
+  } catch (err) {
+    debug(`Could not resolve @actual-app/web/package.json: ${err}`);
+  }
+  // 3. Fallback to desktop-client
+  try {
+    const fallback = path.join(projectRoot, 'packages/desktop-client');
+    debug(`Falling back to desktop-client: ${fallback}`);
+    return fallback;
+  } catch (err) {
+    debug(`Could not resolve fallback desktop-client: ${err}`);
+  }
+  // 4. If all fail, throw a friendly error
+  throw new Error(
+    'Could not resolve Actual web client directory. Set ACTUAL_WEB_DIR in .env or ensure @actual-app/web is installed.',
+  );
+}
+
+const actualAppWebBuildPath = path.join(resolveWebPath(), 'build');
 debug(`Actual web build path: '${actualAppWebBuildPath}'`);
 
 // Custom formats
