@@ -1,0 +1,52 @@
+{
+  "extends": "../../tsconfig.json",
+
+  "compilerOptions": {
+    "composite": true,
+    "noEmit": true,                          // Required for project references
+    "declaration": true,                     // ✅ Ensures compatibility with referenced projects
+    "rootDir": ".",                          // ✅ Forces root to this folder
+    "outDir": "lib-dist",
+
+    "module": "esnext",
+    "target": "ES2020",
+    "jsx": "react-jsx",
+    "esModuleInterop": true,
+    "moduleResolution": "node",
+    "allowJs": false,
+    "strict": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+
+    "baseUrl": "../../",                     // ✅ Makes aliases work from monorepo root
+    "types": ["vite/client", "vitest/globals"],
+    "paths": {
+      "@desktop-client/*": ["packages/desktop-client/src/*"],
+      "@loot-core/*": ["packages/loot-core/src/*"],
+      "@actual-app/types/*": ["packages/types/*"]
+    }
+  },
+
+  "include": [
+    "src/**/*",                              // ✅ Include all source files
+    "./globals.ts",                          // ✅ Include top-level config files explicitly
+    "./vite.config.mts",
+    "./playwright.config.ts"
+  ],
+
+  "exclude": [
+    "node_modules",
+    "lib-dist",
+    "../../packages/types"
+  ],
+
+  "references": [
+    { "path": "../types" },
+    { "path": "../loot-core" }
+  ],
+
+  // ✅ Reset inherited files to avoid cross-package bleed
+  "files": []
+}

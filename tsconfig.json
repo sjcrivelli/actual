@@ -1,9 +1,10 @@
 {
   "references": [
-    // TODO: enable once every project is ts
-    // { "path": "./packages/api" },
-    // { "path": "./packages/desktop-client" }
-  ],
+    { "path": "packages/types" },
+    { "path": "packages/loot-core" },
+  // { "path": "packages/desktop-client" },
+    { "path": "packages/sync-server" }
+],
   "compilerOptions": {
     // "composite": true,
     "target": "ES2022",
@@ -24,11 +25,11 @@
     "allowJs": true,
     "checkJs": false,
     // Used for temp builds
-    "outDir": "build",
+  // "outDir": "build",
     "moduleResolution": "bundler",
     "module": "es2022",
-    // Until/if we build using tsc
-    "noEmit": true,
+  // Until/if we build using tsc
+  // "noEmit": true,
     "paths": {
       // TEMPORARY: Until we can fix the "exports" in the loot-core package.json
       "loot-core/*": ["./packages/loot-core/src/*"],
@@ -42,7 +43,12 @@
       }
     ]
   },
-  "include": ["packages/**/*", "bin/*.ts"],
+  "include": [
+    "packages/types/src/index.ts",
+    "packages/loot-core/src/index.ts",
+    "packages/sync-server/app.ts",
+    "bin/*.ts"
+  ],
   "exclude": [
     "**/.*/",
     "node_modules",
