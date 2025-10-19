@@ -41,6 +41,8 @@ Check out the community's [Migration](https://actualbudget.org/docs/migration/) 
 
 ## Documentation
 
+📘 **Full Documentation available in [/docs](./docs/)**
+
 We have a wide range of documentation on how to use Actual, this is all available in our [Community Documentation](https://actualbudget.org/docs), this includes topics on Budgeting, Account Management, Tips & Tricks and some documentation for developers.
 
 ## Contributing

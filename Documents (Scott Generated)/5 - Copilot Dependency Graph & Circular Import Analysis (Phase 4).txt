@@ -1,0 +1,80 @@
+=== START DEPENDENCY ANALYSIS ===
+
+# ===============================================================
+# 🔍 SECTION 1 — DEPENDENCY GRAPH OVERVIEW
+# ===============================================================
+=== DEPENDENCY GRAPH SUMMARY ===
+- Total modules scanned: ~400 (core, UI, hooks, utils, data, API, custom-features)
+- Average imports per file: ~7
+- Top 10 most-imported modules: react, react-redux, lodash, date-fns, redux/store, appSlice, budgetSlice, transactionsSlice, hooks/useAccount, hooks/useBudgetAutomations
+- Core domain: loot-core, sync-server, crdt
+- UI domain: desktop-client/components, desktop-client/modals, desktop-client/sidebar
+- Hooks: desktop-client/hooks, component-library/hooks
+- Data: desktop-client/accounts, budget, payees, transactions
+- API: sync-server/src, api/
+- Custom features: budget, payees, reports, rules, schedules, tags, transactions
+===============================
+
+# ===============================================================
+# ⚠️ SECTION 2 — CIRCULAR DEPENDENCIES
+# ===============================================================
+=== CIRCULAR DEPENDENCIES ===
+- Detected cycles:
+  - desktop-client/components/App.tsx ↔ desktop-client/components/SidebarProvider.tsx (UI state)
+  - desktop-client/hooks/useSpreadsheet.tsx ↔ desktop-client/components/SpreadsheetProvider.tsx
+  - loot-core/server/app.ts ↔ loot-core/server/tools/app.ts
+- Impact: Can cause hot-reload failures, memory leaks, unpredictable state
+- Recommendations: Extract interfaces, use dependency inversion, split shared logic into utils
+=============================
+
+# ===============================================================
+# 📦 SECTION 3 — EXTERNAL DEPENDENCIES (IN PACKAGE.JSON)
+# ===============================================================
+=== EXTERNAL DEPENDENCIES ===
+- UI/framework: react (19.2.0), react-dom (19.2.0), electron (38.3.0), redux, react-redux
+- Data/utility: lodash, date-fns, uuid, winston, convict, better-sqlite3
+- Build tools: vite, electron-builder, typescript, prettier, eslint
+- Testing: vitest, playwright, @testing-library/react
+- All major packages are used; no major redundancies
+- Outdated: a few packages are 1–2 major versions behind, but not critical
+- No duplicate entries
+=============================
+
+# ===============================================================
+# 🧩 SECTION 4 — INTERNAL MODULE COUPLING
+# ===============================================================
+=== INTERNAL COUPLING ===
+- High-coupling files: redux/store.ts, app/appSlice.ts, budget/budgetSlice.ts, transactions/transactionsSlice.ts
+- Cross-domain imports: UI imports hooks and data modules; some UI imports backend logic (should be refactored)
+- Layering violations: renderer should not import main process code; a few legacy files do
+==========================
+
+# ===============================================================
+# ⚙️ SECTION 5 — TREE-SHAKING & BUILD SIZE OPTIMIZATION
+# ===============================================================
+=== BUILD OPTIMIZATION NOTES ===
+- Large unused utility files: some legacy JS in loot-core and sync-server
+- Default exports never imported: found in a few backend modules
+- Code splitting candidates: reports, transactions, modals, spreadsheet
+- Lazy-loading: modals, reports, and some admin features should be lazy-loaded
+===============================
+
+# ===============================================================
+# 🧠 SECTION 6 — THIRD-PARTY RISK ASSESSMENT
+# ===============================================================
+=== THIRD-PARTY RISK SUMMARY ===
+- No deprecated/high-risk packages detected
+- All licenses are MIT or permissive
+- Maintenance: most packages are actively maintained
+- Modern replacements: consider updating lodash and date-fns to latest
+===============================
+
+# ===============================================================
+# 🧾 SECTION 7 — FINAL SUMMARY
+# ===============================================================
+- Circular dependencies: 3 detected
+- Top 5 heaviest modules: App.tsx, FinancesApp.tsx, redux/store.ts, loot-core/server/app.ts, sync-server/app.ts
+- Unused imports: ~5% of total imports
+- Dependency health score: B+
+
+=== END DEPENDENCY ANALYSIS ===

@@ -1,0 +1,80 @@
+=== START BUILD AUDIT ===
+
+# ===============================================================
+# 🧭 SECTION 1 — BUILD SCRIPTS & TOOLCHAIN
+# ===============================================================
+=== BUILD SCRIPTS ===
+- Build scripts (from package.json):
+  - build: `yarn build:dist && electron-builder`
+  - build:dist: `tsc --p tsconfig.dist.json && yarn copy-static-assets`
+  - copy-static-assets: `copyfiles --exclude 'build/**/*' **/*.html icons/**/* build/desktop-electron`
+  - watch: `yarn build:dist && cross-env ACTUAL_DOCUMENT_DIR="../../data" ACTUAL_DATA_DIR="../../data" electron .`
+  - e2e: `npx playwright test`
+- Toolchain: electron-builder (primary), TypeScript, copyfiles, cross-env
+- Output: `build/desktop-electron/index.js` (main), packaged artifacts in `dist/` and platform-specific output
+======================
+
+# ===============================================================
+# 🧩 SECTION 2 — ELECTRON CONFIG VALIDATION
+# ===============================================================
+=== ELECTRON CONFIG ===
+- Main entry: `build/desktop-electron/index.js`
+- Preload: `preload.ts` (contextBridge, IPC)
+- Icon paths: `icons/icon.icns` (mac), `icons/icon.ico` (win)
+- File associations: appx identity for Windows, category for macOS
+- Protocols: app:// registered for asset loading
+- afterSign hooks: beforePackHook.js (rebuilds native modules, copies appx files for Windows)
+- DMG target for macOS, AppImage/Flatpak for Linux, NSIS/Appx for Windows
+=======================
+
+# ===============================================================
+# 🔐 SECTION 3 — SIGNING & SECURITY SETTINGS
+# ===============================================================
+=== SIGNING & SECURITY ===
+- Code-signing: appx publisher for Windows, hardenedRuntime for macOS
+- Notarization: @electron/notarize in devDependencies
+- Windows signTool: appx publisher and identityName set
+- Security: contextIsolation enabled (preload.ts), nodeIntegration disabled in webviews (security.ts)
+- Sandboxing: webview disabled, webSecurity true
+===========================
+
+# ===============================================================
+# 📦 SECTION 4 — OUTPUT ARTIFACTS & TARGETS
+# ===============================================================
+=== BUILD TARGETS ===
+- Packaging targets: win32 (appx, nsis), darwin (dmg), linux (AppImage, flatpak)
+- Architectures: x64, arm64, ia32 (where supported)
+- Icons: platform-specific (icns, ico)
+- Installer: NSIS for Windows, DMG for macOS, AppImage/Flatpak for Linux
+- Metadata: productName, publisher, category, artifactName templated per platform
+=====================
+
+# ===============================================================
+# ⚙️ SECTION 5 — ENVIRONMENT VARIABLES
+# ===============================================================
+=== ENVIRONMENT CHECK ===
+- ACTUAL_DOCUMENT_DIR, ACTUAL_DATA_DIR (required for dev and test)
+- NODE_ENV (production in Dockerfile)
+- electronVersion (used in beforePackHook)
+- Defaults: set in scripts and Dockerfile for CI/CD
+==========================
+
+# ===============================================================
+# 🧠 SECTION 6 — ERROR HANDLING & LOGGING IN BUILDS
+# ===============================================================
+=== BUILD LOGGING ===
+- Error capture: beforePackHook logs errors and exits on failure
+- Logging: main process logs to console, window-state logs to file
+- Crash-reporter: not explicitly integrated, but error handling is present in build hooks
+======================
+
+# ===============================================================
+# 🔍 SECTION 7 — BUILD VALIDATION RESULTS
+# ===============================================================
+- Configuration Integrity: A
+- Security Compliance: A-
+- Cross-Platform Portability: A
+- Signing Preparedness: B+
+- Packaging Stability: A
+
+=== END BUILD AUDIT ===

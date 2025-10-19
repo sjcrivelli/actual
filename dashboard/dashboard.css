@@ -1,0 +1,53 @@
+body {
+  font-family: system-ui, sans-serif;
+  margin: 0;
+  background: #f7f7fa;
+}
+#dashboard {
+  display: flex;
+  height: 100vh;
+}
+#sidebar {
+  width: 260px;
+  background: #232946;
+  color: #fff;
+  padding: 1rem;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+}
+#sidebar h2 {
+  margin-top: 0;
+}
+#doc-list {
+  list-style: none;
+  padding: 0;
+  margin: 1rem 0;
+  flex: 1;
+}
+#doc-list li {
+  margin-bottom: 0.5rem;
+  cursor: pointer;
+  padding: 0.3rem 0.5rem;
+  border-radius: 4px;
+}
+#doc-list li.active {
+  background: #eebbc3;
+  color: #232946;
+}
+#search {
+  margin-top: 1rem;
+  padding: 0.5rem;
+  border-radius: 4px;
+  border: none;
+  font-size: 1rem;
+}
+#viewer {
+  flex: 1;
+  background: #fff;
+  padding: 2rem;
+  overflow-y: auto;
+}
+#doc-content h1, #doc-content h2, #doc-content h3 {
+  color: #232946;
+}
