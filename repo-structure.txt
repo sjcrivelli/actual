@@ -1,0 +1,1232 @@
+packages
+|-- api
+|   |-- README.md
+|   |-- __snapshots__
+|   |   `-- methods.test.ts.snap
+|   |-- app
+|   |   `-- query.js
+|   |-- bin
+|   |   `-- build-api
+|   |-- index.ts
+|   |-- injected.js
+|   |-- methods.test.ts
+|   |-- methods.ts
+|   |-- mocks
+|   |   `-- budgets
+|   |-- package.json
+|   |-- tsconfig.dist.json
+|   |-- utils.ts
+|   |-- validateNodeVersion.js
+|   `-- vitest.config.ts
+|-- ci-actions
+|   |-- bin
+|   |   `-- get-next-package-version.js
+|   |-- package.json
+|   |-- src
+|   |   `-- versions
+|   |       |-- get-next-package-version.js
+|   |       `-- get-next-package-version.test.js
+|   `-- vitest.config.mts
+|-- component-library
+|   |-- package.json
+|   |-- src
+|   |   |-- AlignedText.tsx
+|   |   |-- Block.tsx
+|   |   |-- Button.tsx
+|   |   |-- Card.tsx
+|   |   |-- ColorPicker.tsx
+|   |   |-- FormError.tsx
+|   |   |-- InitialFocus.ts
+|   |   |-- InitialFocus.web.test.tsx
+|   |   |-- InlineField.tsx
+|   |   |-- Input.tsx
+|   |   |-- Label.tsx
+|   |   |-- Menu.tsx
+|   |   |-- Paragraph.tsx
+|   |   |-- Popover.tsx
+|   |   |-- Select.tsx
+|   |   |-- SpaceBetween.tsx
+|   |   |-- Stack.tsx
+|   |   |-- Text.tsx
+|   |   |-- TextOneLine.tsx
+|   |   |-- Toggle.tsx
+|   |   |-- Tooltip.tsx
+|   |   |-- View.tsx
+|   |   |-- hooks
+|   |   |   `-- useResponsive.ts
+|   |   |-- icons
+|   |   |   |-- AnimatedLoading.tsx
+|   |   |   |-- Loading.tsx
+|   |   |   |-- add-attribute.js
+|   |   |   |-- index-template.ts
+|   |   |   |-- logo
+|   |   |   |-- template.ts
+|   |   |   |-- v0
+|   |   |   |-- v1
+|   |   |   `-- v2
+|   |   |-- styles.ts
+|   |   |-- theme.ts
+|   |   `-- tokens.ts
+|   `-- vitest.web.config.ts
+|-- crdt
+|   |-- README.md
+|   |-- bin
+|   |   `-- generate-proto
+|   |-- index.ts
+|   |-- package.json
+|   |-- src
+|   |   |-- crdt
+|   |   |   |-- __snapshots__
+|   |   |   |-- index.ts
+|   |   |   |-- merkle.test.ts
+|   |   |   |-- merkle.ts
+|   |   |   |-- timestamp.test.ts
+|   |   |   `-- timestamp.ts
+|   |   |-- index.ts
+|   |   `-- proto
+|   |       |-- sync.proto
+|   |       |-- sync_pb.js
+|   |       `-- sync_pb.ts
+|   `-- tsconfig.dist.json
+|-- desktop-client
+|   |-- README.md
+|   |-- bin
+|   |   |-- build-browser
+|   |   |-- remove-untranslated-languages
+|   |   `-- watch-browser
+|   |-- dev-dist
+|   |   `-- registerSW.js
+|   |-- e2e
+|   |   |-- accounts.mobile.test.ts
+|   |   |-- accounts.mobile.test.ts-snapshots
+|   |   |   |-- Mobile-Accounts-opens-individual-account-page-and-checks-that-filtering-is-working-1-chromium-linux.png
+|   |   |   |-- Mobile-Accounts-opens-individual-account-page-and-checks-that-filtering-is-working-2-chromium-linux.png
+|   |   |   |-- Mobile-Accounts-opens-individual-account-page-and-checks-that-filtering-is-working-3-chromium-linux.png
+|   |   |   |-- Mobile-Accounts-opens-individual-account-page-and-checks-that-filtering-is-working-4-chromium-linux.png
+|   |   |   |-- Mobile-Accounts-opens-individual-account-page-and-checks-that-filtering-is-working-5-chromium-linux.png
+|   |   |   |-- Mobile-Accounts-opens-individual-account-page-and-checks-that-filtering-is-working-6-chromium-linux.png
+|   |   |   |-- Mobile-Accounts-opens-individual-account-page-and-checks-that-filtering-is-working-7-chromium-linux.png
+|   |   |   |-- Mobile-Accounts-opens-individual-account-page-and-checks-that-filtering-is-working-8-chromium-linux.png
+|   |   |   |-- Mobile-Accounts-opens-individual-account-page-and-checks-that-filtering-is-working-9-chromium-linux.png
+|   |   |   |-- Mobile-Accounts-opens-the-accounts-page-and-asserts-on-balances-1-chromium-linux.png
+|   |   |   |-- Mobile-Accounts-opens-the-accounts-page-and-asserts-on-balances-2-chromium-linux.png
+|   |   |   `-- Mobile-Accounts-opens-the-accounts-page-and-asserts-on-balances-3-chromium-linux.png
+|   |   |-- accounts.test.ts
+|   |   |-- accounts.test.ts-snapshots
+|   |   |   |-- Accounts-Import-Transactions-import-csv-file-twice-1-chromium-linux.png
+|   |   |   |-- Accounts-Import-Transactions-import-csv-file-twice-2-chromium-linux.png
+|   |   |   |-- Accounts-Import-Transactions-import-csv-file-twice-3-chromium-linux.png
+|   |   |   |-- Accounts-Import-Transactions-imports-transactions-from-a-CSV-file-1-chromium-linux.png
+|   |   |   |-- Accounts-Import-Transactions-imports-transactions-from-a-CSV-file-2-chromium-linux.png
+|   |   |   |-- Accounts-Import-Transactions-imports-transactions-from-a-CSV-file-3-chromium-linux.png
+|   |   |   |-- Accounts-closes-an-account-1-chromium-linux.png
+|   |   |   |-- Accounts-closes-an-account-2-chromium-linux.png
+|   |   |   |-- Accounts-closes-an-account-3-chromium-linux.png
+|   |   |   |-- Accounts-closes-an-account-4-chromium-linux.png
+|   |   |   |-- Accounts-closes-an-account-5-chromium-linux.png
+|   |   |   |-- Accounts-closes-an-account-6-chromium-linux.png
+|   |   |   |-- Accounts-creates-a-new-account-and-views-the-initial-balance-transaction-1-chromium-linux.png
+|   |   |   |-- Accounts-creates-a-new-account-and-views-the-initial-balance-transaction-2-chromium-linux.png
+|   |   |   `-- Accounts-creates-a-new-account-and-views-the-initial-balance-transaction-3-chromium-linux.png
+|   |   |-- budget.mobile.test.ts
+|   |   |-- budget.mobile.test.ts-snapshots
+|   |   |   |-- Mobile-Budget-Envelope-applies-budget-template-1-chromium-linux.png
+|   |   |   |-- Mobile-Budget-Envelope-applies-budget-template-2-chromium-linux.png
+|   |   |   |-- Mobile-Budget-Envelope-applies-budget-template-3-chromium-linux.png
+|   |   |   |-- Mobile-Budget-Envelope-checks-that-clicking--14404-in-the-page-header-opens-the-month-menu-modal-3-chromium-linux.png
+|   |   |   |-- Mobile-Budget-Envelope-checks-that-clicking--321fd-ed-amount-opens-the-budget-summary-menu-modal-2-chromium-linux.png
+|   |   |   |-- Mobile-Budget-Envelope-checks-that-clicking--4bb70-ed-amount-opens-the-budget-summary-menu-modal-1-chromium-linux.png
+|   |   |   |-- Mobile-Budget-Envelope-checks-that-clicking--589a6-the-page-header-shows-the-next-month-s-budget-2-chromium-linux.png
+|   |   |   |-- Mobile-Budget-Envelope-checks-that-clicking--6ab37-roup-name-opens-the-category-group-menu-modal-1-chromium-linux.png
+|   |   |   |-- Mobile-Budget-Envelope-checks-that-clicking--6dbdb-page-header-shows-the-previous-month-s-budget-1-chromium-linux.png
+|   |   |   |-- Mobile-Budget-Envelope-checks-that-clicking--7bd8f-the-page-header-shows-the-next-month-s-budget-3-chromium-linux.png
+|   |   |   |-- Mobile-Budget-Envelope-checks-that-clicking--884ac-the-page-header-shows-the-next-month-s-budget-1-chromium-linux.png
+|   |   |   |-- Mobile-Budget-Envelope-checks-that-clicking--94a79-roup-name-opens-the-category-group-menu-modal-2-chromium-linux.png
+|   |   |   |-- Mobile-Budget-Envelope-checks-that-clicking--94a85-ed-amount-opens-the-budget-summary-menu-modal-3-chromium-linux.png
+|   |   |   |-- Mobile-Budget-Envelope-checks-that-clicking--96ebb-page-header-shows-the-previous-month-s-budget-3-chromium-linux.png
+|   |   |   |-- Mobile-Budget-Envelope-checks-that-clicking--9e6aa-in-the-page-header-opens-the-budget-page-menu-1-chromium-linux.png
+|   |   |   |-- Mobile-Budget-Envelope-checks-that-clicking--bbde3-roup-name-opens-the-category-group-menu-modal-3-chromium-linux.png
+|   |   |   |-- Mobile-Budget-Envelope-checks-that-clicking--bed18-in-the-page-header-opens-the-month-menu-modal-1-chromium-linux.png
+|   |   |   |-- Mobile-Budget-Envelope-checks-that-clicking--c18ad-l-redirects-to-the-category-transactions-page-1-chromium-linux.png
+|   |   |   |-- Mobile-Budget-Envelope-checks-that-clicking--ceb3a-in-the-page-header-opens-the-month-menu-modal-2-chromium-linux.png
+|   |   |   |-- Mobile-Budget-Envelope-checks-that-clicking--d270d-in-the-page-header-opens-the-budget-page-menu-2-chromium-linux.png
+|   |   |   |-- Mobile-Budget-Envelope-checks-that-clicking--d7184-page-header-shows-the-previous-month-s-budget-2-chromium-linux.png
+|   |   |   |-- Mobile-Budget-Envelope-checks-that-clicking--e995e-l-redirects-to-the-category-transactions-page-3-chromium-linux.png
+|   |   |   |-- Mobile-Budget-Envelope-checks-that-clicking--fdd57-in-the-page-header-opens-the-budget-page-menu-3-chromium-linux.png
+|   |   |   |-- Mobile-Budget-Envelope-checks-that-clicking--ff568-l-redirects-to-the-category-transactions-page-2-chromium-linux.png
+|   |   |   |-- Mobile-Budget-Envelope-checks-that-clicking-the-balance-cell-opens-the-balance-menu-modal-1-chromium-linux.png
+|   |   |   |-- Mobile-Budget-Envelope-checks-that-clicking-the-balance-cell-opens-the-balance-menu-modal-2-chromium-linux.png
+|   |   |   |-- Mobile-Budget-Envelope-checks-that-clicking-the-balance-cell-opens-the-balance-menu-modal-3-chromium-linux.png
+|   |   |   |-- Mobile-Budget-Envelope-checks-that-clicking-the-budgeted-cell-opens-the-budget-menu-modal-1-chromium-linux.png
+|   |   |   |-- Mobile-Budget-Envelope-checks-that-clicking-the-budgeted-cell-opens-the-budget-menu-modal-2-chromium-linux.png
+|   |   |   |-- Mobile-Budget-Envelope-checks-that-clicking-the-budgeted-cell-opens-the-budget-menu-modal-3-chromium-linux.png
+|   |   |   |-- Mobile-Budget-Envelope-checks-that-clicking-the-category-name-opens-the-category-menu-modal-1-chromium-linux.png
+|   |   |   |-- Mobile-Budget-Envelope-checks-that-clicking-the-category-name-opens-the-category-menu-modal-2-chromium-linux.png
+|   |   |   |-- Mobile-Budget-Envelope-checks-that-clicking-the-category-name-opens-the-category-menu-modal-3-chromium-linux.png
+|   |   |   |-- Mobile-Budget-Envelope-copies-last-month-s-budget-1-chromium-linux.png
+|   |   |   |-- Mobile-Budget-Envelope-copies-last-month-s-budget-2-chromium-linux.png
+|   |   |   |-- Mobile-Budget-Envelope-copies-last-month-s-budget-3-chromium-linux.png
+|   |   |   |-- Mobile-Budget-Envelope-loads-the-budget-page-with-budgeted-amounts-1-chromium-linux.png
+|   |   |   |-- Mobile-Budget-Envelope-loads-the-budget-page-with-budgeted-amounts-2-chromium-linux.png
+|   |   |   |-- Mobile-Budget-Envelope-loads-the-budget-page-with-budgeted-amounts-3-chromium-linux.png
+|   |   |   |-- Mobile-Budget-Envelope-set-budget-to-12-month-average-1-chromium-linux.png
+|   |   |   |-- Mobile-Budget-Envelope-set-budget-to-12-month-average-2-chromium-linux.png
+|   |   |   |-- Mobile-Budget-Envelope-set-budget-to-12-month-average-3-chromium-linux.png
+|   |   |   |-- Mobile-Budget-Envelope-set-budget-to-3-month-average-1-chromium-linux.png
+|   |   |   |-- Mobile-Budget-Envelope-set-budget-to-3-month-average-2-chromium-linux.png
+|   |   |   |-- Mobile-Budget-Envelope-set-budget-to-3-month-average-3-chromium-linux.png
+|   |   |   |-- Mobile-Budget-Envelope-set-budget-to-6-month-average-1-chromium-linux.png
+|   |   |   |-- Mobile-Budget-Envelope-set-budget-to-6-month-average-2-chromium-linux.png
+|   |   |   |-- Mobile-Budget-Envelope-set-budget-to-6-month-average-3-chromium-linux.png
+|   |   |   |-- Mobile-Budget-Envelope-updates-the-budgeted-amount-1-chromium-linux.png
+|   |   |   |-- Mobile-Budget-Envelope-updates-the-budgeted-amount-2-chromium-linux.png
+|   |   |   |-- Mobile-Budget-Envelope-updates-the-budgeted-amount-3-chromium-linux.png
+|   |   |   |-- Mobile-Budget-Tracking-applies-budget-template-1-chromium-linux.png
+|   |   |   |-- Mobile-Budget-Tracking-applies-budget-template-2-chromium-linux.png
+|   |   |   |-- Mobile-Budget-Tracking-applies-budget-template-3-chromium-linux.png
+|   |   |   |-- Mobile-Budget-Tracking-checks-that-clicking--0ba04-nt-amount-opens-the-budget-summary-menu-modal-1-chromium-linux.png
+|   |   |   |-- Mobile-Budget-Tracking-checks-that-clicking--0dfe7-page-header-shows-the-previous-month-s-budget-1-chromium-linux.png
+|   |   |   |-- Mobile-Budget-Tracking-checks-that-clicking--11290-l-redirects-to-the-category-transactions-page-3-chromium-linux.png
+|   |   |   |-- Mobile-Budget-Tracking-checks-that-clicking--1ce6d-nt-amount-opens-the-budget-summary-menu-modal-2-chromium-linux.png
+|   |   |   |-- Mobile-Budget-Tracking-checks-that-clicking--42062-in-the-page-header-opens-the-month-menu-modal-2-chromium-linux.png
+|   |   |   |-- Mobile-Budget-Tracking-checks-that-clicking--49fb6-in-the-page-header-opens-the-month-menu-modal-3-chromium-linux.png
+|   |   |   |-- Mobile-Budget-Tracking-checks-that-clicking--57d88-l-redirects-to-the-category-transactions-page-2-chromium-linux.png
+|   |   |   |-- Mobile-Budget-Tracking-checks-that-clicking--5d90c-l-redirects-to-the-category-transactions-page-1-chromium-linux.png
+|   |   |   |-- Mobile-Budget-Tracking-checks-that-clicking--5f098-roup-name-opens-the-category-group-menu-modal-1-chromium-linux.png
+|   |   |   |-- Mobile-Budget-Tracking-checks-that-clicking--7c353-the-page-header-shows-the-next-month-s-budget-3-chromium-linux.png
+|   |   |   |-- Mobile-Budget-Tracking-checks-that-clicking--929be-roup-name-opens-the-category-group-menu-modal-3-chromium-linux.png
+|   |   |   |-- Mobile-Budget-Tracking-checks-that-clicking--a3783-in-the-page-header-opens-the-budget-page-menu-1-chromium-linux.png
+|   |   |   |-- Mobile-Budget-Tracking-checks-that-clicking--a8b5e-in-the-page-header-opens-the-budget-page-menu-3-chromium-linux.png
+|   |   |   |-- Mobile-Budget-Tracking-checks-that-clicking--b1562-in-the-page-header-opens-the-month-menu-modal-1-chromium-linux.png
+|   |   |   |-- Mobile-Budget-Tracking-checks-that-clicking--cfb69-page-header-shows-the-previous-month-s-budget-2-chromium-linux.png
+|   |   |   |-- Mobile-Budget-Tracking-checks-that-clicking--d5af6-the-page-header-shows-the-next-month-s-budget-1-chromium-linux.png
+|   |   |   |-- Mobile-Budget-Tracking-checks-that-clicking--dc927-roup-name-opens-the-category-group-menu-modal-2-chromium-linux.png
+|   |   |   |-- Mobile-Budget-Tracking-checks-that-clicking--f2198-the-page-header-shows-the-next-month-s-budget-2-chromium-linux.png
+|   |   |   |-- Mobile-Budget-Tracking-checks-that-clicking--f224f-nt-amount-opens-the-budget-summary-menu-modal-3-chromium-linux.png
+|   |   |   |-- Mobile-Budget-Tracking-checks-that-clicking--f7fa3-page-header-shows-the-previous-month-s-budget-3-chromium-linux.png
+|   |   |   |-- Mobile-Budget-Tracking-checks-that-clicking--f8a19-in-the-page-header-opens-the-budget-page-menu-2-chromium-linux.png
+|   |   |   |-- Mobile-Budget-Tracking-checks-that-clicking-the-balance-cell-opens-the-balance-menu-modal-1-chromium-linux.png
+|   |   |   |-- Mobile-Budget-Tracking-checks-that-clicking-the-balance-cell-opens-the-balance-menu-modal-2-chromium-linux.png
+|   |   |   |-- Mobile-Budget-Tracking-checks-that-clicking-the-balance-cell-opens-the-balance-menu-modal-3-chromium-linux.png
+|   |   |   |-- Mobile-Budget-Tracking-checks-that-clicking-the-budgeted-cell-opens-the-budget-menu-modal-1-chromium-linux.png
+|   |   |   |-- Mobile-Budget-Tracking-checks-that-clicking-the-budgeted-cell-opens-the-budget-menu-modal-2-chromium-linux.png
+|   |   |   |-- Mobile-Budget-Tracking-checks-that-clicking-the-budgeted-cell-opens-the-budget-menu-modal-3-chromium-linux.png
+|   |   |   |-- Mobile-Budget-Tracking-checks-that-clicking-the-category-name-opens-the-category-menu-modal-1-chromium-linux.png
+|   |   |   |-- Mobile-Budget-Tracking-checks-that-clicking-the-category-name-opens-the-category-menu-modal-2-chromium-linux.png
+|   |   |   |-- Mobile-Budget-Tracking-checks-that-clicking-the-category-name-opens-the-category-menu-modal-3-chromium-linux.png
+|   |   |   |-- Mobile-Budget-Tracking-copies-last-month-s-budget-1-chromium-linux.png
+|   |   |   |-- Mobile-Budget-Tracking-copies-last-month-s-budget-2-chromium-linux.png
+|   |   |   |-- Mobile-Budget-Tracking-copies-last-month-s-budget-3-chromium-linux.png
+|   |   |   |-- Mobile-Budget-Tracking-loads-the-budget-page-with-budgeted-amounts-1-chromium-linux.png
+|   |   |   |-- Mobile-Budget-Tracking-loads-the-budget-page-with-budgeted-amounts-2-chromium-linux.png
+|   |   |   |-- Mobile-Budget-Tracking-loads-the-budget-page-with-budgeted-amounts-3-chromium-linux.png
+|   |   |   |-- Mobile-Budget-Tracking-set-budget-to-12-month-average-1-chromium-linux.png
+|   |   |   |-- Mobile-Budget-Tracking-set-budget-to-12-month-average-2-chromium-linux.png
+|   |   |   |-- Mobile-Budget-Tracking-set-budget-to-12-month-average-3-chromium-linux.png
+|   |   |   |-- Mobile-Budget-Tracking-set-budget-to-3-month-average-1-chromium-linux.png
+|   |   |   |-- Mobile-Budget-Tracking-set-budget-to-3-month-average-2-chromium-linux.png
+|   |   |   |-- Mobile-Budget-Tracking-set-budget-to-3-month-average-3-chromium-linux.png
+|   |   |   |-- Mobile-Budget-Tracking-set-budget-to-6-month-average-1-chromium-linux.png
+|   |   |   |-- Mobile-Budget-Tracking-set-budget-to-6-month-average-2-chromium-linux.png
+|   |   |   |-- Mobile-Budget-Tracking-set-budget-to-6-month-average-3-chromium-linux.png
+|   |   |   |-- Mobile-Budget-Tracking-updates-the-budgeted-amount-1-chromium-linux.png
+|   |   |   |-- Mobile-Budget-Tracking-updates-the-budgeted-amount-2-chromium-linux.png
+|   |   |   `-- Mobile-Budget-Tracking-updates-the-budgeted-amount-3-chromium-linux.png
+|   |   |-- budget.test.ts
+|   |   |-- budget.test.ts-snapshots
+|   |   |   |-- Budget-renders-the-summary-information-available-funds-overspent-budgeted-and-for-next-month-1-chromium-linux.png
+|   |   |   |-- Budget-renders-the-summary-information-available-funds-overspent-budgeted-and-for-next-month-2-chromium-linux.png
+|   |   |   |-- Budget-renders-the-summary-information-available-funds-overspent-budgeted-and-for-next-month-3-chromium-linux.png
+|   |   |   |-- Budget-transfer-funds-to-another-category-1-chromium-linux.png
+|   |   |   |-- Budget-transfer-funds-to-another-category-2-chromium-linux.png
+|   |   |   `-- Budget-transfer-funds-to-another-category-3-chromium-linux.png
+|   |   |-- command-bar.test.ts
+|   |   |-- command-bar.test.ts-snapshots
+|   |   |   |-- Command-bar-Check-the-command-bar-search-works-correctly-1-chromium-linux.png
+|   |   |   |-- Command-bar-Check-the-command-bar-search-works-correctly-2-chromium-linux.png
+|   |   |   |-- Command-bar-Check-the-command-bar-search-works-correctly-3-chromium-linux.png
+|   |   |   |-- Command-bar-Check-the-command-bar-visuals-1-chromium-linux.png
+|   |   |   |-- Command-bar-Check-the-command-bar-visuals-2-chromium-linux.png
+|   |   |   `-- Command-bar-Check-the-command-bar-visuals-3-chromium-linux.png
+|   |   |-- data
+|   |   |   |-- actual-demo-budget.zip
+|   |   |   |-- test.csv
+|   |   |   |-- ynab4-demo-budget.zip
+|   |   |   `-- ynab5-demo-budget.json
+|   |   |-- fixtures.ts
+|   |   |-- help-menu.test.ts
+|   |   |-- help-menu.test.ts-snapshots
+|   |   |   |-- Help-menu-Check-the-help-menu-visuals-1-chromium-linux.png
+|   |   |   |-- Help-menu-Check-the-help-menu-visuals-2-chromium-linux.png
+|   |   |   |-- Help-menu-Check-the-help-menu-visuals-3-chromium-linux.png
+|   |   |   |-- Help-menu-Check-the-keyboard-shortcuts-modal-visuals-1-chromium-linux.png
+|   |   |   |-- Help-menu-Check-the-keyboard-shortcuts-modal-visuals-2-chromium-linux.png
+|   |   |   |-- Help-menu-Check-the-keyboard-shortcuts-modal-visuals-3-chromium-linux.png
+|   |   |   |-- Help-menu-Check-the-keyboard-shortcuts-modal-visuals-4-chromium-linux.png
+|   |   |   |-- Help-menu-Check-the-keyboard-shortcuts-modal-visuals-5-chromium-linux.png
+|   |   |   |-- Help-menu-Check-the-keyboard-shortcuts-modal-visuals-6-chromium-linux.png
+|   |   |   |-- Help-menu-Check-the-keyboard-shortcuts-modal-visuals-7-chromium-linux.png
+|   |   |   |-- Help-menu-Check-the-keyboard-shortcuts-modal-visuals-8-chromium-linux.png
+|   |   |   `-- Help-menu-Check-the-keyboard-shortcuts-modal-visuals-9-chromium-linux.png
+|   |   |-- onboarding.test.ts
+|   |   |-- onboarding.test.ts-snapshots
+|   |   |   |-- Onboarding-checks-the-page-visuals-1-chromium-linux.png
+|   |   |   |-- Onboarding-checks-the-page-visuals-2-chromium-linux.png
+|   |   |   |-- Onboarding-checks-the-page-visuals-3-chromium-linux.png
+|   |   |   |-- Onboarding-checks-the-page-visuals-4-chromium-linux.png
+|   |   |   |-- Onboarding-checks-the-page-visuals-5-chromium-linux.png
+|   |   |   `-- Onboarding-checks-the-page-visuals-6-chromium-linux.png
+|   |   |-- page-models
+|   |   |   |-- account-page.ts
+|   |   |   |-- budget-page.ts
+|   |   |   |-- close-account-modal.ts
+|   |   |   |-- configuration-page.ts
+|   |   |   |-- custom-report-page.ts
+|   |   |   |-- mobile-account-page.ts
+|   |   |   |-- mobile-accounts-page.ts
+|   |   |   |-- mobile-balance-menu-modal.ts
+|   |   |   |-- mobile-budget-menu-modal.ts
+|   |   |   |-- mobile-budget-page.ts
+|   |   |   |-- mobile-category-menu-modal.ts
+|   |   |   |-- mobile-edit-notes-modal.ts
+|   |   |   |-- mobile-envelope-budget-summary-modal.ts
+|   |   |   |-- mobile-navigation.ts
+|   |   |   |-- mobile-payees-page.ts
+|   |   |   |-- mobile-reports-page.ts
+|   |   |   |-- mobile-rules-page.ts
+|   |   |   |-- mobile-tracking-budget-summary-modal.ts
+|   |   |   |-- mobile-transaction-entry-page.ts
+|   |   |   |-- navigation.ts
+|   |   |   |-- payees-page.ts
+|   |   |   |-- reports-page.ts
+|   |   |   |-- rules-page.ts
+|   |   |   |-- schedules-page.ts
+|   |   |   `-- settings-page.ts
+|   |   |-- payees.mobile.test.ts
+|   |   |-- payees.mobile.test.ts-snapshots
+|   |   |   |-- Mobile-Payees-checks-the-page-visuals-1-chromium-linux.png
+|   |   |   |-- Mobile-Payees-checks-the-page-visuals-2-chromium-linux.png
+|   |   |   |-- Mobile-Payees-checks-the-page-visuals-3-chromium-linux.png
+|   |   |   |-- Mobile-Payees-clicking-on-a-payee-opens-rule-creation-form-1-chromium-linux.png
+|   |   |   |-- Mobile-Payees-clicking-on-a-payee-opens-rule-creation-form-2-chromium-linux.png
+|   |   |   |-- Mobile-Payees-clicking-on-a-payee-opens-rule-creation-form-3-chromium-linux.png
+|   |   |   |-- Mobile-Payees-filters-out-unrelated-payees-1-chromium-linux.png
+|   |   |   |-- Mobile-Payees-filters-out-unrelated-payees-2-chromium-linux.png
+|   |   |   |-- Mobile-Payees-filters-out-unrelated-payees-3-chromium-linux.png
+|   |   |   |-- Mobile-Payees-page-handles-empty-state-gracefully-1-chromium-linux.png
+|   |   |   |-- Mobile-Payees-page-handles-empty-state-gracefully-2-chromium-linux.png
+|   |   |   |-- Mobile-Payees-page-handles-empty-state-gracefully-3-chromium-linux.png
+|   |   |   |-- Mobile-Payees-search-functionality-works-correctly-1-chromium-linux.png
+|   |   |   |-- Mobile-Payees-search-functionality-works-correctly-2-chromium-linux.png
+|   |   |   |-- Mobile-Payees-search-functionality-works-correctly-3-chromium-linux.png
+|   |   |   |-- Mobile-Payees-search-functionality-works-correctly-4-chromium-linux.png
+|   |   |   |-- Mobile-Payees-search-functionality-works-correctly-5-chromium-linux.png
+|   |   |   `-- Mobile-Payees-search-functionality-works-correctly-6-chromium-linux.png
+|   |   |-- payees.test.ts
+|   |   |-- payees.test.ts-snapshots
+|   |   |   |-- Payees-checks-the-payees-page-visuals-1-chromium-linux.png
+|   |   |   |-- Payees-checks-the-payees-page-visuals-2-chromium-linux.png
+|   |   |   |-- Payees-checks-the-payees-page-visuals-3-chromium-linux.png
+|   |   |   |-- Payees-checks-the-payees-page-visuals-4-chromium-linux.png
+|   |   |   |-- Payees-checks-the-payees-page-visuals-5-chromium-linux.png
+|   |   |   `-- Payees-checks-the-payees-page-visuals-6-chromium-linux.png
+|   |   |-- reports.test.ts
+|   |   |-- reports.test.ts-snapshots
+|   |   |   |-- Reports-custom-reports-Switches-to-Area-Graph-and-checks-the-visuals-1-chromium-linux.png
+|   |   |   |-- Reports-custom-reports-Switches-to-Area-Graph-and-checks-the-visuals-2-chromium-linux.png
+|   |   |   |-- Reports-custom-reports-Switches-to-Area-Graph-and-checks-the-visuals-3-chromium-linux.png
+|   |   |   |-- Reports-custom-reports-Switches-to-Bar-Graph-and-checks-the-visuals-1-chromium-linux.png
+|   |   |   |-- Reports-custom-reports-Switches-to-Bar-Graph-and-checks-the-visuals-2-chromium-linux.png
+|   |   |   |-- Reports-custom-reports-Switches-to-Bar-Graph-and-checks-the-visuals-3-chromium-linux.png
+|   |   |   |-- Reports-custom-reports-Switches-to-Data-Table-and-checks-the-visuals-1-chromium-linux.png
+|   |   |   |-- Reports-custom-reports-Switches-to-Data-Table-and-checks-the-visuals-2-chromium-linux.png
+|   |   |   |-- Reports-custom-reports-Switches-to-Data-Table-and-checks-the-visuals-3-chromium-linux.png
+|   |   |   |-- Reports-custom-reports-Switches-to-Donut-Graph-and-checks-the-visuals-1-chromium-linux.png
+|   |   |   |-- Reports-custom-reports-Switches-to-Donut-Graph-and-checks-the-visuals-2-chromium-linux.png
+|   |   |   |-- Reports-custom-reports-Switches-to-Donut-Graph-and-checks-the-visuals-3-chromium-linux.png
+|   |   |   |-- Reports-custom-reports-Switches-to-Line-Graph-and-checks-the-visuals-1-chromium-linux.png
+|   |   |   |-- Reports-custom-reports-Switches-to-Line-Graph-and-checks-the-visuals-2-chromium-linux.png
+|   |   |   |-- Reports-custom-reports-Switches-to-Line-Graph-and-checks-the-visuals-3-chromium-linux.png
+|   |   |   |-- Reports-custom-reports-Validates-that-show-labels-button-shows-the-labels-1-chromium-linux.png
+|   |   |   |-- Reports-custom-reports-Validates-that-show-labels-button-shows-the-labels-2-chromium-linux.png
+|   |   |   |-- Reports-custom-reports-Validates-that-show-labels-button-shows-the-labels-3-chromium-linux.png
+|   |   |   |-- Reports-custom-reports-Validates-that-show-legend-button-shows-the-legend-side-bar-1-chromium-linux.png
+|   |   |   |-- Reports-custom-reports-Validates-that-show-legend-button-shows-the-legend-side-bar-2-chromium-linux.png
+|   |   |   |-- Reports-custom-reports-Validates-that-show-legend-button-shows-the-legend-side-bar-3-chromium-linux.png
+|   |   |   |-- Reports-custom-reports-Validates-that-show-summary-button-shows-the-summary-1-chromium-linux.png
+|   |   |   |-- Reports-custom-reports-Validates-that-show-summary-button-shows-the-summary-2-chromium-linux.png
+|   |   |   |-- Reports-custom-reports-Validates-that-show-summary-button-shows-the-summary-3-chromium-linux.png
+|   |   |   |-- Reports-loads-cash-flow-graph-and-checks-visuals-1-chromium-linux.png
+|   |   |   |-- Reports-loads-cash-flow-graph-and-checks-visuals-2-chromium-linux.png
+|   |   |   |-- Reports-loads-cash-flow-graph-and-checks-visuals-3-chromium-linux.png
+|   |   |   |-- Reports-loads-net-worth-and-cash-flow-reports-1-chromium-linux.png
+|   |   |   |-- Reports-loads-net-worth-and-cash-flow-reports-2-chromium-linux.png
+|   |   |   |-- Reports-loads-net-worth-and-cash-flow-reports-3-chromium-linux.png
+|   |   |   |-- Reports-loads-net-worth-graph-and-checks-visuals-1-chromium-linux.png
+|   |   |   |-- Reports-loads-net-worth-graph-and-checks-visuals-2-chromium-linux.png
+|   |   |   `-- Reports-loads-net-worth-graph-and-checks-visuals-3-chromium-linux.png
+|   |   |-- rules.mobile.test.ts
+|   |   |-- rules.mobile.test.ts-snapshots
+|   |   |   |-- Mobile-Rules-checks-the-page-visuals-1-chromium-linux.png
+|   |   |   |-- Mobile-Rules-checks-the-page-visuals-2-chromium-linux.png
+|   |   |   |-- Mobile-Rules-checks-the-page-visuals-3-chromium-linux.png
+|   |   |   |-- Mobile-Rules-clicking-add-button-opens-rule-creation-form-1-chromium-linux.png
+|   |   |   |-- Mobile-Rules-clicking-add-button-opens-rule-creation-form-2-chromium-linux.png
+|   |   |   |-- Mobile-Rules-clicking-add-button-opens-rule-creation-form-3-chromium-linux.png
+|   |   |   |-- Mobile-Rules-clicking-on-a-rule-opens-edit-form-1-chromium-linux.png
+|   |   |   |-- Mobile-Rules-clicking-on-a-rule-opens-edit-form-2-chromium-linux.png
+|   |   |   |-- Mobile-Rules-clicking-on-a-rule-opens-edit-form-3-chromium-linux.png
+|   |   |   |-- Mobile-Rules-displays-the-rules-page-with-proper-header-and-search-bar-1-chromium-linux.png
+|   |   |   |-- Mobile-Rules-displays-the-rules-page-with-proper-header-and-search-bar-2-chromium-linux.png
+|   |   |   |-- Mobile-Rules-displays-the-rules-page-with-proper-header-and-search-bar-3-chromium-linux.png
+|   |   |   |-- Mobile-Rules-page-handles-empty-state-gracefully-1-chromium-linux.png
+|   |   |   |-- Mobile-Rules-page-handles-empty-state-gracefully-2-chromium-linux.png
+|   |   |   |-- Mobile-Rules-page-handles-empty-state-gracefully-3-chromium-linux.png
+|   |   |   |-- Mobile-Rules-search-functionality-filters-rules-correctly-1-chromium-linux.png
+|   |   |   |-- Mobile-Rules-search-functionality-filters-rules-correctly-2-chromium-linux.png
+|   |   |   `-- Mobile-Rules-search-functionality-filters-rules-correctly-3-chromium-linux.png
+|   |   |-- rules.test.ts
+|   |   |-- rules.test.ts-snapshots
+|   |   |   |-- Rules-checks-the-page-visuals-1-chromium-linux.png
+|   |   |   |-- Rules-checks-the-page-visuals-2-chromium-linux.png
+|   |   |   |-- Rules-checks-the-page-visuals-3-chromium-linux.png
+|   |   |   |-- Rules-creates-a-rule-and-makes-sure-it-is-applied-when-creating-a-transaction-1-chromium-linux.png
+|   |   |   |-- Rules-creates-a-rule-and-makes-sure-it-is-applied-when-creating-a-transaction-2-chromium-linux.png
+|   |   |   |-- Rules-creates-a-rule-and-makes-sure-it-is-applied-when-creating-a-transaction-3-chromium-linux.png
+|   |   |   |-- Rules-creates-a-rule-and-makes-sure-it-is-applied-when-creating-a-transaction-4-chromium-linux.png
+|   |   |   |-- Rules-creates-a-rule-and-makes-sure-it-is-applied-when-creating-a-transaction-5-chromium-linux.png
+|   |   |   |-- Rules-creates-a-rule-and-makes-sure-it-is-applied-when-creating-a-transaction-6-chromium-linux.png
+|   |   |   |-- Rules-creates-a-split-transaction-rule-and-makes-sure-it-is-applied-when-creating-a-transaction-1-chromium-linux.png
+|   |   |   |-- Rules-creates-a-split-transaction-rule-and-makes-sure-it-is-applied-when-creating-a-transaction-2-chromium-linux.png
+|   |   |   `-- Rules-creates-a-split-transaction-rule-and-makes-sure-it-is-applied-when-creating-a-transaction-3-chromium-linux.png
+|   |   |-- schedules.test.ts
+|   |   |-- schedules.test.ts-snapshots
+|   |   |   |-- Schedules-checks-the-page-visuals-1-chromium-linux.png
+|   |   |   |-- Schedules-checks-the-page-visuals-2-chromium-linux.png
+|   |   |   |-- Schedules-checks-the-page-visuals-3-chromium-linux.png
+|   |   |   |-- Schedules-creates-a-full-list-of-schedules-1-chromium-linux.png
+|   |   |   |-- Schedules-creates-a-full-list-of-schedules-2-chromium-linux.png
+|   |   |   |-- Schedules-creates-a-full-list-of-schedules-3-chromium-linux.png
+|   |   |   |-- Schedules-creates-a-new-schedule-posts-the-transaction-and-later-completes-it-1-chromium-linux.png
+|   |   |   |-- Schedules-creates-a-new-schedule-posts-the-transaction-and-later-completes-it-10-chromium-linux.png
+|   |   |   |-- Schedules-creates-a-new-schedule-posts-the-transaction-and-later-completes-it-11-chromium-linux.png
+|   |   |   |-- Schedules-creates-a-new-schedule-posts-the-transaction-and-later-completes-it-12-chromium-linux.png
+|   |   |   |-- Schedules-creates-a-new-schedule-posts-the-transaction-and-later-completes-it-2-chromium-linux.png
+|   |   |   |-- Schedules-creates-a-new-schedule-posts-the-transaction-and-later-completes-it-3-chromium-linux.png
+|   |   |   |-- Schedules-creates-a-new-schedule-posts-the-transaction-and-later-completes-it-4-chromium-linux.png
+|   |   |   |-- Schedules-creates-a-new-schedule-posts-the-transaction-and-later-completes-it-5-chromium-linux.png
+|   |   |   |-- Schedules-creates-a-new-schedule-posts-the-transaction-and-later-completes-it-6-chromium-linux.png
+|   |   |   |-- Schedules-creates-a-new-schedule-posts-the-transaction-and-later-completes-it-7-chromium-linux.png
+|   |   |   |-- Schedules-creates-a-new-schedule-posts-the-transaction-and-later-completes-it-8-chromium-linux.png
+|   |   |   |-- Schedules-creates-a-new-schedule-posts-the-transaction-and-later-completes-it-9-chromium-linux.png
+|   |   |   |-- Schedules-creates-two-new-schedules-posts-both-transactions-and-later-completes-one-1-chromium-linux.png
+|   |   |   |-- Schedules-creates-two-new-schedules-posts-both-transactions-and-later-completes-one-10-chromium-linux.png
+|   |   |   |-- Schedules-creates-two-new-schedules-posts-both-transactions-and-later-completes-one-11-chromium-linux.png
+|   |   |   |-- Schedules-creates-two-new-schedules-posts-both-transactions-and-later-completes-one-12-chromium-linux.png
+|   |   |   |-- Schedules-creates-two-new-schedules-posts-both-transactions-and-later-completes-one-13-chromium-linux.png
+|   |   |   |-- Schedules-creates-two-new-schedules-posts-both-transactions-and-later-completes-one-14-chromium-linux.png
+|   |   |   |-- Schedules-creates-two-new-schedules-posts-both-transactions-and-later-completes-one-15-chromium-linux.png
+|   |   |   |-- Schedules-creates-two-new-schedules-posts-both-transactions-and-later-completes-one-16-chromium-linux.png
+|   |   |   |-- Schedules-creates-two-new-schedules-posts-both-transactions-and-later-completes-one-17-chromium-linux.png
+|   |   |   |-- Schedules-creates-two-new-schedules-posts-both-transactions-and-later-completes-one-18-chromium-linux.png
+|   |   |   |-- Schedules-creates-two-new-schedules-posts-both-transactions-and-later-completes-one-19-chromium-linux.png
+|   |   |   |-- Schedules-creates-two-new-schedules-posts-both-transactions-and-later-completes-one-2-chromium-linux.png
+|   |   |   |-- Schedules-creates-two-new-schedules-posts-both-transactions-and-later-completes-one-20-chromium-linux.png
+|   |   |   |-- Schedules-creates-two-new-schedules-posts-both-transactions-and-later-completes-one-21-chromium-linux.png
+|   |   |   |-- Schedules-creates-two-new-schedules-posts-both-transactions-and-later-completes-one-3-chromium-linux.png
+|   |   |   |-- Schedules-creates-two-new-schedules-posts-both-transactions-and-later-completes-one-4-chromium-linux.png
+|   |   |   |-- Schedules-creates-two-new-schedules-posts-both-transactions-and-later-completes-one-5-chromium-linux.png
+|   |   |   |-- Schedules-creates-two-new-schedules-posts-both-transactions-and-later-completes-one-6-chromium-linux.png
+|   |   |   |-- Schedules-creates-two-new-schedules-posts-both-transactions-and-later-completes-one-7-chromium-linux.png
+|   |   |   |-- Schedules-creates-two-new-schedules-posts-both-transactions-and-later-completes-one-8-chromium-linux.png
+|   |   |   `-- Schedules-creates-two-new-schedules-posts-both-transactions-and-later-completes-one-9-chromium-linux.png
+|   |   |-- settings.mobile.test.ts
+|   |   |-- settings.mobile.test.ts-snapshots
+|   |   |   |-- Mobile-Settings-checks-that-settings-page-can-be-opened-1-chromium-linux.png
+|   |   |   |-- Mobile-Settings-checks-that-settings-page-can-be-opened-2-chromium-linux.png
+|   |   |   |-- Mobile-Settings-checks-that-settings-page-can-be-opened-3-chromium-linux.png
+|   |   |   |-- Mobile-Settings-checks-that-settings-page-can-be-opened-4-chromium-linux.png
+|   |   |   |-- Mobile-Settings-checks-that-settings-page-can-be-opened-5-chromium-linux.png
+|   |   |   `-- Mobile-Settings-checks-that-settings-page-can-be-opened-6-chromium-linux.png
+|   |   |-- settings.test.ts
+|   |   |-- settings.test.ts-snapshots
+|   |   |   |-- Settings-checks-the-page-visuals-1-chromium-linux.png
+|   |   |   |-- Settings-checks-the-page-visuals-2-chromium-linux.png
+|   |   |   `-- Settings-checks-the-page-visuals-3-chromium-linux.png
+|   |   |-- transactions.mobile.test.ts
+|   |   |-- transactions.mobile.test.ts-snapshots
+|   |   |   |-- Mobile-Transactions-creates-a-categorized-transaction-from-categories-uncategorized-page-1-chromium-linux.png
+|   |   |   |-- Mobile-Transactions-creates-a-categorized-transaction-from-categories-uncategorized-page-2-chromium-linux.png
+|   |   |   |-- Mobile-Transactions-creates-a-categorized-transaction-from-categories-uncategorized-page-3-chromium-linux.png
+|   |   |   |-- Mobile-Transactions-creates-a-transaction-from-accounts-id-page-1-chromium-linux.png
+|   |   |   |-- Mobile-Transactions-creates-a-transaction-from-accounts-id-page-2-chromium-linux.png
+|   |   |   |-- Mobile-Transactions-creates-a-transaction-from-accounts-id-page-3-chromium-linux.png
+|   |   |   |-- Mobile-Transactions-creates-a-transaction-via-footer-button-1-chromium-linux.png
+|   |   |   |-- Mobile-Transactions-creates-a-transaction-via-footer-button-2-chromium-linux.png
+|   |   |   |-- Mobile-Transactions-creates-a-transaction-via-footer-button-3-chromium-linux.png
+|   |   |   |-- Mobile-Transactions-creates-a-transaction-via-footer-button-4-chromium-linux.png
+|   |   |   |-- Mobile-Transactions-creates-a-transaction-via-footer-button-5-chromium-linux.png
+|   |   |   |-- Mobile-Transactions-creates-a-transaction-via-footer-button-6-chromium-linux.png
+|   |   |   |-- Mobile-Transactions-creates-a-transaction-via-footer-button-7-chromium-linux.png
+|   |   |   |-- Mobile-Transactions-creates-a-transaction-via-footer-button-8-chromium-linux.png
+|   |   |   |-- Mobile-Transactions-creates-a-transaction-via-footer-button-9-chromium-linux.png
+|   |   |   |-- Mobile-Transactions-creates-an-uncategorized-transaction-from-accounts-uncategorized-page-1-chromium-linux.png
+|   |   |   |-- Mobile-Transactions-creates-an-uncategorized-transaction-from-accounts-uncategorized-page-2-chromium-linux.png
+|   |   |   |-- Mobile-Transactions-creates-an-uncategorized-transaction-from-accounts-uncategorized-page-3-chromium-linux.png
+|   |   |   |-- Mobile-Transactions-creates-an-uncategorized-transaction-from-categories-uncategorized-page-1-chromium-linux.png
+|   |   |   |-- Mobile-Transactions-creates-an-uncategorized-transaction-from-categories-uncategorized-page-2-chromium-linux.png
+|   |   |   `-- Mobile-Transactions-creates-an-uncategorized-transaction-from-categories-uncategorized-page-3-chromium-linux.png
+|   |   |-- transactions.test.ts
+|   |   `-- transactions.test.ts-snapshots
+|   |       |-- Transactions-checks-the-page-visuals-1-chromium-linux.png
+|   |       |-- Transactions-checks-the-page-visuals-2-chromium-linux.png
+|   |       |-- Transactions-checks-the-page-visuals-3-chromium-linux.png
+|   |       |-- Transactions-creates-a-split-test-transaction-1-chromium-linux.png
+|   |       |-- Transactions-creates-a-split-test-transaction-2-chromium-linux.png
+|   |       |-- Transactions-creates-a-split-test-transaction-3-chromium-linux.png
+|   |       |-- Transactions-creates-a-test-transaction-1-chromium-linux.png
+|   |       |-- Transactions-creates-a-test-transaction-2-chromium-linux.png
+|   |       |-- Transactions-creates-a-test-transaction-3-chromium-linux.png
+|   |       |-- Transactions-creates-a-transfer-test-transaction-1-chromium-linux.png
+|   |       |-- Transactions-creates-a-transfer-test-transaction-2-chromium-linux.png
+|   |       |-- Transactions-creates-a-transfer-test-transaction-3-chromium-linux.png
+|   |       |-- Transactions-creates-a-transfer-test-transaction-4-chromium-linux.png
+|   |       |-- Transactions-creates-a-transfer-test-transaction-5-chromium-linux.png
+|   |       |-- Transactions-creates-a-transfer-test-transaction-6-chromium-linux.png
+|   |       |-- Transactions-filters-transactions-by-category-1-chromium-linux.png
+|   |       |-- Transactions-filters-transactions-by-category-2-chromium-linux.png
+|   |       |-- Transactions-filters-transactions-by-category-3-chromium-linux.png
+|   |       |-- Transactions-filters-transactions-by-category-4-chromium-linux.png
+|   |       |-- Transactions-filters-transactions-by-category-5-chromium-linux.png
+|   |       |-- Transactions-filters-transactions-by-category-6-chromium-linux.png
+|   |       |-- Transactions-filters-transactions-by-category-7-chromium-linux.png
+|   |       |-- Transactions-filters-transactions-by-category-8-chromium-linux.png
+|   |       |-- Transactions-filters-transactions-by-category-9-chromium-linux.png
+|   |       |-- Transactions-filters-transactions-by-date-1-chromium-linux.png
+|   |       |-- Transactions-filters-transactions-by-date-2-chromium-linux.png
+|   |       |-- Transactions-filters-transactions-by-date-3-chromium-linux.png
+|   |       |-- Transactions-filters-transactions-by-date-4-chromium-linux.png
+|   |       |-- Transactions-filters-transactions-by-date-5-chromium-linux.png
+|   |       |-- Transactions-filters-transactions-by-date-6-chromium-linux.png
+|   |       |-- Transactions-filters-transactions-by-date-7-chromium-linux.png
+|   |       |-- Transactions-filters-transactions-by-date-8-chromium-linux.png
+|   |       `-- Transactions-filters-transactions-by-date-9-chromium-linux.png
+|   |-- globals.ts
+|   |-- i18next-parser.config.js
+|   |-- index.html
+|   |-- package.json
+|   |-- playwright.config.ts
+|   |-- public
+|   |   |-- _headers
+|   |   |-- _redirects
+|   |   |-- android-chrome-192x192.png
+|   |   |-- android-chrome-512x512.png
+|   |   |-- apple-touch-icon.png
+|   |   |-- browserconfig.xml
+|   |   |-- data
+|   |   |-- data-file-index.txt
+|   |   |-- favicon-16x16.png
+|   |   |-- favicon-32x32.png
+|   |   |-- favicon.ico
+|   |   |-- kcab -> /workspaces/ActualFork/packages/loot-core/bin/../lib-dist/browser
+|   |   |-- maskable-192x192.png
+|   |   |-- maskable-512x512.png
+|   |   |-- mstile-150x150.png
+|   |   |-- screenshot_narrow.png
+|   |   |-- screenshot_wide.png
+|   |   |-- shortcut-accounts.svg
+|   |   |-- shortcut-reports.svg
+|   |   |-- shortcut-transaction.svg
+|   |   |-- site.webmanifest
+|   |   `-- sql-wasm.wasm
+|   |-- service-worker
+|   |   `-- plugin-sw.js
+|   |-- src
+|   |   |-- accounts
+|   |   |   `-- accountsSlice.ts
+|   |   |-- app
+|   |   |   `-- appSlice.ts
+|   |   |-- auth
+|   |   |   |-- AuthProvider.tsx
+|   |   |   |-- ProtectedRoute.tsx
+|   |   |   `-- types.ts
+|   |   |-- browser-preload.browser.js
+|   |   |-- browser-preload.browser.js.bak
+|   |   |-- browser-preload.js
+|   |   |-- browser-server.js
+|   |   |-- budget
+|   |   |   `-- budgetSlice.ts
+|   |   |-- budgetfiles
+|   |   |   `-- budgetfilesSlice.ts
+|   |   |-- build-shims.js
+|   |   |-- components
+|   |   |   |-- AnimatedRefresh.tsx
+|   |   |   |-- App.tsx
+|   |   |   |-- AppBackground.tsx
+|   |   |   |-- Background.tsx
+|   |   |   |-- BackgroundImage.tsx
+|   |   |   |-- BankSyncStatus.tsx
+|   |   |   |-- CommandBar.tsx
+|   |   |   |-- DevelopmentTopBar.tsx
+|   |   |   |-- EditablePageHeaderTitle.tsx
+|   |   |   |-- FatalError.tsx
+|   |   |   |-- FinancesApp.tsx
+|   |   |   |-- FixedSizeList.tsx
+|   |   |   |-- GlobalKeys.ts
+|   |   |   |-- HelpMenu.tsx
+|   |   |   |-- LoggedInUser.tsx
+|   |   |   |-- ManageRules.tsx
+|   |   |   |-- ManageRulesPage.tsx
+|   |   |   |-- Modals.tsx
+|   |   |   |-- Notes.tsx
+|   |   |   |-- NotesButton.tsx
+|   |   |   |-- Notifications.tsx
+|   |   |   |-- Page.tsx
+|   |   |   |-- PrivacyFilter.tsx
+|   |   |   |-- ScrollProvider.tsx
+|   |   |   |-- ServerContext.tsx
+|   |   |   |-- SyncRefresh.tsx
+|   |   |   |-- ThemeSelector.tsx
+|   |   |   |-- Titlebar.tsx
+|   |   |   |-- UpdateNotification.tsx
+|   |   |   |-- accounts
+|   |   |   |-- admin
+|   |   |   |-- alerts.tsx
+|   |   |   |-- autocomplete
+|   |   |   |-- banksync
+|   |   |   |-- budget
+|   |   |   |-- common
+|   |   |   |-- filters
+|   |   |   |-- forms.tsx
+|   |   |   |-- gocardless
+|   |   |   |-- manager
+|   |   |   |-- mobile
+|   |   |   |-- modals
+|   |   |   |-- payees
+|   |   |   |-- reports
+|   |   |   |-- responsive
+|   |   |   |-- rules
+|   |   |   |-- schedules
+|   |   |   |-- select
+|   |   |   |-- settings
+|   |   |   |-- sidebar
+|   |   |   |-- sort.tsx
+|   |   |   |-- spreadsheet
+|   |   |   |-- table.tsx
+|   |   |   |-- tags
+|   |   |   |-- transactions
+|   |   |   `-- util
+|   |   |-- fonts.scss
+|   |   |-- global-events.ts
+|   |   |-- gocardless.ts
+|   |   |-- hooks
+|   |   |   |-- useAccount.ts
+|   |   |   |-- useAccountPreviewTransactions.ts
+|   |   |   |-- useAccounts.ts
+|   |   |   |-- useBudgetAutomations.ts
+|   |   |   |-- useCachedSchedules.tsx
+|   |   |   |-- useCategories.ts
+|   |   |   |-- useCategory.ts
+|   |   |   |-- useCategoryGroup.ts
+|   |   |   |-- useCategoryPreviewTransactions.ts
+|   |   |   |-- useCategoryScheduleGoalTemplateIndicator.ts
+|   |   |   |-- useCategoryScheduleGoalTemplates.ts
+|   |   |   |-- useClosedAccounts.ts
+|   |   |   |-- useContextMenu.ts
+|   |   |   |-- useDashboard.ts
+|   |   |   |-- useDateFormat.ts
+|   |   |   |-- useDisplayPayee.ts
+|   |   |   |-- useDragRef.ts
+|   |   |   |-- useFailedAccounts.ts
+|   |   |   |-- useFeatureFlag.ts
+|   |   |   |-- useFormat.ts
+|   |   |   |-- useFormatList.ts
+|   |   |   |-- useGlobalPref.ts
+|   |   |   |-- useGoCardlessStatus.ts
+|   |   |   |-- useInitialMount.ts
+|   |   |   |-- useIsInViewport.ts
+|   |   |   |-- useLocalPref.ts
+|   |   |   |-- useLocale.ts
+|   |   |   |-- useMergedRefs.ts
+|   |   |   |-- useMetaThemeColor.ts
+|   |   |   |-- useMetadataPref.ts
+|   |   |   |-- useModalState.ts
+|   |   |   |-- useNavigate.ts
+|   |   |   |-- useNotes.ts
+|   |   |   |-- useOffBudgetAccounts.ts
+|   |   |   |-- useOnBudgetAccounts.ts
+|   |   |   |-- useOverspentCategories.ts
+|   |   |   |-- usePayee.ts
+|   |   |   |-- usePayeeRuleCounts.ts
+|   |   |   |-- usePayees.ts
+|   |   |   |-- usePluggyAiStatus.ts
+|   |   |   |-- usePreviewTransactions.ts
+|   |   |   |-- usePrevious.ts
+|   |   |   |-- usePrivacyMode.ts
+|   |   |   |-- useProperFocus.tsx
+|   |   |   |-- useQuery.ts
+|   |   |   |-- useReport.ts
+|   |   |   |-- useReports.ts
+|   |   |   |-- useResizeObserver.ts
+|   |   |   |-- useRuleConditionFilters.ts
+|   |   |   |-- useSchedules.ts
+|   |   |   |-- useSelected.tsx
+|   |   |   |-- useSendPlatformRequest.ts
+|   |   |   |-- useSheetName.tsx
+|   |   |   |-- useSheetValue.ts
+|   |   |   |-- useSimpleFinStatus.ts
+|   |   |   |-- useSingleActiveEditForm.tsx
+|   |   |   |-- useSplitsExpanded.tsx
+|   |   |   |-- useSpreadsheet.tsx
+|   |   |   |-- useSyncServerStatus.ts
+|   |   |   |-- useSyncedPref.ts
+|   |   |   |-- useSyncedPrefs.ts
+|   |   |   |-- useTagCSS.ts
+|   |   |   |-- useTags.ts
+|   |   |   |-- useTransactionBatchActions.ts
+|   |   |   |-- useTransactionFilters.ts
+|   |   |   |-- useTransactions.ts
+|   |   |   |-- useTransactionsSearch.ts
+|   |   |   |-- useUndo.ts
+|   |   |   |-- useUpdatedAccounts.ts
+|   |   |   |-- useUrlParam.ts
+|   |   |   `-- useWidget.ts
+|   |   |-- i18n.test.ts
+|   |   |-- i18n.ts
+|   |   |-- index.tsx
+|   |   |-- modals
+|   |   |   `-- modalsSlice.ts
+|   |   |-- notes
+|   |   |   |-- DesktopTaggedNotes.tsx
+|   |   |   |-- MobileTaggedNotes.tsx
+|   |   |   `-- NotesTagFormatter.tsx
+|   |   |-- notifications
+|   |   |   `-- notificationsSlice.ts
+|   |   |-- payees
+|   |   |   `-- payeesSlice.ts
+|   |   |-- polyfills.ts
+|   |   |-- prefs
+|   |   |   `-- prefsSlice.ts
+|   |   |-- queries
+|   |   |   |-- aqlQuery.test.ts
+|   |   |   |-- aqlQuery.ts
+|   |   |   |-- index.ts
+|   |   |   |-- liveQuery.test.ts
+|   |   |   |-- liveQuery.ts
+|   |   |   |-- pagedQuery.test.ts
+|   |   |   `-- pagedQuery.ts
+|   |   |-- redux
+|   |   |   |-- index.ts
+|   |   |   |-- mock.tsx
+|   |   |   `-- store.ts
+|   |   |-- setupTests.js
+|   |   |-- spreadsheet
+|   |   |   |-- bindings.ts
+|   |   |   `-- index.ts
+|   |   |-- style
+|   |   |   |-- colors.ts
+|   |   |   |-- index.ts
+|   |   |   |-- palette.ts
+|   |   |   |-- styles.ts
+|   |   |   |-- theme.tsx
+|   |   |   `-- themes
+|   |   |-- sync-events.ts
+|   |   |-- tags
+|   |   |   `-- tagsSlice.ts
+|   |   |-- transactions
+|   |   |   `-- transactionsSlice.ts
+|   |   |-- undo
+|   |   |   `-- index.ts
+|   |   |-- users
+|   |   |   `-- usersSlice.ts
+|   |   |-- util
+|   |   |   |-- markdown.ts
+|   |   |   |-- router-tools.ts
+|   |   |   |-- ruleUtils.ts
+|   |   |   `-- versions.ts
+|   |   `-- version-shim.ts
+|   |-- tsconfig.service-worker.json
+|   `-- vite.config.mts
+|-- desktop-electron
+|   |-- appx
+|   |   |-- LargeTile.png
+|   |   |-- LargeTile.scale-100.png
+|   |   |-- LargeTile.scale-125.png
+|   |   |-- LargeTile.scale-150.png
+|   |   |-- LargeTile.scale-200.png
+|   |   |-- LargeTile.scale-400.png
+|   |   |-- SmallTile.png
+|   |   |-- SmallTile.scale-100.png
+|   |   |-- SmallTile.scale-125.png
+|   |   |-- SmallTile.scale-150.png
+|   |   |-- SmallTile.scale-200.png
+|   |   |-- SmallTile.scale-400.png
+|   |   |-- SplashScreen.scale-100.png
+|   |   |-- SplashScreen.scale-125.png
+|   |   |-- SplashScreen.scale-150.png
+|   |   |-- SplashScreen.scale-200.png
+|   |   |-- SplashScreen.scale-400.png
+|   |   |-- Square150x150Logo.png
+|   |   |-- Square150x150Logo.scale-100.png
+|   |   |-- Square150x150Logo.scale-125.png
+|   |   |-- Square150x150Logo.scale-150.png
+|   |   |-- Square150x150Logo.scale-200.png
+|   |   |-- Square150x150Logo.scale-400.png
+|   |   |-- Square44x44Logo.altform-lightunplated_targetsize-16.png
+|   |   |-- Square44x44Logo.altform-lightunplated_targetsize-20.png
+|   |   |-- Square44x44Logo.altform-lightunplated_targetsize-24.png
+|   |   |-- Square44x44Logo.altform-lightunplated_targetsize-256.png
+|   |   |-- Square44x44Logo.altform-lightunplated_targetsize-30.png
+|   |   |-- Square44x44Logo.altform-lightunplated_targetsize-32.png
+|   |   |-- Square44x44Logo.altform-lightunplated_targetsize-36.png
+|   |   |-- Square44x44Logo.altform-lightunplated_targetsize-40.png
+|   |   |-- Square44x44Logo.altform-lightunplated_targetsize-44.png
+|   |   |-- Square44x44Logo.altform-lightunplated_targetsize-48.png
+|   |   |-- Square44x44Logo.altform-lightunplated_targetsize-60.png
+|   |   |-- Square44x44Logo.altform-lightunplated_targetsize-64.png
+|   |   |-- Square44x44Logo.altform-lightunplated_targetsize-72.png
+|   |   |-- Square44x44Logo.altform-lightunplated_targetsize-80.png
+|   |   |-- Square44x44Logo.altform-lightunplated_targetsize-96.png
+|   |   |-- Square44x44Logo.altform-unplated_targetsize-16.png
+|   |   |-- Square44x44Logo.altform-unplated_targetsize-20.png
+|   |   |-- Square44x44Logo.altform-unplated_targetsize-24.png
+|   |   |-- Square44x44Logo.altform-unplated_targetsize-256.png
+|   |   |-- Square44x44Logo.altform-unplated_targetsize-30.png
+|   |   |-- Square44x44Logo.altform-unplated_targetsize-32.png
+|   |   |-- Square44x44Logo.altform-unplated_targetsize-36.png
+|   |   |-- Square44x44Logo.altform-unplated_targetsize-40.png
+|   |   |-- Square44x44Logo.altform-unplated_targetsize-44.png
+|   |   |-- Square44x44Logo.altform-unplated_targetsize-48.png
+|   |   |-- Square44x44Logo.altform-unplated_targetsize-60.png
+|   |   |-- Square44x44Logo.altform-unplated_targetsize-64.png
+|   |   |-- Square44x44Logo.altform-unplated_targetsize-72.png
+|   |   |-- Square44x44Logo.altform-unplated_targetsize-80.png
+|   |   |-- Square44x44Logo.altform-unplated_targetsize-96.png
+|   |   |-- Square44x44Logo.png
+|   |   |-- Square44x44Logo.scale-100.png
+|   |   |-- Square44x44Logo.scale-125.png
+|   |   |-- Square44x44Logo.scale-150.png
+|   |   |-- Square44x44Logo.scale-200.png
+|   |   |-- Square44x44Logo.scale-400.png
+|   |   |-- Square44x44Logo.targetsize-16.png
+|   |   |-- Square44x44Logo.targetsize-20.png
+|   |   |-- Square44x44Logo.targetsize-24.png
+|   |   |-- Square44x44Logo.targetsize-256.png
+|   |   |-- Square44x44Logo.targetsize-30.png
+|   |   |-- Square44x44Logo.targetsize-32.png
+|   |   |-- Square44x44Logo.targetsize-36.png
+|   |   |-- Square44x44Logo.targetsize-40.png
+|   |   |-- Square44x44Logo.targetsize-44.png
+|   |   |-- Square44x44Logo.targetsize-48.png
+|   |   |-- Square44x44Logo.targetsize-60.png
+|   |   |-- Square44x44Logo.targetsize-64.png
+|   |   |-- Square44x44Logo.targetsize-72.png
+|   |   |-- Square44x44Logo.targetsize-80.png
+|   |   |-- Square44x44Logo.targetsize-96.png
+|   |   |-- StoreLogo.png
+|   |   |-- StoreLogo.scale-100.png
+|   |   |-- StoreLogo.scale-125.png
+|   |   |-- StoreLogo.scale-150.png
+|   |   |-- StoreLogo.scale-200.png
+|   |   |-- StoreLogo.scale-400.png
+|   |   |-- Wide310x150Logo.png
+|   |   |-- Wide310x150Logo.scale-100.png
+|   |   |-- Wide310x150Logo.scale-125.png
+|   |   |-- Wide310x150Logo.scale-150.png
+|   |   |-- Wide310x150Logo.scale-200.png
+|   |   `-- Wide310x150Logo.scale-400.png
+|   |-- beforePackHook.ts
+|   |-- bin
+|   |   `-- update-client
+|   |-- build
+|   |   |-- desktop-electron
+|   |   |   |-- beforePackHook.d.ts
+|   |   |   |-- beforePackHook.js
+|   |   |   |-- icons
+|   |   |   |-- index.d.ts
+|   |   |   |-- index.js
+|   |   |   |-- loading.html
+|   |   |   |-- menu.d.ts
+|   |   |   |-- menu.js
+|   |   |   |-- modules.d.ts
+|   |   |   |-- modules.js
+|   |   |   |-- playwright.config.d.ts
+|   |   |   |-- playwright.config.js
+|   |   |   |-- preload.d.ts
+|   |   |   |-- preload.js
+|   |   |   |-- security.d.ts
+|   |   |   |-- security.js
+|   |   |   |-- server.d.ts
+|   |   |   |-- server.js
+|   |   |   |-- window-state.d.ts
+|   |   |   `-- window-state.js
+|   |   `-- loot-core
+|   |       `-- src
+|   |-- e2e
+|   |   |-- __screenshots__
+|   |   |   `-- onboarding.test.ts
+|   |   |-- data
+|   |   |-- fixtures.ts
+|   |   `-- onboarding.test.ts
+|   |-- extra-resources
+|   |   `-- linux
+|   |       `-- com.actualbudget.actual.metainfo.xml
+|   |-- icons
+|   |   |-- generate-icns
+|   |   |-- icon.icns
+|   |   |-- icon.ico
+|   |   `-- icon.png
+|   |-- index.ts
+|   |-- loading.html
+|   |-- menu.ts
+|   |-- modules.ts
+|   |-- package.json
+|   |-- playwright.config.ts
+|   |-- preload.ts
+|   |-- security.d.ts
+|   |-- security.ts
+|   |-- server.ts
+|   |-- tsconfig.dist.json
+|   `-- window-state.ts
+|-- eslint-plugin-actual
+|   |-- lib
+|   |   |-- index.js
+|   |   |-- rules
+|   |   |   |-- no-untranslated-strings.js
+|   |   |   |-- prefer-if-statement.js
+|   |   |   |-- prefer-logger-over-console.js
+|   |   |   |-- prefer-trans-over-t.js
+|   |   |   `-- typography.js
+|   |   `-- utils
+|   |       `-- import-helpers.js
+|   `-- package.json
+|-- loot-core
+|   |-- bin
+|   |   |-- build-api
+|   |   |-- build-browser
+|   |   `-- copy-migrations
+|   |-- db.sqlite
+|   |-- default-db.sqlite
+|   |-- migrations
+|   |   |-- 1548957970627_remove-db-version.sql
+|   |   |-- 1550601598648_payees.sql
+|   |   |-- 1555786194328_remove_category_group_unique.sql
+|   |   |-- 1561751833510_indexes.sql
+|   |   |-- 1567699552727_budget.sql
+|   |   |-- 1582384163573_cleared.sql
+|   |   |-- 1597756566448_rules.sql
+|   |   |-- 1608652596043_parent_field.sql
+|   |   |-- 1608652596044_trans_views.sql
+|   |   |-- 1612625548236_optimize.sql
+|   |   |-- 1614782639336_trans_views2.sql
+|   |   |-- 1615745967948_meta.sql
+|   |   |-- 1616167010796_accounts_order.sql
+|   |   |-- 1618975177358_schedules.sql
+|   |   |-- 1632571489012_remove_cache.js
+|   |   |-- 1679728867040_rules_conditions.sql
+|   |   |-- 1681115033845_add_schedule_name.sql
+|   |   |-- 1682974838138_remove_payee_rules.sql
+|   |   |-- 1685007876842_add_category_hidden.sql
+|   |   |-- 1686139660866_remove_account_type.sql
+|   |   |-- 1688749527273_transaction_filters.sql
+|   |   |-- 1688841238000_add_account_type.sql
+|   |   |-- 1691233396000_add_schedule_next_date_tombstone.sql
+|   |   |-- 1694438752000_add_goal_targets.sql
+|   |   |-- 1697046240000_add_reconciled.sql
+|   |   |-- 1704572023730_add_account_sync_source.sql
+|   |   |-- 1704572023731_add_missing_goCardless_sync_source.sql
+|   |   |-- 1707267033000_reports.sql
+|   |   |-- 1712784523000_unhide_input_group.sql
+|   |   |-- 1716359441000_include_current.sql
+|   |   |-- 1720310586000_link_transfer_schedules.sql
+|   |   |-- 1720664867241_add_payee_favorite.sql
+|   |   |-- 1720665000000_goal_context.sql
+|   |   |-- 1722717601000_reports_move_selected_categories.js
+|   |   |-- 1722804019000_create_dashboard_table.js
+|   |   |-- 1723665565000_prefs.js
+|   |   |-- 1730744182000_fix_dashboard_table.sql
+|   |   |-- 1736640000000_custom_report_sorting.sql
+|   |   |-- 1737158400000_add_learn_categories_to_payees.sql
+|   |   |-- 1738491452000_sorting_rename.sql
+|   |   |-- 1739139550000_bank_sync_page.sql
+|   |   |-- 1740506588539_add_last_reconciled_at.sql
+|   |   |-- 1745425408000_update_budgetType_pref.sql
+|   |   |-- 1749799110000_add_tags.sql
+|   |   |-- 1749799110001_tags_tombstone.sql
+|   |   |-- 1754611200000_add_category_template_settings.sql
+|   |   |-- 1759260219000_add_trim_interval_report_setting.sql
+|   |   `-- 1759842823172_add_isGlobal_to_preferences.sql
+|   |-- package.json
+|   |-- src
+|   |   |-- mocks
+|   |   |   |-- arbitrary-schema.ts
+|   |   |   |-- budget.ts
+|   |   |   |-- files
+|   |   |   |-- index.ts
+|   |   |   |-- migrations
+|   |   |   |-- random.ts
+|   |   |   |-- setup.ts
+|   |   |   |-- spreadsheet.ts
+|   |   |   `-- util.ts
+|   |   |-- platform
+|   |   |   |-- client
+|   |   |   |-- exceptions
+|   |   |   `-- server
+|   |   |-- server
+|   |   |   |-- __mocks__
+|   |   |   |-- __snapshots__
+|   |   |   |-- accounts
+|   |   |   |-- admin
+|   |   |   |-- api-models.ts
+|   |   |   |-- api.test.ts
+|   |   |   |-- api.ts
+|   |   |   |-- app.ts
+|   |   |   |-- aql
+|   |   |   |-- auth
+|   |   |   |-- bench.ts
+|   |   |   |-- budget
+|   |   |   |-- budgetfiles
+|   |   |   |-- cloud-storage.ts
+|   |   |   |-- dashboard
+|   |   |   |-- db
+|   |   |   |-- encryption
+|   |   |   |-- errors.ts
+|   |   |   |-- filters
+|   |   |   |-- importers
+|   |   |   |-- main-app.ts
+|   |   |   |-- main.test.ts
+|   |   |   |-- main.ts
+|   |   |   |-- migrate
+|   |   |   |-- models.ts
+|   |   |   |-- mutators.ts
+|   |   |   |-- notes
+|   |   |   |-- payees
+|   |   |   |-- polyfills.ts
+|   |   |   |-- post.ts
+|   |   |   |-- preferences
+|   |   |   |-- prefs.ts
+|   |   |   |-- reports
+|   |   |   |-- rules
+|   |   |   |-- schedules
+|   |   |   |-- server-config.ts
+|   |   |   |-- sheet.test.ts
+|   |   |   |-- sheet.ts
+|   |   |   |-- spreadsheet
+|   |   |   |-- sql
+|   |   |   |-- sync
+|   |   |   |-- tags
+|   |   |   |-- tests
+|   |   |   |-- tools
+|   |   |   |-- transactions
+|   |   |   |-- undo.ts
+|   |   |   |-- update.ts
+|   |   |   `-- util
+|   |   |-- shared
+|   |   |   |-- __mocks__
+|   |   |   |-- __snapshots__
+|   |   |   |-- arithmetic.test.ts
+|   |   |   |-- arithmetic.ts
+|   |   |   |-- async.test.ts
+|   |   |   |-- async.ts
+|   |   |   |-- currencies.ts
+|   |   |   |-- dashboard.ts
+|   |   |   |-- environment.ts
+|   |   |   |-- errors.ts
+|   |   |   |-- locale.ts
+|   |   |   |-- months.test.ts
+|   |   |   |-- months.ts
+|   |   |   |-- normalisation.ts
+|   |   |   |-- platform.electron.ts
+|   |   |   |-- platform.ts
+|   |   |   |-- platform.web.ts
+|   |   |   |-- query.ts
+|   |   |   |-- rules.ts
+|   |   |   |-- schedules.test.ts
+|   |   |   |-- schedules.ts
+|   |   |   |-- test-helpers.ts
+|   |   |   |-- transactions.test.ts
+|   |   |   |-- transactions.ts
+|   |   |   |-- transfer.test.ts
+|   |   |   |-- transfer.ts
+|   |   |   |-- user.ts
+|   |   |   |-- util.test.ts
+|   |   |   `-- util.ts
+|   |   `-- types
+|   |       |-- api-handlers.ts
+|   |       |-- budget.ts
+|   |       |-- file.ts
+|   |       |-- global.d.ts
+|   |       |-- handlers.ts
+|   |       |-- models
+|   |       |-- pegjs.d.ts
+|   |       |-- prefs.ts
+|   |       |-- server-events.ts
+|   |       |-- server-handlers.ts
+|   |       `-- util.ts
+|   |-- tsconfig.api.json
+|   |-- typings
+|   |   |-- pegjs.ts
+|   |   |-- vite-plugin-peggy-loader.ts
+|   |   `-- window.ts
+|   |-- vite.api.config.ts
+|   |-- vite.config.ts
+|   |-- vite.desktop.config.ts
+|   |-- vitest.config.ts
+|   `-- vitest.web.config.ts
+|-- plugins-service
+|   |-- bin
+|   |   `-- build-service-worker
+|   |-- package.json
+|   |-- src
+|   |   `-- plugin-service-worker.ts
+|   |-- tsconfig.json
+|   `-- vite.config.mts
+|-- sync-server
+|   |-- LICENSE
+|   |-- README.md
+|   |-- app.ts
+|   |-- babel.config.json
+|   |-- bin
+|   |   `-- actual-server.js
+|   |-- build
+|   |   |-- account-db.js
+|   |   |-- accounts
+|   |   |   |-- openid.js
+|   |   |   `-- password.js
+|   |   |-- app-account.js
+|   |   |-- app-admin.js
+|   |   |-- app-admin.test.js
+|   |   |-- app-cors-proxy.js
+|   |   |-- app-cors-proxy.test.js
+|   |   |-- app-gocardless
+|   |   |   |-- app-gocardless.js
+|   |   |   |-- bank-factory.js
+|   |   |   |-- banks
+|   |   |   |-- errors.js
+|   |   |   |-- services
+|   |   |   |-- tests
+|   |   |   |-- util
+|   |   |   `-- utils.js
+|   |   |-- app-openid.js
+|   |   |-- app-pluggyai
+|   |   |   |-- app-pluggyai.js
+|   |   |   `-- pluggyai-service.js
+|   |   |-- app-secrets.js
+|   |   |-- app-simplefin
+|   |   |   `-- app-simplefin.js
+|   |   |-- app-sync
+|   |   |   |-- errors.js
+|   |   |   |-- services
+|   |   |   |-- tests
+|   |   |   `-- validation.js
+|   |   |-- app.js
+|   |   |-- db.js
+|   |   |-- dummy.js
+|   |   |-- load-config.js
+|   |   |-- load-config.test.js
+|   |   |-- migrations.js
+|   |   |-- scripts
+|   |   |   |-- disable-openid.js
+|   |   |   |-- enable-openid.js
+|   |   |   |-- health-check.js
+|   |   |   |-- reset-password.js
+|   |   |   `-- run-migrations.js
+|   |   |-- secrets.test.js
+|   |   |-- services
+|   |   |   |-- secrets-service.js
+|   |   |   `-- user-service.js
+|   |   |-- src
+|   |   |   `-- sql
+|   |   |-- sync-simple.js
+|   |   `-- util
+|   |       |-- hash.js
+|   |       |-- middlewares.js
+|   |       |-- paths.js
+|   |       |-- payee-name.js
+|   |       |-- prompt.js
+|   |       |-- title
+|   |       `-- validate-user.js
+|   |-- docker
+|   |   |-- alpine.Dockerfile
+|   |   `-- ubuntu.Dockerfile
+|   |-- docker-compose.yml
+|   |-- migrations
+|   |   |-- 1694360000000-create-folders.js
+|   |   |-- 1694360479680-create-account-db.js
+|   |   |-- 1694362247011-create-secret-table.js
+|   |   |-- 1702667624000-rename-nordigen-secrets.js
+|   |   |-- 1718889148000-openid.js
+|   |   `-- 1719409568000-multiuser.js
+|   |-- package.json
+|   |-- server-files
+|   |   `-- account.sqlite
+|   |-- src
+|   |   |-- account-db.js
+|   |   |-- accounts
+|   |   |   |-- openid.js
+|   |   |   `-- password.js
+|   |   |-- app-account.js
+|   |   |-- app-admin.js
+|   |   |-- app-admin.test.js
+|   |   |-- app-cors-proxy.js
+|   |   |-- app-cors-proxy.test.js
+|   |   |-- app-gocardless
+|   |   |   |-- README.md
+|   |   |   |-- app-gocardless.js
+|   |   |   |-- bank-factory.js
+|   |   |   |-- banks
+|   |   |   |-- errors.js
+|   |   |   |-- link.html
+|   |   |   |-- services
+|   |   |   |-- tests
+|   |   |   |-- util
+|   |   |   `-- utils.js
+|   |   |-- app-openid.js
+|   |   |-- app-pluggyai
+|   |   |   |-- app-pluggyai.js
+|   |   |   `-- pluggyai-service.js
+|   |   |-- app-secrets.js
+|   |   |-- app-simplefin
+|   |   |   `-- app-simplefin.js
+|   |   |-- app-sync
+|   |   |   |-- errors.js
+|   |   |   |-- services
+|   |   |   |-- tests
+|   |   |   `-- validation.js
+|   |   |-- app.ts
+|   |   |-- db.js
+|   |   |-- dummy.ts
+|   |   |-- load-config.js
+|   |   |-- load-config.test.js
+|   |   |-- migrations.js
+|   |   |-- scripts
+|   |   |   |-- disable-openid.js
+|   |   |   |-- enable-openid.js
+|   |   |   |-- health-check.js
+|   |   |   |-- reset-password.js
+|   |   |   `-- run-migrations.js
+|   |   |-- secrets.test.js
+|   |   |-- services
+|   |   |   |-- secrets-service.js
+|   |   |   `-- user-service.js
+|   |   |-- sql
+|   |   |   `-- messages.sql
+|   |   |-- sync-simple.js
+|   |   `-- util
+|   |       |-- hash.js
+|   |       |-- middlewares.js
+|   |       |-- paths.js
+|   |       |-- payee-name.js
+|   |       |-- prompt.js
+|   |       |-- title
+|   |       `-- validate-user.js
+|   |-- tsconfig.json
+|   |-- tsconfig.tsbuildinfo
+|   |-- types
+|   |   `-- _staged
+|   |       `-- app-gocardless
+|   |-- vitest.config.ts
+|   `-- vitest.globalSetup.js
+`-- types
+
+209 directories, 1020 files

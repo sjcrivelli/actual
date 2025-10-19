@@ -1,0 +1,32 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "composite": true,                    // Required for project references
+    "declaration": true,                  // Emit .d.ts files
+    "emitDeclarationOnly": true,          // Don't emit .js (this is fine for shared libs)
+    "noEmit": false,                      // Must be false for TS build mode
+    "rootDir": "src",                     // Input directory
+    "outDir": "lib-dist",                 // Output directory (fixes overwrite errors)
+    "module": "esnext",
+    "target": "ES2020",
+    "jsx": "react-jsx",
+    "esModuleInterop": true,
+    "moduleResolution": "node",
+    "strict": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "baseUrl": "../../",
+    "paths": {
+      "@loot-core/*": ["packages/loot-core/src/*"],
+      "@desktop-client/*": ["packages/desktop-client/src/*"],
+      "@actual-app/types/*": ["packages/types/*"]
+    }
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "lib-dist", "coverage"],
+  "references": [
+    { "path": "../types" }
+  ]
+}
