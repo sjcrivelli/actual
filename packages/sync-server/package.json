@@ -3,20 +3,20 @@
   "version": "25.10.0",
   "license": "MIT",
   "description": "actual syncing server",
+  "type": "module",
   "bin": {
     "actual-server": "./build/bin/actual-server.js"
   },
-  "type": "module",
   "files": [
     "build",
     "README.md",
     "LICENSE"
   ],
   "scripts": {
-    "start": "yarn build && node build/app",
-    "start-monitor": "nodemon --exec 'tsc && node build/app' --ignore './build/**/*' --ext 'ts,js' build/app",
+    "start": "node build/app.js",
+    "start-monitor": "nodemon --exec 'tsc && node build/app.js' --ignore './build/**/*' --ext 'ts,js'",
     "build": "tsc && yarn copy-static-assets",
-    "copy-static-assets": "rm -rf build/src/sql && cp -r src/sql build/src/sql",
+    "copy-static-assets": "mkdir -p build/src && [ -d src/sql ] && cp -r src/sql build/src/sql || true",
     "test": "NODE_ENV=test NODE_OPTIONS='--experimental-vm-modules --trace-warnings' vitest",
     "db:migrate": "yarn build && cross-env NODE_ENV=development node build/src/scripts/run-migrations.js up",
     "db:downgrade": "yarn build && cross-env NODE_ENV=development node build/src/scripts/run-migrations.js down",
