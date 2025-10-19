@@ -2,7 +2,7 @@ import './version-shim'
 // @ts-strict-ignore
 // This file will initialize the app if we are in a real browser
 // environment (not electron)
-import './browser-preload';
+import './browser-preload.browser.js';
 
 import './fonts.scss';
 

@@ -9,8 +9,16 @@
 
   // Start the worker that orchestrates loading the backend bundle
   const worker = new Worker(new URL('./browser-server.js', import.meta.url), {
-    type: 'module',
-  });
+  type: 'classic'
+});
+
+// Fallback: create a classic worker via a Blob shim
+const code = `
+  // classic worker bootstrap
+  importScripts('${location.origin}/src/browser-server.js');
+`;
+const blob = new Blob([code], { type: 'text/javascript' });
+const worker = new Worker(URL.createObjectURL(blob)); // classic by construction
 
   // Minimal socket-like bridge that the app expects
   const socket = {
