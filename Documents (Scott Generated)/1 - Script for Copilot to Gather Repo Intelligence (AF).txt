@@ -1,0 +1,113 @@
+=== START SUMMARY ===
+
+# Directory Tree (Depth 3)
+/
+├── ACTUAL_REPO_OVERVIEW.txt
+├── AGENTS.md
+├── Actual_Repo_Overview_2.txt
+├── Actual_Repo_Overview_4.txt
+├── Actual_Repo_Overview_5.txt
+├── Acutal_Repo_Overview_3.txt
+├── CODEOWNERS
+├── CONTRIBUTING.md
+├── Dockerfile
+├── Documents (Scott Generated)/
+│   ├── 1 - Script for Copilot to Gather Repo Intelligence (AF).txt
+│   ├── 2 - Copilot Deep Project Intelligence Script (Complete Version).txt
+│   ├── 3 - Copilot Runtime & Data Flow Analysis Script (Phase 2).txt
+│   ├── Copilot Desktop Build-Readiness & Release Audit (Phase 5).txt
+│   ├── Copilot Static Code & Quality Analysis Script-Dependency Graph & Circular Import Analysis  (Phase 3 & 4 — Final Diagnostic).txt
+├── bin/
+├── build/
+├── data/
+├── node_modules/
+├── packages/
+│   ├── api/
+│   ├── ci-actions/
+│   ├── component-library/
+│   ├── crdt/
+│   ├── desktop-client/
+│   │   ├── src/
+│   │   │   ├── components/
+│   │   │   ├── hooks/
+│   │   │   ├── index.tsx
+│   │   │   ├── app/
+│   │   │   ├── budget/
+│   │   │   ├── modals/
+│   │   │   ├── payees/
+│   │   │   ├── transactions/
+│   │   │   ├── tags/
+│   │   │   ├── users/
+│   │   │   ├── redux/
+│   │   │   ├── spreadsheet/
+│   │   │   ├── style/
+│   │   │   ├── util/
+│   │   ├── package.json
+│   ├── desktop-electron/
+│   │   ├── index.ts
+│   │   ├── package.json
+│   ├── eslint-plugin-actual/
+│   ├── loot-core/
+│   │   ├── package.json
+│   ├── plugins-service/
+│   ├── sync-server/
+│   │   ├── package.json
+
+# package.json (root)
+{
+  "name": "actual",
+  "version": "0.0.1",
+  ...existing code...
+}
+
+# Main Electron Entry File
+Path: packages/desktop-electron/index.ts
+Contents (first 80 lines):
+import fs from 'fs';
+import { createServer, Server } from 'http';
+import path from 'path';
+...existing code...
+
+# Primary React App Entry
+Path: packages/desktop-client/src/index.tsx
+Contents (first 80 lines):
+import './version-shim'
+// @ts-strict-ignore
+// This file will initialize the app if we are in a real browser
+// environment (not electron)
+import './browser-preload.browser.js';
+...existing code...
+
+# Summary of /src/components
+AnimatedRefresh.tsx, App.tsx, AppBackground.tsx, Background.tsx, BackgroundImage.tsx, BankSyncStatus.tsx, CommandBar.tsx, DevelopmentTopBar.tsx, EditablePageHeaderTitle.tsx, FatalError.tsx, FinancesApp.tsx, FixedSizeList.tsx, GlobalKeys.ts, HelpMenu.tsx, LoggedInUser.tsx, ManageRules.tsx, ManageRulesPage.tsx, Modals.tsx, Notes.tsx, NotesButton.tsx, Notifications.tsx, Page.tsx, PrivacyFilter.tsx, ScrollProvider.tsx, ServerContext.tsx, SyncRefresh.tsx, ThemeSelector.tsx, Titlebar.tsx, UpdateNotification.tsx, accounts/, admin/, alerts.tsx, autocomplete/, banksync/, budget/, common/, filters/, forms.tsx, gocardless/, manager/, mobile/, modals/, payees/, reports/, responsive/, rules/, schedules/, select/, settings/, sidebar/, sort.tsx, spreadsheet/, table.tsx, tags/, transactions/, util/
+
+# Summary of /src/hooks
+useAccount.ts, useAccountPreviewTransactions.ts, useAccounts.ts, useBudgetAutomations.ts, useCachedSchedules.tsx, useCategories.ts, useCategory.ts, useCategoryGroup.ts, useCategoryPreviewTransactions.ts, useCategoryScheduleGoalTemplateIndicator.ts, useCategoryScheduleGoalTemplates.ts, useClosedAccounts.ts, useContextMenu.ts, useDashboard.ts, useDateFormat.ts, useDisplayPayee.ts, useDragRef.ts, useFailedAccounts.ts, useFeatureFlag.ts, useFormat.ts, useFormatList.ts, useGlobalPref.ts, useGoCardlessStatus.ts, useInitialMount.ts, useIsInViewport.ts, useLocalPref.ts, useLocale.ts, useMergedRefs.ts, useMetaThemeColor.ts, useMetadataPref.ts, useModalState.ts, useNavigate.ts, useNotes.ts, useOffBudgetAccounts.ts, useOnBudgetAccounts.ts, useOverspentCategories.ts, usePayee.ts, usePayeeRuleCounts.ts, usePayees.ts, usePluggyAiStatus.ts, usePreviewTransactions.ts, usePrevious.ts, usePrivacyMode.ts, useProperFocus.tsx, useQuery.ts, useReport.ts, useReports.ts, useResizeObserver.ts, useRuleConditionFilters.ts, useSchedules.ts, useSelected.tsx, useSendPlatformRequest.ts, useSheetName.tsx, useSheetValue.ts, useSimpleFinStatus.ts, useSingleActiveEditForm.tsx, useSplitsExpanded.tsx, useSpreadsheet.tsx, useSyncServerStatus.ts, useSyncedPref.ts, useSyncedPrefs.ts, useTagCSS.ts, useTags.ts, useTransactionBatchActions.ts, useTransactionFilters.ts, useTransactions.ts, useTransactionsSearch.ts, useUndo.ts, useUpdatedAccounts.ts, useUrlParam.ts, useWidget.ts
+
+# Dependencies and DevDependencies
+See package.json for each workspace:
+- Root: ...existing code...
+- desktop-client: ...existing code...
+- desktop-electron: ...existing code...
+- loot-core: ...existing code...
+- sync-server: ...existing code...
+
+# Custom Modules
+- Budget planner: packages/desktop-client/src/budget/
+- Credit card tracker: packages/desktop-client/src/accounts/
+- Retirement planner: Not detected
+
+# Backend/API Logic
+- sync-server: Express-based server, API logic in packages/sync-server/
+- loot-core: Shared business logic, database operations
+
+# Build Command and Electron Builder Config
+- Build command: yarn build:desktop (calls ./bin/package-electron)
+- Electron builder config: see packages/desktop-electron/package.json "build" field
+
+# Data Persistence Layer
+- Local data: stored in ACTUAL_DATA_DIR (Electron), typically in userData path
+- Database: better-sqlite3 (local SQLite)
+- Sync: via @actual-app/sync-server (multi-device)
+
+=== END SUMMARY ===

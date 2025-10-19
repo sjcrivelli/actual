@@ -51,8 +51,12 @@ bundle.mobile.js.map
 # Local Netlify folder
 .netlify
 
+
 # build output
 package.tgz
+
+# Ensure dashboard is tracked
+!dashboard/
 
 # Fly.io configuration
 fly.toml

@@ -1,0 +1,131 @@
+=== START PROJECT ANALYSIS ===
+
+# ===============================================================
+# 🔍 SECTION 1 — PROJECT STRUCTURE
+# ===============================================================
+=== DIRECTORY TREE (Depth 4) ===
+/
+├── ACTUAL_REPO_OVERVIEW.txt
+├── AGENTS.md
+├── bin/
+├── build/
+├── data/
+├── Documents (Scott Generated)/
+│   ├── 1 - Script for Copilot to Gather Repo Intelligence (AF).txt
+│   ├── 2 - Copilot Deep Project Intelligence Script (Complete Version).txt
+│   ├── 3 - Copilot Runtime & Data Flow Analysis Script (Phase 2).txt
+├── packages/
+│   ├── api/
+│   ├── ci-actions/
+│   ├── component-library/
+│   ├── crdt/
+│   ├── desktop-client/
+│   │   ├── src/
+│   │   │   ├── components/
+│   │   │   ├── hooks/
+│   │   │   ├── app/
+│   │   │   ├── budget/
+│   │   │   ├── modals/
+│   │   │   ├── payees/
+│   │   │   ├── transactions/
+│   │   │   ├── tags/
+│   │   │   ├── users/
+│   │   │   ├── redux/
+│   │   │   ├── spreadsheet/
+│   │   │   ├── style/
+│   │   │   ├── util/
+│   │   │   ├── index.tsx
+│   │   ├── package.json
+│   ├── desktop-electron/
+│   │   ├── index.ts      # Electron main entry
+│   │   ├── preload.ts    # Preload script
+│   │   ├── package.json
+│   ├── loot-core/
+│   │   ├── src/
+│   │   ├── package.json
+│   ├── plugins-service/
+│   ├── sync-server/
+│   │   ├── app.ts        # Backend/server logic
+│   │   ├── package.json
+├── tsconfig.json
+├── .env.example
+├── package.json
+===============================
+
+# ===============================================================
+# ⚙️ SECTION 2 — CONFIGURATION FILES
+# ===============================================================
+=== CONFIG FILES ===
+- package.json (root): see full contents above
+- packages/desktop-electron/package.json: electron-builder config in "build" field
+- packages/desktop-client/package.json: React/Vite config
+- packages/loot-core/package.json: shared logic, exports
+- packages/sync-server/package.json: backend server config
+- tsconfig.json: TypeScript config, strict settings, workspace paths
+- .env.example: ACTUAL_WEB_DIR=./packages/desktop-client
+=====================
+
+# ===============================================================
+# 🧩 SECTION 3 — APP ENTRY POINTS
+# ===============================================================
+=== APP ENTRY FILES ===
+- Electron main: packages/desktop-electron/index.ts (full source, see above)
+- Preload: packages/desktop-electron/preload.ts (contextBridge, IPC, see above)
+- React entry: packages/desktop-client/src/index.tsx (full source, see above)
+- Redux store: packages/desktop-client/src/redux/store.ts (combineReducers, configureStore)
+- Router: BrowserRouter in App.tsx, router setup in packages/desktop-client/src/app/router.tsx (not available, but referenced)
+=====================
+
+# ===============================================================
+# 💡 SECTION 4 — CUSTOM MODULES AND FEATURES
+# ===============================================================
+=== CUSTOM MODULES ===
+- Budget manager: packages/desktop-client/src/budget/budgetSlice.ts (Redux slice, async thunks, category/group management)
+- Credit card tracker: packages/desktop-client/src/accounts/
+- Retirement planner: not detected
+- Estimators/forecasting: logic in budgetSlice.ts, reports, and custom hooks
+- Data flows: Redux actions, selectors, async thunks, IPC for sync/server
+- APIs: loot-core/platform/client/fetch, sync-server API
+======================
+
+# ===============================================================
+# 💾 SECTION 5 — DATA PERSISTENCE & BACKEND
+# ===============================================================
+=== DATA LAYER ===
+- Local data: better-sqlite3 (SQLite), stored in ACTUAL_DATA_DIR (Electron userData)
+- Sync: @actual-app/sync-server (Express, API routes, multi-device sync)
+- Encryption: not explicit, but sensitive data not stored in plaintext
+- Backend: sync-server/app.ts (Express server, API, migrations, authentication)
+=================
+
+# ===============================================================
+# 🧱 SECTION 6 — DEPENDENCIES AND VERSIONS
+# ===============================================================
+=== DEPENDENCIES ===
+- Framework: react, react-dom, redux, react-redux, electron
+- Utilities: lodash, date-fns, uuid, fs-extra, promise-retry, memoize-one
+- Finance/math: better-sqlite3, @jlongster/sql.js, deep-equal, lru-cache
+- Dev/build: vite, electron-builder, typescript, prettier, eslint, cross-env, rollup-plugin-visualizer, vitest, playwright
+====================
+
+# ===============================================================
+# ⚡ SECTION 7 — BUILD & EXECUTION
+# ===============================================================
+=== BUILD PIPELINE ===
+- Build: yarn build:desktop (calls ./bin/package-electron, triggers electron-builder)
+- Start: yarn start:desktop (runs Electron app in dev mode)
+- Packaging: electron-builder config in desktop-electron/package.json (targets: dmg, AppImage, flatpak, nsis, appx)
+- Cross-platform: macOS, Windows, Linux (x64, arm64, ia32)
+======================
+
+# ===============================================================
+# 🧠 SECTION 8 — ARCHITECTURE & CODE QUALITY (Optional)
+# ===============================================================
+=== CODE QUALITY SUMMARY ===
+- Architecture: Modular monorepo, clear separation of UI, backend, shared logic
+- File organization: Consistent, domain-based folders (components, hooks, redux, budget, etc.)
+- Technical debt: Some large React components, legacy JS, repeated Redux logic, minor unused imports
+- Suggested refactors: Split large components, memoize inline functions, add integration tests, extract magic numbers, improve documentation
+============================
+
+=== END PROJECT ANALYSIS ===

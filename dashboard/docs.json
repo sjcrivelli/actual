@@ -1,0 +1,88 @@
+[
+  {
+    "file": "architecture.md",
+    "title": "Architecture Overview",
+    "headings": [
+      "Architecture Overview",
+      "Project Structure",
+      "Main Components",
+      "Data Flow Map",
+      "Architecture Grade"
+    ],
+    "content": "# Architecture Overview\n\n## Project Structure\n```\n/\n├── packages/\n│   ├── desktop-client/\n│   │   ├── src/\n│   │   │   ├── components/\n│   │   │   ├── hooks/\n│   │   │   ├── app/\n│   │   │   ├── budget/\n│   │   │   ├── modals/\n│   │   │   ├── payees/\n│   │   │   ├── transactions/\n│   │   │   ├── tags/\n│   │   │   ├── users/\n│   │   │   ├── redux/\n│   │   │   ├── spreadsheet/\n│   │   │   ├── style/\n│   │   │   ├── util/\n│   │   │   ├── index.tsx\n│   ├── desktop-electron/\n│   │   ├── index.ts      # Electron main entry\n│   │   ├── preload.ts    # Preload script\n│   ├── loot-core/\n│   │   ├── src/\n│   ├── sync-server/\n│   │   ├── app.ts        # Backend/server logic\n```\n\n## Main Components\n- Electron main process: `/packages/desktop-electron/index.ts`\n- Preload script: `/packages/desktop-electron/preload.ts`\n- React renderer: `/packages/desktop-client/src/index.tsx`\n- Redux store: `/packages/desktop-client/src/redux/store.ts`\n\n## Data Flow Map\n```\nElectron Main → Preload (contextBridge) → Renderer (React/Redux)\n  |-- IPC: file dialogs, sync server, theme, notifications\n  |-- Redux: state slices for budget, accounts, transactions, etc.\n  |-- Backend: sync-server for multi-device sync\n```\n\n## Architecture Grade\n**Grade:** A-\n"
+  },
+  {
+    "file": "build.md",
+    "title": "Build and Release Readiness",
+    "headings": [
+      "Build and Release Readiness",
+      "Build Tools and Commands",
+      "Electron Config Summary",
+      "Signing & Security Status",
+      "Cross-Platform Targets"
+    ],
+    "content": "# Build and Release Readiness\n\n## Build Tools and Commands\n- electron-builder, TypeScript, copyfiles, cross-env\n- Build: `yarn build:dist && electron-builder`\n- Watch: `yarn build:dist && cross-env ACTUAL_DOCUMENT_DIR=\"../../data\" ACTUAL_DATA_DIR=\"../../data\" electron .`\n\n## Electron Config Summary\n- Main entry: build/desktop-electron/index.js\n- Preload: preload.ts\n- Icons: icons/icon.icns (mac), icons/icon.ico (win)\n- Protocols: app:// for asset loading\n- afterSign hooks: beforePackHook.js\n\n## Signing & Security Status\n- HardenedRuntime (macOS), appx publisher (Windows)\n- Notarization: @electron/notarize\n- contextIsolation enabled, nodeIntegration disabled\n\n## Cross-Platform Targets\n- macOS (dmg), Windows (nsis, appx), Linux (AppImage, flatpak)\n- Architectures: x64, arm64, ia32\n"
+  },
+  {
+    "file": "code_quality.md",
+    "title": "Code Quality and Analysis",
+    "headings": [
+      "Code Quality and Analysis",
+      "Maintainability Score",
+      "Top 10 Code Smells",
+      "State Management Issues & Fixes",
+      "Security Findings"
+    ],
+    "content": "# Code Quality and Analysis\n\n## Maintainability Score\n**Score:** 8/10\n\n## Top 10 Code Smells\n| File Path                                      | Issue                                 |\n|------------------------------------------------|---------------------------------------|\n| src/components/App.tsx                         | Large component (>300 lines)          |\n| src/components/FinancesApp.tsx                 | Large component (>300 lines)          |\n| src/hooks/useSpreadsheet.tsx                   | Unused imports                        |\n| src/budget/budgetSlice.ts                      | Inline functions in render            |\n| backend/legacy.js                              | Dead exports                          |\n| src/app/appSlice.ts                            | Functions missing error handling      |\n| src/transactions/transactionsSlice.ts          | Overuse of any/implicit any           |\n| src/redux/store.ts                             | No direct state mutations             |\n| src/components/SidebarProvider.tsx              | Large component                       |\n| src/reports/reportUtils.ts                     | Duplicate math logic                  |\n\n## State Management Issues & Fixes\n- Some useEffect hooks lack cleanup\n- Inefficient re-renders in large components\n- Memoization needed in some hooks/components\n\n## Security Findings\n| Issue                        | Location                        | Recommendation                |\n|------------------------------|----------------------------------|-------------------------------|\n| IPC payload validation       | preload.ts, main.ts              | Add stricter validation       |\n| User input validation        | backend API                      | Improve backend validation    |\n| Plaintext storage            | renderer                         | No sensitive data stored      |\n"
+  },
+  {
+    "file": "dependencies.md",
+    "title": "Dependency Graph and Module Health",
+    "headings": [
+      "Dependency Graph and Module Health",
+      "Core Dependencies",
+      "Circular Imports",
+      "Dependency Health Grade"
+    ],
+    "content": "# Dependency Graph and Module Health\n\n## Core Dependencies\n| Name           | Version   | Purpose                |\n|----------------|-----------|------------------------|\n| react          | 19.2.0    | UI framework           |\n| react-dom      | 19.2.0    | UI rendering           |\n| electron       | 38.3.0    | Desktop shell          |\n| redux          | ^2.9.0    | State management       |\n| react-redux    | ^9.2.0    | State management       |\n| lodash         | ^4.17.21  | Utility functions      |\n| date-fns       | ^4.1.0    | Date utilities         |\n| uuid           | ^13.0.0   | Unique IDs             |\n| winston        | ^3.18.3   | Logging                |\n| better-sqlite3 | ^12.4.1   | Local database         |\n| vite           | ^7.1.9    | Build tool             |\n| electron-builder| 26.0.12  | Packaging              |\n| typescript     | ^5.9.3    | Type safety            |\n| prettier       | ^3.6.2    | Formatting             |\n| eslint         | ^9.37.0   | Linting                |\n| vitest         | ^3.2.4    | Unit testing           |\n| playwright     | 1.56.0    | E2E testing            |\n\n## Circular Imports\n- App.tsx ↔ SidebarProvider.tsx\n- useSpreadsheet.tsx ↔ SpreadsheetProvider.tsx\n- loot-core/server/app.ts ↔ loot-core/server/tools/app.ts\n\n**Recommendations:** Extract interfaces, use dependency inversion, split shared logic into utils.\n\n## Dependency Health Grade\n**Grade:** B+\n"
+  },
+  {
+    "file": "extensions.md",
+    "title": "Planned Extensions and Feature Modules",
+    "headings": [
+      "Planned Extensions and Feature Modules",
+      "Budget Manager",
+      "Credit Card Tracker",
+      "Retirement Planner"
+    ],
+    "content": "# Planned Extensions and Feature Modules\n\n## Budget Manager\n- Purpose: Manage categories, groups, monthly budgets\n- Status: Implemented\n- File paths: src/budget/budgetSlice.ts\n- APIs: Redux, loot-core/platform/client/fetch\n- Future: More forecasting, reporting\n\n## Credit Card Tracker\n- Purpose: Track balances, paydown plans\n- Status: Implemented\n- File paths: src/accounts/\n- APIs: Redux, custom hooks\n- Future: Enhanced payoff calculators\n\n## Retirement Planner\n- Purpose: Estimate retirement savings\n- Status: Not implemented\n- File paths: N/A\n- APIs: N/A\n- Future: Planned for future release\n"
+  },
+  {
+    "file": "index.md",
+    "title": "Project Documentation Index",
+    "headings": [
+      "Project Documentation Index"
+    ],
+    "content": "# Project Documentation Index\n\n- [Architecture Overview](./architecture.md)\n- [Runtime Behavior and Data Flow](./runtime.md)\n- [Code Quality and Analysis](./code_quality.md)\n- [Dependency Graph and Module Health](./dependencies.md)\n- [Build and Release Readiness](./build.md)\n- [Refactor Roadmap](./refactor_roadmap.md)\n- [Planned Extensions and Feature Modules](./extensions.md)\n"
+  },
+  {
+    "file": "refactor_roadmap.md",
+    "title": "Refactor Roadmap",
+    "headings": [
+      "Refactor Roadmap"
+    ],
+    "content": "# Refactor Roadmap\n\n| Priority   | Module                | Issue                          | Recommendation                       |\n|------------|-----------------------|---------------------------------|---------------------------------------|\n| Critical   | backend/sync-server   | Async error handling            | Audit and add error handling          |\n| High       | App.tsx, FinancesApp.tsx | Large React components      | Split into smaller components         |\n| High       | custom modules        | Missing integration tests       | Add more integration tests            |\n| Medium     | App.tsx, hooks        | Inline functions in render      | Memoize with useCallback/useMemo      |\n| Medium     | reports, transactions | Heavy loops, map/filter chains  | Refactor for performance              |\n| Low        | legacy JS, unused     | Unused imports, dead exports    | Remove and clean up                   |\n| Optional   | financial logic       | Magic numbers                   | Extract to constants                  |\n| Optional   | all modules           | Documentation                   | Improve comments and docs             |\n"
+  },
+  {
+    "file": "runtime.md",
+    "title": "Runtime Behavior and Data Flow",
+    "headings": [
+      "Runtime Behavior and Data Flow",
+      "Startup Sequence",
+      "Redux Flow",
+      "IPC Channels",
+      "Network Operations"
+    ],
+    "content": "# Runtime Behavior and Data Flow\n\n## Startup Sequence\n- Electron main initializes, sets up BrowserWindow, registers protocols, loads user data paths.\n- Preload exposes APIs for IPC, sync, file dialogs, theme.\n- React/Redux initializes state slices and loads persistent data.\n\n## Redux Flow\n- Slices: accounts, app, budget, modals, notifications, payees, prefs, transactions, tags, users.\n- Actions: loadBudget, closeBudget, addNotification, CRUD for categories/payees/transactions.\n- Async thunks: reloadCategories, getCategories, loadBudget, sync.\n\n## IPC Channels\n| Event Name                | Direction         | Purpose                       |\n|---------------------------|-------------------|-------------------------------|\n| get-bootstrap-data        | Main → Renderer   | Initial app data              |\n| set-theme                 | Main → Renderer   | Theme change                  |\n| open-file-dialog          | Main → Renderer   | File open dialog              |\n| save-file-dialog          | Main → Renderer   | File save dialog              |\n| open-external-url         | Main → Renderer   | Open URL in browser           |\n| start-sync-server         | Main → Renderer   | Start sync server             |\n| stop-sync-server          | Main → Renderer   | Stop sync server              |\n| is-sync-server-running    | Main → Renderer   | Sync server status            |\n| start-oauth-server        | Main → Renderer   | Start OAuth server            |\n| relaunch                  | Main → Renderer   | Relaunch app                  |\n| restart-server            | Main → Renderer   | Restart backend server        |\n| message                   | Bidirectional     | Custom IPC messages           |\n| upload-file-web           | Renderer → Main   | Upload file                   |\n| app-focused               | Renderer → Main   | App focus event               |\n\n## Network Operations\n- Endpoints: local Express server, remote sync-server, OAuth integrations\n- Triggers: user actions, auto sync, scheduled jobs\n- Caching: promise-retry, memoize-one\n"
+  }
+]
