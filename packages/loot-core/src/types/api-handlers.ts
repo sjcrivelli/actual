@@ -1,214 +1,86 @@
-// @ts-strict-ignore
-import { ImportTransactionsOpts } from '@actual-app/api';
+// packages/loot-core/src/types/api-handlers.ts
 
-import type { ImportTransactionsResult } from '../server/accounts/app';
-import type {
-  APIAccountEntity,
-  APICategoryEntity,
-  APICategoryGroupEntity,
-  APIFileEntity,
-  APIPayeeEntity,
-  APIScheduleEntity,
-} from '../server/api-models';
-import { BudgetFileHandlers } from '../server/budgetfiles/app';
-import { type batchUpdateTransactions } from '../server/transactions';
+// Import shared model types if available
+import { type AccountEntity, type TransactionEntity, type CategoryEntity, type PayeeEntity } from '../types/models';
 
-import type {
-  ImportTransactionEntity,
-  NewRuleEntity,
-  RuleEntity,
-  TransactionEntity,
-  ScheduleEntity,
-} from './models';
+// Define common API payloads and response shapes
+export interface QueryArgs {
+  query: string;
+}
 
-export interface ApiHandlers {
-  'api/batch-budget-start': () => Promise<unknown>;
+export interface BudgetMonthArgs {
+  month: string;
+}
 
-  'api/batch-budget-end': () => Promise<unknown>;
+export interface AccountCreateArgs {
+  account: AccountEntity;
+  initialBalance?: number;
+}
 
-  'api/load-budget': (
-    ...args: Parameters<BudgetFileHandlers['load-budget']>
-  ) => Promise<void>;
+export interface AccountUpdateArgs {
+  id: string;
+  fields: Partial<AccountEntity>;
+}
 
-  'api/download-budget': (arg: {
-    syncId: string;
-    password?: string;
-  }) => Promise<void>;
+export interface CategoryGroupCreateArgs {
+  group: CategoryEntity;
+}
 
-  'api/get-budgets': () => Promise<APIFileEntity[]>;
+export interface CategoryGroupUpdateArgs {
+  id: string;
+  fields: Partial<CategoryEntity>;
+}
 
-  'api/start-import': (arg: { budgetName: string }) => Promise<void>;
+export interface CategoryCreateArgs {
+  category: CategoryEntity;
+}
 
-  'api/finish-import': () => Promise<void>;
+export interface CategoryUpdateArgs {
+  id: string;
+  fields: Partial<CategoryEntity>;
+}
 
-  'api/abort-import': () => Promise<void>;
+export interface PayeeCreateArgs {
+  payee: PayeeEntity;
+}
 
-  'api/query': (arg: { query }) => Promise<unknown>;
+export interface PayeeUpdateArgs {
+  id: string;
+  fields: Partial<PayeeEntity>;
+}
 
-  'api/budget-months': () => Promise<string[]>;
+export interface PayeeDeleteArgs {
+  id: string;
+}
 
-  'api/budget-month': (arg: { month }) => Promise<{
-    month: string;
-    incomeAvailable: number;
-    lastMonthOverspent: number;
-    forNextMonth: number;
-    totalBudgeted: number;
-    toBudget: number;
+export interface AccountDeleteArgs {
+  id: string;
+}
 
-    fromLastMonth: number;
-    totalIncome: number;
-    totalSpent: number;
-    totalBalance: number;
-    categoryGroups: Record<string, unknown>[];
+export interface TransactionBatchArgs {
+  accountId: string;
+  transactions: TransactionEntity[];
+  isPreview?: boolean;
+}
+
+// API Handlers
+export interface APIHandlers {
+  'api/query': (arg: QueryArgs) => Promise<unknown>;
+  'api/budget-month': (arg: BudgetMonthArgs) => Promise<{
+    transactions: TransactionEntity[];
+    categoryGroups: CategoryEntity[];
+    payees: PayeeEntity[];
+    accounts: AccountEntity[];
   }>;
-
-  'api/budget-set-amount': (arg: {
-    month: string;
-    categoryId: string;
-    amount: number;
-  }) => Promise<void>;
-
-  'api/budget-set-carryover': (arg: {
-    month: string;
-    categoryId: string;
-    flag: boolean;
-  }) => Promise<void>;
-
-  'api/budget-hold-for-next-month': (arg: {
-    month: string;
-    amount: number;
-  }) => Promise<boolean>;
-
-  'api/budget-reset-hold': (arg: { month: string }) => Promise<void>;
-
-  'api/transactions-export': (arg: {
-    transactions;
-    categoryGroups;
-    payees;
-    accounts;
-  }) => Promise<unknown>;
-
-  'api/transactions-import': (arg: {
-    accountId;
-    transactions: ImportTransactionEntity[];
-    isPreview?;
-    opts?: ImportTransactionsOpts;
-  }) => Promise<ImportTransactionsResult>;
-
-  'api/transactions-add': (arg: {
-    accountId;
-    transactions;
-    runTransfers?: boolean;
-    learnCategories?: boolean;
-  }) => Promise<'ok'>;
-
-  'api/transactions-get': (arg: {
-    accountId?: string;
-    startDate?: string;
-    endDate?: string;
-  }) => Promise<TransactionEntity[]>;
-
-  'api/transaction-update': (arg: {
-    id;
-    fields;
-  }) => Promise<Awaited<ReturnType<typeof batchUpdateTransactions>>['updated']>;
-
-  'api/transaction-delete': (arg: {
-    id;
-  }) => Promise<Awaited<ReturnType<typeof batchUpdateTransactions>>['deleted']>;
-
-  'api/sync': () => Promise<void>;
-
-  'api/bank-sync': (arg?: { accountId: string }) => Promise<void>;
-
-  'api/accounts-get': () => Promise<APIAccountEntity[]>;
-
-  'api/account-create': (arg: { account; initialBalance? }) => Promise<string>;
-
-  'api/account-update': (arg: { id; fields }) => Promise<void>;
-
-  'api/account-close': (arg: {
-    id;
-    transferAccountId;
-    transferCategoryId;
-  }) => Promise<unknown>;
-
-  'api/account-reopen': (arg: { id }) => Promise<unknown>;
-
-  'api/account-delete': (arg: { id }) => Promise<unknown>;
-
-  'api/account-balance': (arg: {
-    id: string;
-    cutoff?: Date;
-  }) => Promise<number>;
-
-  'api/categories-get': (arg: {
-    grouped;
-  }) => Promise<Array<APICategoryGroupEntity | APICategoryEntity>>;
-
-  'api/category-groups-get': () => Promise<APICategoryGroupEntity[]>;
-
-  'api/category-group-create': (arg: { group }) => Promise<string>;
-
-  'api/category-group-update': (arg: { id; fields }) => Promise<unknown>;
-
-  'api/category-group-delete': (arg: {
-    id;
-    transferCategoryId;
-  }) => Promise<unknown>;
-
-  'api/category-create': (arg: { category }) => Promise<string>;
-
-  'api/category-update': (arg: { id; fields }) => Promise<unknown>;
-
-  'api/category-delete': (arg: {
-    id;
-    transferCategoryId?;
-  }) => Promise<{ error?: string }>;
-
-  'api/payees-get': () => Promise<APIPayeeEntity[]>;
-
-  'api/common-payees-get': () => Promise<APIPayeeEntity[]>;
-
-  'api/payee-create': (arg: { payee }) => Promise<string>;
-
-  'api/payee-update': (arg: { id; fields }) => Promise<unknown>;
-
-  'api/payee-delete': (arg: { id }) => Promise<unknown>;
-
-  'api/payees-merge': (arg: {
-    targetId: string;
-    mergeIds: string[];
-  }) => Promise<void>;
-
-  'api/rules-get': () => Promise<RuleEntity[]>;
-
-  'api/payee-rules-get': (arg: { id: string }) => Promise<RuleEntity[]>;
-
-  'api/rule-create': (arg: { rule: NewRuleEntity }) => Promise<RuleEntity>;
-
-  'api/rule-update': (arg: { rule: RuleEntity }) => Promise<RuleEntity>;
-
-  'api/rule-delete': (id: string) => Promise<boolean>;
-
-  'api/schedule-create': (
-    schedule: APIScheduleEntity,
-  ) => Promise<ScheduleEntity['id']>;
-
-  'api/schedule-update': (arg: {
-    id: ScheduleEntity['id'];
-    fields: Partial<APIScheduleEntity>;
-    resetNextDate?: boolean;
-  }) => Promise<ScheduleEntity['id']>;
-
-  'api/schedule-delete': (id: string) => Promise<void>;
-
-  'api/schedules-get': () => Promise<APIScheduleEntity[]>;
-  'api/get-id-by-name': (arg: {
-    type: string;
-    name: string;
-  }) => Promise<string>;
-  'api/get-server-version': () => Promise<
-    { error?: string } | { version: string }
-  >;
+  'api/account-create': (arg: AccountCreateArgs) => Promise<string>;
+  'api/account-update': (arg: AccountUpdateArgs) => Promise<void>;
+  'api/account-delete': (arg: AccountDeleteArgs) => Promise<void>;
+  'api/category-group-create': (arg: CategoryGroupCreateArgs) => Promise<string>;
+  'api/category-group-update': (arg: CategoryGroupUpdateArgs) => Promise<void>;
+  'api/category-create': (arg: CategoryCreateArgs) => Promise<string>;
+  'api/category-update': (arg: CategoryUpdateArgs) => Promise<void>;
+  'api/payee-create': (arg: PayeeCreateArgs) => Promise<string>;
+  'api/payee-update': (arg: PayeeUpdateArgs) => Promise<void>;
+  'api/payee-delete': (arg: PayeeDeleteArgs) => Promise<void>;
+  'api/transaction-batch': (arg: TransactionBatchArgs) => Promise<void>;
 }

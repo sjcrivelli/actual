@@ -81,7 +81,7 @@ export async function resetSync(
     if (e.reason) {
       return { error: e };
     }
-    captureException(e);
+    captureException(getError(e));
     return { error: { reason: 'upload-failure' } };
   } finally {
     connection.send('prefs-updated');

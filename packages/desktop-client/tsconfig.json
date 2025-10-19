@@ -1,0 +1,43 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "composite": true,
+    "module": "esnext",
+    "target": "ES2020",
+    "jsx": "react-jsx",
+    "esModuleInterop": true,
+    "moduleResolution": "node",
+    "allowJs": false,
+    "strict": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+
+    // ✅ Alias setup so desktop-client resolves itself
+    "baseUrl": "src",
+    "types": ["vite/client", "vitest/globals"],
+    "paths": {
+      "@desktop-client/*": ["./*"],
+      "@actual-app/types/*": ["../types/*"],
+      "loot-core/*": ["../loot-core/src/*"]
+    }
+  },
+
+  "include": [
+    "src",
+    "globals.ts",
+    "vite.config.mts",
+    "playwright.config.ts",
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "src/**/*.json",
+    "src/**/*.d.ts"
+  ],
+  "exclude": ["../../packages/types"],
+  "references": [
+    { "path": "../types" },
+    { "path": "../loot-core" }
+  ]
+}

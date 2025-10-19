@@ -109,7 +109,7 @@ async function getBudgets() {
         try {
           prefs = JSON.parse(await fs.readFile(prefsPath));
         } catch (e) {
-          logger.log('Error parsing metadata:', e.stack);
+          logger.log('Error parsing metadata:', getError(e).stack);
           return null;
         }
 
@@ -169,7 +169,7 @@ async function uploadBudget({ id }: { id?: Budget['id'] } = {}): Promise<{
     if (e.type === 'FileUploadError') {
       return { error: e };
     }
-    captureException(e);
+    captureException(getError(e));
     return { error: { reason: 'internal' } };
   } finally {
     if (id) {
@@ -200,7 +200,7 @@ async function downloadBudget({
 
       return { error: e };
     } else {
-      captureException(e);
+      captureException(getError(e));
       return { error: { reason: 'internal' } };
     }
   }
@@ -512,7 +512,7 @@ async function _loadBudget(id: Budget['id']): Promise<{
     dir = fs.getBudgetDir(id);
   } catch (e) {
     captureException(
-      new Error('`getBudgetDir` failed in `loadBudget`: ' + e.message),
+      new Error('`getBudgetDir` failed in `loadBudget`: ' + getErrorMessage(e)),
     );
     return { error: 'budget-not-found' };
   }
@@ -529,7 +529,7 @@ async function _loadBudget(id: Budget['id']): Promise<{
     await db.openDatabase(id);
   } catch (e) {
     captureBreadcrumb({ message: 'Error loading budget ' + id });
-    captureException(e);
+    captureException(getError(e));
     await closeBudget();
     return { error: 'opening-budget' };
   }
@@ -546,12 +546,12 @@ async function _loadBudget(id: Budget['id']): Promise<{
   } catch (e) {
     logger.warn('Error updating', e);
     let result;
-    if (e.message.includes('out-of-sync-migrations')) {
+    if (getErrorMessage(e).includes('out-of-sync-migrations')) {
       result = { error: 'out-of-sync-migrations' };
-    } else if (e.message.includes('out-of-sync-data')) {
+    } else if (getErrorMessage(e).includes('out-of-sync-data')) {
       result = { error: 'out-of-sync-data' };
     } else {
-      captureException(e);
+      captureException(getError(e));
       logger.info('Error updating budget ' + id, e);
       logger.log('Error updating budget', e);
       result = { error: 'loading-budget' };
@@ -586,7 +586,7 @@ async function _loadBudget(id: Budget['id']): Promise<{
   try {
     await sheet.loadSpreadsheet(db, onSheetChange);
   } catch (e) {
-    captureException(e);
+    captureException(getError(e));
     await closeBudget();
     return { error: 'opening-budget' };
   }

@@ -410,7 +410,7 @@ export function conditionsToAQL(
         return new Condition(cond.op, cond.field, cond.value, cond.options);
       } catch (e) {
         errors.push(e.type || 'internal');
-        logger.log('conditionsToAQL: invalid condition: ' + e.message);
+        logger.log('conditionsToAQL: invalid condition: ' + getErrorMessage(e));
         return null;
       }
     })

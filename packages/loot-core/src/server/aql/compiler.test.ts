@@ -746,10 +746,10 @@ describe('sheet language', () => {
       );
       throw new Error('Test should have thrown');
     } catch (e) {
-      expect(e.message).toMatch('Expression stack:');
-      expect(e.message).toMatch(/\$payee.name2\n/g);
-      expect(e.message).toMatch('{"$month":"$payee.name2"}');
-      expect(e.message).toMatch('select({"month":{"$month":"$payee.name2"}})');
+      expect(getErrorMessage(e)).toMatch('Expression stack:');
+      expect(getErrorMessage(e)).toMatch(/\$payee.name2\n/g);
+      expect(getErrorMessage(e)).toMatch('{"$month":"$payee.name2"}');
+      expect(getErrorMessage(e)).toMatch('select({"month":{"$month":"$payee.name2"}})');
     }
 
     // filter
@@ -763,9 +763,9 @@ describe('sheet language', () => {
       );
       throw new Error('Test should have thrown');
     } catch (e) {
-      expect(e.message).toMatch('Expression stack:');
-      expect(e.message).toMatch('{"date":{"$transform":"$month","$eq":10}}');
-      expect(e.message).toMatch(
+      expect(getErrorMessage(e)).toMatch('Expression stack:');
+      expect(getErrorMessage(e)).toMatch('{"date":{"$transform":"$month","$eq":10}}');
+      expect(getErrorMessage(e)).toMatch(
         'filter({"date":{"$transform":"$month","$eq":10}})',
       );
     }
@@ -781,10 +781,10 @@ describe('sheet language', () => {
       );
       throw new Error('Test should have thrown');
     } catch (e) {
-      expect(e.message).toMatch('Expression stack:');
-      expect(e.message).toMatch(/\$date2\n/g);
-      expect(e.message).toMatch('{"$month":"$date2"}');
-      expect(e.message).toMatch('groupBy({"$month":"$date2"})');
+      expect(getErrorMessage(e)).toMatch('Expression stack:');
+      expect(getErrorMessage(e)).toMatch(/\$date2\n/g);
+      expect(getErrorMessage(e)).toMatch('{"$month":"$date2"}');
+      expect(getErrorMessage(e)).toMatch('groupBy({"$month":"$date2"})');
     }
 
     // order by
@@ -798,10 +798,10 @@ describe('sheet language', () => {
       );
       throw new Error('Test should have thrown');
     } catch (e) {
-      expect(e.message).toMatch('Expression stack:');
-      expect(e.message).toMatch(/\$date2\n/g);
-      expect(e.message).toMatch('{"$month":"$date2"}');
-      expect(e.message).toMatch('orderBy({"$month":"$date2"})');
+      expect(getErrorMessage(e)).toMatch('Expression stack:');
+      expect(getErrorMessage(e)).toMatch(/\$date2\n/g);
+      expect(getErrorMessage(e)).toMatch('{"$month":"$date2"}');
+      expect(getErrorMessage(e)).toMatch('orderBy({"$month":"$date2"})');
     }
   });
 

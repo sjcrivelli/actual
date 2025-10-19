@@ -48,7 +48,7 @@ export async function encode(
         result = await encryption.encrypt(binaryMsg, encryptKeyId);
       } catch (e) {
         throw new SyncError('encrypt-failure', {
-          isMissingKey: e.message === 'missing-key',
+          isMissingKey: getErrorMessage(e) === 'missing-key',
         });
       }
 
@@ -105,7 +105,7 @@ export async function decode(
       } catch (e) {
         logger.log(e);
         throw new SyncError('decrypt-failure', {
-          isMissingKey: e.message === 'missing-key',
+          isMissingKey: getErrorMessage(e) === 'missing-key',
         });
       }
 

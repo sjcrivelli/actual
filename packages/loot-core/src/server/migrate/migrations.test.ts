@@ -50,7 +50,7 @@ describe('Migrations', () => {
         try {
           await migrate(db.getDatabase());
         } catch (e) {
-          expect(e.message).toBe('out-of-sync-migrations');
+          expect(getErrorMessage(e)).toBe('out-of-sync-migrations');
           return;
         }
         expect('should never reach here').toBe(null);

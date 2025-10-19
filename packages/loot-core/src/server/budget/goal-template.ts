@@ -227,7 +227,7 @@ async function processTemplate(
         templateContext.getPriorities().forEach(p => prioritiesSet.add(p));
         templateContexts.push(templateContext);
       } catch (e) {
-        errors.push(`${category.name}: ${e.message}`);
+        errors.push(`${category.name}: ${getErrorMessage(e)}`);
       }
 
       // do a reset of the goals that are orphaned

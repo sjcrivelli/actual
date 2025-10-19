@@ -114,14 +114,14 @@ function isUrlAllowed(targetUrl) {
         console.warn(
           'Invalid repository URL in allowlist:',
           repoUrl,
-          e.message,
+          getErrorMessage(e),
         );
       }
     }
 
     return false;
   } catch (e) {
-    console.warn('Invalid target URL:', targetUrl, e.message);
+    console.warn('Invalid target URL:', targetUrl, getErrorMessage(e));
     return false;
   }
 }

@@ -104,7 +104,7 @@ async function importCategories(
             count += 1;
             if (count >= MAX_RETRY) {
               run = false;
-              throw Error(e.message);
+              throw Error(getErrorMessage(e));
             }
           }
         }
@@ -155,7 +155,7 @@ async function importCategories(
                   count += 1;
                   if (count >= MAX_RETRY) {
                     run = false;
-                    throw Error(e.message);
+                    throw Error(getErrorMessage(e));
                   }
                 }
               }

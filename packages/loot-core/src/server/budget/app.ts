@@ -308,7 +308,7 @@ async function updateCategory(
   } catch (e) {
     if (
       e instanceof Error &&
-      e.message.toLowerCase().includes('unique constraint')
+      getErrorMessage(e).toLowerCase().includes('unique constraint')
     ) {
       return { error: { type: 'category-exists' } };
     }

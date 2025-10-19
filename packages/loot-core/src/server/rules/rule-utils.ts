@@ -232,7 +232,7 @@ export function parseRecurDate(desc) {
       }),
     };
   } catch (e) {
-    throw new RuleError('parse-recur-date', e.message);
+    throw new RuleError('parse-recur-date', getErrorMessage(e));
   }
 }
 

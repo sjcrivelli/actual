@@ -564,7 +564,7 @@ export const fullSync = once(async function (): Promise<
 
     if (e instanceof SyncError) {
       if (e.reason === 'out-of-sync') {
-        captureException(e);
+        captureException(getError(e));
 
         app.events.emit('sync', {
           type: 'error',
@@ -602,12 +602,12 @@ export const fullSync = once(async function (): Promise<
         app.events.emit('sync', { type: 'error', subtype: e.reason });
       }
     } else {
-      captureException(e);
+      captureException(getError(e));
       // TODO: Send the message to the client and allow them to expand & view it
       app.events.emit('sync', { type: 'error' });
     }
 
-    return { error: { message: e.message, reason: e.reason, meta: e.meta } };
+    return { error: { message: getErrorMessage(e), reason: e.reason, meta: e.meta } };
   }
 
   const tables = getTablesFromMessages(messages);

@@ -279,7 +279,7 @@ export async function upload() {
       encrypted = await encryption.encrypt(zipContent, encryptKeyId);
     } catch (e) {
       throw FileUploadError('encrypt-failure', {
-        isMissingKey: e.message === 'missing-key',
+        isMissingKey: getErrorMessage(e) === 'missing-key',
       });
     }
     uploadContent = encrypted.value;
@@ -488,7 +488,7 @@ export async function download(cloudFileId) {
       buffer = await encryption.decrypt(buffer, fileData.encryptMeta);
     } catch (e) {
       throw FileDownloadError('decrypt-failure', {
-        isMissingKey: e.message === 'missing-key',
+        isMissingKey: getErrorMessage(e) === 'missing-key',
       });
     }
   }

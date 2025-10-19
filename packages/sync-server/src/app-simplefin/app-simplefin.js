@@ -99,7 +99,7 @@ app.post(
         new Date(earliestStartDate),
       );
     } catch (e) {
-      if (e.message === 'Forbidden') {
+      if (getErrorMessage(e) === 'Forbidden') {
         invalidToken(res);
       } else {
         serverDown(e, res);

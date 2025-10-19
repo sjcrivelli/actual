@@ -53,7 +53,7 @@ try {
       currentDate: new Date(),
     });
   } catch (e) {
-    console.error(e.message);
+    console.error(getErrorMessage(e));
     process.exit(1);
   }
 

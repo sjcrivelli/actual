@@ -1,0 +1,36 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "composite": true,
+    "module": "esnext",
+    "target": "ES2020",
+    "jsx": "react-jsx",
+    "esModuleInterop": true,
+    "moduleResolution": "node",
+    "allowJs": false,
+    "strict": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "baseUrl": "src",
+    "types": ["vite/client", "vitest/globals"],
+    "paths": {
+      "loot-core/*": ["./*"],
+      "@actual-app/types/*": ["../types/*"]
+      // 🚫 removed @desktop-client/* to break circular graph
+    }
+  },
+  "include": [
+    "src",
+    "globals.ts",
+    "vite.config.mts",
+    "playwright.config.ts",
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "src/**/*.json",
+    "src/**/*.d.ts"
+  ],
+  "exclude": ["../../packages/types"]
+}

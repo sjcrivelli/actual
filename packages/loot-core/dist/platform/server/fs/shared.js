@@ -1,0 +1,32 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.getBudgetDir = exports.getDocumentDir = exports._setDocumentDir = void 0;
+// @ts-strict-ignore
+const path_join_1 = require("./path-join");
+let documentDir;
+const _setDocumentDir = dir => (documentDir = dir);
+exports._setDocumentDir = _setDocumentDir;
+const getDocumentDir = () => {
+    if (!documentDir) {
+        throw new Error('Document directory is not set');
+    }
+    return documentDir;
+};
+exports.getDocumentDir = getDocumentDir;
+const getBudgetDir = id => {
+    if (!id) {
+        throw new Error('getDocumentDir: id is falsy: ' + id);
+    }
+    // TODO: This should be better
+    //
+    // A cheesy safe guard. The id is generated from the budget name,
+    // so it provides an entry point for the user to accidentally (or
+    // intentionally) access other parts of the system. Always
+    // restrict it to only access files within the budget directory by
+    // never allowing slashes.
+    if (id.match(/[^A-Za-z0-9\-_]/)) {
+        throw new Error(`Invalid budget id “${id}”. Check the id of your budget in the Advanced section of the settings page.`);
+    }
+    return (0, path_join_1.join)((0, exports.getDocumentDir)(), id);
+};
+exports.getBudgetDir = getBudgetDir;
