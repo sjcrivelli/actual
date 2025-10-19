@@ -1,0 +1,216 @@
+import { jsx as _jsx } from "react/jsx-runtime";
+// @ts-strict-ignore
+import { createContext, useContext, useReducer, useCallback, useEffect, useRef, } from 'react';
+import { listen } from 'loot-core/platform/client/fetch';
+import * as undo from 'loot-core/platform/client/undo';
+function iterateRange(range, func) {
+    const from = Math.min(range.start, range.end);
+    const to = Math.max(range.start, range.end);
+    for (let i = from; i <= to; i++) {
+        func(i);
+    }
+}
+export function useSelected(name, items, initialSelectedIds, selectAllFilter) {
+    const [state, dispatch] = useReducer((state, action) => {
+        switch (action.type) {
+            case 'select': {
+                const { selectedRange } = state;
+                const selectedItems = new Set(state.selectedItems);
+                const { id, isRangeSelect } = action;
+                if (isRangeSelect && selectedRange) {
+                    const idx = items.findIndex(p => p.id === id);
+                    const startIdx = items.findIndex(p => p.id === selectedRange.start);
+                    const endIdx = items.findIndex(p => p.id === selectedRange.end);
+                    let range;
+                    let deleteUntil;
+                    if (endIdx === -1) {
+                        range = { start: startIdx, end: idx };
+                    }
+                    else if (endIdx < startIdx) {
+                        if (idx <= startIdx) {
+                            range = { start: startIdx, end: idx };
+                            if (idx > endIdx) {
+                                deleteUntil = { start: idx - 1, end: endIdx };
+                            }
+                        }
+                        else {
+                            // Switching directions
+                            range = { start: endIdx, end: idx };
+                        }
+                    }
+                    else {
+                        if (idx >= startIdx) {
+                            range = { start: startIdx, end: idx };
+                            if (idx < endIdx) {
+                                deleteUntil = { start: idx + 1, end: endIdx };
+                            }
+                        }
+                        else {
+                            // Switching directions
+                            range = { start: endIdx, end: idx };
+                        }
+                    }
+                    iterateRange(range, i => selectedItems.add(items[i].id));
+                    if (deleteUntil) {
+                        iterateRange(deleteUntil, i => selectedItems.delete(items[i].id));
+                    }
+                    return {
+                        ...state,
+                        selectedItems,
+                        selectedRange: {
+                            start: items[range.start].id,
+                            end: items[range.end].id,
+                        },
+                    };
+                }
+                else {
+                    let range = null;
+                    if (!selectedItems.delete(id)) {
+                        selectedItems.add(id);
+                        range = { start: id, end: null };
+                    }
+                    return {
+                        ...state,
+                        selectedItems,
+                        selectedRange: range,
+                    };
+                }
+            }
+            case 'select-none':
+                return { ...state, selectedItems: new Set() };
+            case 'select-all':
+                let selectedItems = [];
+                if (action.ids && items && selectAllFilter) {
+                    const idsToInclude = new Set(items.filter(selectAllFilter).map(item => item.id));
+                    selectedItems = action.ids.filter(id => idsToInclude.has(id));
+                }
+                else if (items && selectAllFilter) {
+                    selectedItems = items.filter(selectAllFilter).map(item => item.id);
+                }
+                else {
+                    selectedItems = action.ids || items.map(item => item.id);
+                }
+                return {
+                    ...state,
+                    selectedItems: new Set(selectedItems),
+                    selectedRange: action.ids && action.ids.length === 1
+                        ? { start: action.ids[0], end: null }
+                        : null,
+                };
+            default:
+                throw new Error('Unexpected action: ' + JSON.stringify(action));
+        }
+    }, null, () => ({
+        selectedItems: new Set(initialSelectedIds || []),
+        selectedRange: initialSelectedIds && initialSelectedIds.length === 1
+            ? { start: initialSelectedIds[0], end: null }
+            : null,
+    }));
+    const prevItems = useRef(items);
+    useEffect(() => {
+        if (state.selectedItems.size > 0) {
+            // We need to make sure there are no ids in the selection that
+            // aren't valid anymore. This happens if the item has been
+            // deleted or otherwise removed from the current view. We do
+            // this by cross-referencing the current selection with the
+            // available item ids
+            //
+            // This effect may run multiple times while items is updated, we
+            // need to make sure that we don't remove selected ids until the
+            // items array *actually* changes. A component may render with
+            // new `items` arrays that are the same, just fresh instances, but
+            // we need to wait until the actual array changes. This solves
+            // the case where undo-ing adds back items, but we remove the
+            // selected item too early (because the component rerenders
+            // multiple times)
+            const ids = new Set(items.map(item => item.id));
+            const isSame = prevItems.current.length === items.length &&
+                prevItems.current.every(item => ids.has(item.id));
+            if (!isSame) {
+                const selected = [...state.selectedItems];
+                const filtered = selected.filter(id => ids.has(id));
+                // If the selected items has changed, update the selection
+                if (selected.length !== filtered.length) {
+                    dispatch({ type: 'select-all', ids: filtered });
+                }
+            }
+        }
+        prevItems.current = items;
+    }, [items, state.selectedItems]);
+    useEffect(() => {
+        const prevState = undo.getUndoState('selectedItems');
+        undo.setUndoState('selectedItems', { name, items: state.selectedItems });
+        return () => undo.setUndoState('selectedItems', prevState);
+    }, [name, state.selectedItems]);
+    useEffect(() => {
+        function onUndo({ messages, undoTag }) {
+            const tagged = undo.getTaggedState(undoTag);
+            const deletedIds = new Set(messages
+                .filter(msg => msg.column === 'tombstone' && msg.value === 1)
+                .map(msg => msg.row));
+            if (tagged?.selectedItems?.name === name) {
+                dispatch({
+                    type: 'select-all',
+                    // Coerce the Set into an array
+                    ids: [...tagged.selectedItems.items].filter(id => !deletedIds.has(id)),
+                });
+            }
+        }
+        const lastUndoEvent = undo.getUndoState('undoEvent');
+        if (lastUndoEvent) {
+            onUndo(lastUndoEvent);
+        }
+        return listen('undo-event', onUndo);
+    }, [name]);
+    return {
+        items: state.selectedItems,
+        dispatch,
+    };
+}
+const SelectedDispatch = createContext(null);
+const SelectedItems = createContext(null);
+export function useSelectedDispatch() {
+    return useContext(SelectedDispatch);
+}
+export function useSelectedItems() {
+    return useContext(SelectedItems);
+}
+export function SelectedProvider({ instance, fetchAllIds, children, }) {
+    const { items: instanceItems, dispatch: instanceDispatch } = instance;
+    const latestItems = useRef(instanceItems);
+    latestItems.current = instanceItems;
+    const dispatch = useCallback(async (action) => {
+        if (action.type === 'select-all') {
+            if (latestItems.current && latestItems.current.size > 0) {
+                return instanceDispatch({
+                    type: 'select-none',
+                    isRangeSelect: action.isRangeSelect,
+                });
+            }
+            else {
+                if (fetchAllIds) {
+                    return instanceDispatch({
+                        type: 'select-all',
+                        ids: await fetchAllIds(),
+                        isRangeSelect: action.isRangeSelect,
+                    });
+                }
+                return instanceDispatch({
+                    type: 'select-all',
+                    isRangeSelect: action.isRangeSelect,
+                });
+            }
+        }
+        return instanceDispatch(action);
+    }, [instanceDispatch, fetchAllIds]);
+    return (_jsx(SelectedItems.Provider, { value: instance.items, children: _jsx(SelectedDispatch.Provider, { value: dispatch, children: children }) }));
+}
+// This can be helpful in class components if you cannot use the
+// custom hook
+export function SelectedProviderWithItems({ name, items, initialSelectedIds = [], fetchAllIds, registerDispatch, selectAllFilter, children, }) {
+    const selected = useSelected(name, items, initialSelectedIds, selectAllFilter);
+    useEffect(() => {
+        registerDispatch?.(selected.dispatch);
+    }, [registerDispatch, selected.dispatch]);
+    return (_jsx(SelectedProvider, { instance: selected, fetchAllIds: fetchAllIds, children: children }));
+}
