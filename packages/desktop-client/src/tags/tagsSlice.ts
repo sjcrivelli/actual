@@ -1,10 +1,10 @@
 import { createSlice } from '@reduxjs/toolkit';
 
-import { send } from 'loot-core/platform/client/fetch';
-import { type TagEntity } from 'loot-core/types/models';
+import { send } from '../../../loot-core/src/platform/client/fetch';
+import { type TagEntity } from '../../../loot-core/src/types/models';
 
 import { resetApp } from '@desktop-client/app/appSlice';
-import { createAppAsyncThunk } from '@desktop-client/redux';
+import { createAppAsyncThunk } from '../redux';
 
 const sliceName = 'tags';
 

@@ -17,6 +17,7 @@ import { type MetadataPrefs } from '../../types/prefs';
 import { triggerBudgetChanges, setType as setBudgetType } from '../budget/base';
 import * as db from '../db';
 import { PostError, SyncError } from '../errors';
+import { getErrorMessage } from '../../shared/error-utils';
 import { app } from '../main-app';
 import { runMutator } from '../mutators';
 import { postBinary } from '../post';
@@ -96,7 +97,10 @@ function apply(msg: Message, prev?: boolean) {
       db.runQuery(db.cache(query.sql), query.params);
     } catch (error) {
       throw new SyncError('invalid-schema', {
-        error: { message: error.message, stack: error.stack },
+        error: {
+          message: getErrorMessage(error),
+          stack: error instanceof Error ? error.stack : undefined
+        },
         query,
       });
     }
@@ -139,8 +143,8 @@ async function fetchAll(table, ids) {
     } catch (error) {
       throw new SyncError('invalid-schema', {
         error: {
-          message: error.message,
-          stack: error.stack,
+          message: getErrorMessage(error),
+          stack: error instanceof Error ? error.stack : undefined
         },
         query: { sql, params: partIds },
       });
@@ -562,52 +566,51 @@ export const fullSync = once(async function (): Promise<
   } catch (e) {
     logger.log(e);
 
-    if (e instanceof SyncError) {
-      if (e.reason === 'out-of-sync') {
-        captureException(getError(e));
+    const reason = typeof e === 'object' && e !== null && 'reason' in e ? (e as any).reason : undefined;
+    const meta = typeof e === 'object' && e !== null && 'meta' in e ? (e as any).meta : undefined;
 
+    if (e instanceof SyncError) {
+      if (reason === 'out-of-sync') {
+        captureException(e instanceof Error ? e : new Error(getErrorMessage(e)));
         app.events.emit('sync', {
           type: 'error',
           subtype: 'out-of-sync',
-          meta: e.meta,
+          meta,
         });
-      } else if (e.reason === 'invalid-schema') {
+      } else if (reason === 'invalid-schema') {
         app.events.emit('sync', {
           type: 'error',
           subtype: 'invalid-schema',
-          meta: e.meta,
+          meta,
         });
       } else if (
-        e.reason === 'decrypt-failure' ||
-        e.reason === 'encrypt-failure'
+        reason === 'decrypt-failure' ||
+        reason === 'encrypt-failure'
       ) {
         app.events.emit('sync', {
           type: 'error',
-          subtype: e.reason,
-          meta: e.meta,
+          subtype: reason,
+          meta,
         });
       } else {
-        app.events.emit('sync', { type: 'error', meta: e.meta });
+        app.events.emit('sync', { type: 'error', meta });
       }
     } else if (e instanceof PostError) {
       logger.log(e);
-      if (e.reason === 'unauthorized') {
+      if (reason === 'unauthorized') {
         app.events.emit('sync', { type: 'unauthorized' });
-
-        // Set the user into read-only mode
         asyncStorage.setItem('readOnly', 'true');
-      } else if (e.reason === 'network-failure') {
+      } else if (reason === 'network-failure') {
         app.events.emit('sync', { type: 'error', subtype: 'network' });
       } else {
-        app.events.emit('sync', { type: 'error', subtype: e.reason });
+        app.events.emit('sync', { type: 'error', subtype: reason });
       }
     } else {
-      captureException(getError(e));
-      // TODO: Send the message to the client and allow them to expand & view it
+      captureException(e instanceof Error ? e : new Error(getErrorMessage(e)));
       app.events.emit('sync', { type: 'error' });
     }
 
-    return { error: { message: getErrorMessage(e), reason: e.reason, meta: e.meta } };
+    return { error: { message: getErrorMessage(e), reason, meta } };
   }
 
   const tables = getTablesFromMessages(messages);

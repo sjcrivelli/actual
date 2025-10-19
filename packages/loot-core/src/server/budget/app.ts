@@ -13,6 +13,7 @@ import { batchMessages } from '../sync';
 import { undoable } from '../undo';
 
 import * as actions from './actions';
+import { getErrorMessage } from '../../shared/error-utils';
 import * as budget from './base';
 import * as cleanupActions from './cleanup-template';
 import * as goalActions from './goal-template';
@@ -466,7 +467,7 @@ async function isCategoryTransferRequired({
 
   // If there are any non-zero budget values, also force the user to
   // transfer the category.
-  return [...(sheet.get().meta().createdMonths as Set<string>)].some(month => {
+  return Array.from(sheet.get().meta().createdMonths as Set<string>).some(month => {
     const sheetName = monthUtils.sheetForMonth(month);
     const value = sheet.get().getCellValue(sheetName, 'budget-' + id);
 

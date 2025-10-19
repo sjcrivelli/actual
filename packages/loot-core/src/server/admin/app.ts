@@ -1,5 +1,6 @@
 // @ts-strict-ignore
 import * as asyncStorage from '../../platform/server/asyncStorage';
+import { getErrorMessage } from '../../shared/error-utils';
 import {
   UserAvailable,
   UserEntity,
@@ -49,7 +50,7 @@ async function getUsers() {
         const list = JSON.parse(res) as UserEntity[];
         return list;
       } catch (err) {
-        return { error: 'Failed to parse response: ' + err.message };
+        return { error: 'Failed to parse response: ' + getErrorMessage(err) };
       }
     }
   }
@@ -79,7 +80,7 @@ async function deleteAllUsers(
         return res;
       }
     } catch (err) {
-      return { error: err.reason };
+      return { error: typeof err === 'object' && err !== null && 'reason' in err && typeof (err as any).reason === 'string' ? (err as any).reason : getErrorMessage(err) };
     }
   }
 
@@ -99,7 +100,7 @@ async function addUser(
 
       return res as UserEntity;
     } catch (err) {
-      return { error: err.reason };
+      return { error: typeof err === 'object' && err !== null && 'reason' in err && typeof (err as any).reason === 'string' ? (err as any).reason : getErrorMessage(err) };
     }
   }
 
@@ -119,7 +120,7 @@ async function updateUser(
 
       return res as UserEntity;
     } catch (err) {
-      return { error: err.reason };
+      return { error: typeof err === 'object' && err !== null && 'reason' in err && typeof (err as any).reason === 'string' ? (err as any).reason : getErrorMessage(err) };
     }
   }
 
@@ -139,7 +140,7 @@ async function addAccess(
 
       return {};
     } catch (err) {
-      return { error: err.reason };
+      return { error: typeof err === 'object' && err !== null && 'reason' in err && typeof (err as any).reason === 'string' ? (err as any).reason : getErrorMessage(err) };
     }
   }
 
@@ -170,7 +171,7 @@ async function deleteAllAccess({
         return res;
       }
     } catch (err) {
-      return { error: err.reason };
+      return { error: typeof err === 'object' && err !== null && 'reason' in err && typeof (err as any).reason === 'string' ? (err as any).reason : getErrorMessage(err) };
     }
   }
 
@@ -196,7 +197,7 @@ async function accessGetAvailableUsers(
       try {
         return JSON.parse(res) as UserAvailable[];
       } catch (err) {
-        return { error: 'Failed to parse response: ' + err.message };
+        return { error: 'Failed to parse response: ' + getErrorMessage(err) };
       }
     }
   }
@@ -223,7 +224,7 @@ async function transferOwnership({
         },
       );
     } catch (err) {
-      return { error: err.reason };
+      return { error: typeof err === 'object' && err !== null && 'reason' in err && typeof (err as any).reason === 'string' ? (err as any).reason : getErrorMessage(err) };
     }
   }
 

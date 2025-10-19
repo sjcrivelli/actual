@@ -5,6 +5,7 @@ import { logger } from '../../platform/server/log';
 import { recurConfigToRSchedule } from '../../shared/schedules';
 import { RuleConditionEntity } from '../../types/models';
 import { RuleError } from '../errors';
+import { getErrorMessage } from '../../shared/error-utils';
 import { RSchedule } from '../util/rschedule';
 
 import { Rule } from './rule';

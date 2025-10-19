@@ -92,10 +92,10 @@ async function _readFile(
     }
 
     if (opts?.encoding === 'utf8' && ArrayBuffer.isView(item.contents)) {
-      return String.fromCharCode.apply(
-        null,
-        new Uint16Array(item.contents.buffer),
-      );
+        return String.fromCharCode.apply(
+          null,
+          Array.from(new Uint16Array(item.contents.buffer)),
+        );
     }
 
     return item.contents;
@@ -339,8 +339,9 @@ export const copyFile = async function (
       try {
         result = await _copySqlFile(frompath, topath);
       } catch (secondError) {
+        const message = secondError instanceof Error ? secondError.message : String(secondError);
         throw new Error(
-          `Failed to copy SQL file from ${frompath} to ${topath}: ${secondError.message}`,
+          `Failed to copy SQL file from ${frompath} to ${topath}: ${message}`,
         );
       }
     } else {

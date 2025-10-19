@@ -25,6 +25,7 @@
     "packages/*"
   ],
   "devDependencies": {
+    "@types/jest": "^30.0.0",
     "@types/node": "^24.8.1",
     "eslint": "^9.0.0",
     "prettier": "^3.2.5",
@@ -35,5 +36,10 @@
   "engines": {
     "node": ">=18.0.0",
     "yarn": ">=3.0.0"
+  },
+  "dependencies": {
+    "@reduxjs/toolkit": "^2.9.1",
+    "i18next": "^25.6.0",
+    "memoize-one": "^6.0.0"
   }
 }

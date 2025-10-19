@@ -1,11 +1,16 @@
 // @ts-strict-ignore
-import SQL = require('better-sqlite3');
+import SQL from 'better-sqlite3';
 import { v4 as uuidv4 } from 'uuid';
 
 import { removeFile, readFile } from '../fs';
 
 import { normalise } from './normalise';
 import { unicodeLike } from './unicodeLike';
+
+export const defaultMappings = {};
+export function mappingsFromString(str: string) {
+  return JSON.parse(str || '{}');
+}
 
 function verifyParamTypes(sql, arr) {
   arr.forEach(val => {
@@ -133,4 +138,5 @@ export async function exportDatabase(db: SQL.Database) {
   await removeFile(name);
 
   return data;
+  
 }

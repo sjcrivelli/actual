@@ -18,8 +18,8 @@ export async function importActual(_filepath: string, buffer: Buffer) {
       buffer,
     ));
   } catch (e) {
-    if (e.type === 'FileDownloadError') {
-      return { error: e.reason };
+    if (typeof e === 'object' && e !== null && 'type' in e && (e as any).type === 'FileDownloadError') {
+      return { error: (e as any).reason };
     }
     throw e;
   }

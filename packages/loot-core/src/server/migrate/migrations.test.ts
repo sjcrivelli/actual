@@ -1,5 +1,6 @@
 // @ts-strict-ignore
 import * as db from '../db';
+import { getErrorMessage } from '../../shared/error-utils';
 
 import {
   migrate,

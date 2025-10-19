@@ -1,4 +1,3 @@
-// @ts-strict-ignore
 import AdmZip from 'adm-zip';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -8,6 +7,7 @@ import * as fs from '../platform/server/fs';
 import { logger } from '../platform/server/log';
 import * as sqlite from '../platform/server/sqlite';
 import * as monthUtils from '../shared/months';
+import { getErrorMessage } from '../shared/error-utils';
 
 import * as encryption from './encryption';
 import {

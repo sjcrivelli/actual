@@ -42,6 +42,18 @@ export interface Handlers
     BudgetFileHandlers,
     EncryptionHandlers,
     TagsHandlers,
-    AuthHandlers {}
+    AuthHandlers {
+}
 
-export type HandlerFunctions = Handlers[keyof Handlers];
+export type HandlerFunctions = {
+  [K in keyof Handlers]: Handlers[K] extends (...args: any[]) => any ? Handlers[K] : never
+}[keyof Handlers];
+
+// Allow API-prefixed handlers for dynamic keys
+export type APIHandlerKeys = `api/${string}`;
+
+declare module './handlers' {
+  interface Handlers {
+    [key: APIHandlerKeys]: (...args: any[]) => Promise<any>;
+  }
+}

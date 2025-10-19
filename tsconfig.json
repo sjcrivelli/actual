@@ -7,13 +7,18 @@
     { "path": "packages/types" }
   ],
   "compilerOptions": {
-    "composite": true,
+    "baseUrl": ".", // Ensures non-relative paths work with "paths"
+    "paths": {
+      "@loot-core/*": ["./packages/loot-core/src/*"],
+      "@desktop-client/*": ["./packages/desktop-client/src/*"]
+    },
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
     "skipLibCheck": true,
-    "lib": ["ES2022", "DOM"],        // ✅ <-- add this
-    "target": "ES2022",              // ✅ <-- add this
-    "strict": false,                 // ✅ temporarily disable strict
-    "noImplicitAny": false,          // ✅ relax while stabilizing
-    "strictNullChecks": false,       // ✅ temporarily disable strict null checking
-    "forceConsistentCasingInFileNames": true
+    "strict": true,
+    "target": "ES2020",
+    "lib": ["DOM", "ES2020"]
   }
 }

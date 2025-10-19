@@ -1,5 +1,8 @@
 // @ts-strict-ignore
 import { q } from '../../shared/query';
+import { getErrorMessage } from '../../shared/error-utils';
+
+import { describe, it, expect } from 'vitest';
 
 import { generateSQLWithState } from './compiler';
 
@@ -277,7 +280,7 @@ describe('sheet language', () => {
         .serialize(),
       schemaWithRefs,
     );
-    expect([...result.state.paths.keys()]).toEqual(['transactions.payee']);
+    expect(Array.from(result.state.paths.keys())).toEqual(['transactions.payee']);
     expect(sqlLines(result.sql)).toEqual(
       sqlLines(`
         SELECT transactions.amount AS amount, transactions.id AS id FROM transactions
@@ -293,7 +296,7 @@ describe('sheet language', () => {
         .serialize(),
       schemaWithRefs,
     );
-    expect([...result.state.paths.keys()]).toEqual(['transactions.payee']);
+    expect(Array.from(result.state.paths.keys())).toEqual(['transactions.payee']);
     expect(sqlLines(result.sql)).toEqual(
       sqlLines(`
         SELECT payees1.name AS "payee.name", transactions.id AS id FROM transactions
@@ -310,7 +313,7 @@ describe('sheet language', () => {
         .serialize(),
       schemaWithRefs,
     );
-    expect([...result.state.paths.keys()]).toEqual([
+  expect(Array.from(result.state.paths.keys())).toEqual([
       'transactions.payee',
       'transactions.payee.account',
       'transactions.payee.account.trans1',
@@ -338,7 +341,7 @@ describe('sheet language', () => {
         .serialize(),
       schemaWithRefs,
     );
-    expect([...state.paths.keys()]).toEqual([
+  expect(Array.from(state.paths.keys())).toEqual([
       'transactions.payee',
       'transactions.payee.account',
       'transactions.payee.account.trans2',

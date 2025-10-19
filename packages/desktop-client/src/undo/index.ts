@@ -1,4 +1,4 @@
-import { send } from 'loot-core/platform/client/fetch';
+import { send } from '../../../loot-core/src/platform/client/fetch';
 
 function throttle(callback: () => void, wait: number) {
   let waiting = false;

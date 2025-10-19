@@ -95,10 +95,11 @@ export function undoable<T extends HandlerFunctions>(
   func: T,
   metaFunc?: (...metaArgs: Parameters<T>) => unknown,
 ) {
-  return (...args: Parameters<T>) => {
-    return withUndo<Awaited<ReturnType<T>>>(
+  return function(this: unknown, ...args: Parameters<T>) {
+    // Use a type-safe call signature for func
+     return withUndo<Awaited<ReturnType<T>>>(
       () => {
-        return func.apply(null, args);
+         return (func as unknown as (...args: any[]) => Promise<any>).apply(this, args);
       },
       metaFunc ? metaFunc(...args) : undefined,
     );
@@ -257,7 +258,7 @@ function redoResurrections(messages, oldData): Message[] {
     }
   });
 
-  return [...resurrect].map(desc => {
+  return Array.from(resurrect).map(desc => {
     const [table, row] = desc.split('.');
     return {
       dataset: table,

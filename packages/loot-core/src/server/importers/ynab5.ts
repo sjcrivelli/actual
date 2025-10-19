@@ -8,6 +8,7 @@ import * as actual from '@actual-app/api/methods';
 import { v4 as uuidv4 } from 'uuid';
 
 import { logger } from '../../platform/server/log';
+import { getErrorMessage } from '../../shared/error-utils';
 import * as monthUtils from '../../shared/months';
 import { sortByKey, groupBy } from '../../shared/util';
 

@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-
+import { getErrorMessage } from 'loot-core/src/shared/error-utils';
 import { logger } from '../../platform/server/log';
 import {
   currentDay,
@@ -409,8 +409,8 @@ export function conditionsToAQL(
       try {
         return new Condition(cond.op, cond.field, cond.value, cond.options);
       } catch (e) {
-        errors.push(e.type || 'internal');
-        logger.log('conditionsToAQL: invalid condition: ' + getErrorMessage(e));
+  errors.push(typeof e === 'object' && e !== null && 'type' in e ? (e as any).type : 'internal');
+  logger.log('conditionsToAQL: invalid condition: ' + getErrorMessage(e));
         return null;
       }
     })
@@ -481,7 +481,7 @@ export function conditionsToAQL(
       case 'isapprox':
       case 'is':
         if (type === 'date') {
-          if (value.type === 'recur') {
+          if (typeof value === 'object' && value !== null && 'type' in value && value.type === 'recur') {
             const dates = value.schedule
               .occurrences({ take: recurDateBounds })
               .toArray()
@@ -510,7 +510,7 @@ export function conditionsToAQL(
                 $and: [{ date: { $gte: low } }, { date: { $lte: high } }],
               };
             } else {
-              switch (value.type) {
+              switch (typeof value === 'object' && value !== null && 'type' in value ? value.type : undefined) {
                 case 'date':
                   return { date: value.date };
                 case 'month': {
@@ -715,7 +715,7 @@ export function getRulesForPayee(payeeId) {
     }
   });
 
-  return rankRules([...rules]);
+  return rankRules(Array.from(rules));
 }
 
 function* getIsSetterRules(
@@ -789,10 +789,10 @@ export async function updatePayeeRenameRule(fromNames: string[], to: string) {
   if (renameRule) {
     const condition = renameRule.conditions[0];
     const newValue = [
-      ...fastSetMerge(
+      ...Array.from(fastSetMerge(
         new Set(condition.value),
         new Set(fromNames.filter(name => name !== '')),
-      ),
+      )),
     ];
     const rule = {
       ...renameRule,
@@ -868,7 +868,7 @@ export async function updateCategoryRules(transactions) {
   const allTransactions = partitionByField(register, 'payee');
   const categoriesToSet = new Map();
 
-  for (const payeeId of payeeIds) {
+  for (const payeeId of Array.from(payeeIds)) {
     // Don't do anything if payee is null
     if (payeeId) {
       const latestTrans = (allTransactions.get(payeeId) || []).slice(0, 5);
@@ -885,11 +885,11 @@ export async function updateCategoryRules(transactions) {
   }
 
   await batchMessages(async () => {
-    for (const [payeeId, category] of categoriesToSet.entries()) {
+  for (const [payeeId, category] of Array.from(categoriesToSet.entries())) {
       const ruleSetters = [
-        ...getIsSetterRules(null, 'payee', 'category', {
+        ...Array.from(getIsSetterRules(null, 'payee', 'category', {
           condValue: payeeId,
-        }),
+        })),
       ];
 
       if (ruleSetters.length > 0) {

@@ -2,6 +2,7 @@
 import * as CRDT from '@actual-app/crdt';
 
 import { createTestBudget } from '../../mocks/budget';
+import { getErrorMessage } from '../../shared/error-utils';
 import { captureException, captureBreadcrumb } from '../../platform/exceptions';
 import * as asyncStorage from '../../platform/server/asyncStorage';
 import * as connection from '../../platform/server/connection';
@@ -109,7 +110,7 @@ async function getBudgets() {
         try {
           prefs = JSON.parse(await fs.readFile(prefsPath));
         } catch (e) {
-          logger.log('Error parsing metadata:', getError(e).stack);
+          logger.log('Error parsing metadata:', getErrorMessage(e));
           return null;
         }
 
@@ -166,10 +167,10 @@ async function uploadBudget({ id }: { id?: Budget['id'] } = {}): Promise<{
     await cloudStorage.upload();
   } catch (e) {
     logger.log(e);
-    if (e.type === 'FileUploadError') {
-      return { error: e };
+    if (typeof e === 'object' && e !== null && 'type' in e && (e as any).type === 'FileUploadError') {
+      return { error: { reason: getErrorMessage(e) } };
     }
-    captureException(getError(e));
+    captureException(new Error(getErrorMessage(e)));
     return { error: { reason: 'internal' } };
   } finally {
     if (id) {
@@ -189,18 +190,18 @@ async function downloadBudget({
   try {
     result = await cloudStorage.download(cloudFileId);
   } catch (e) {
-    if (e.type === 'FileDownloadError') {
-      if (e.reason === 'file-exists' && e.meta.id) {
-        await prefs.loadPrefs(e.meta.id);
+    if (typeof e === 'object' && e !== null && 'type' in e && (e as any).type === 'FileDownloadError') {
+      if (typeof e === 'object' && e !== null && 'reason' in e && (e as any).reason === 'file-exists' && 'meta' in e && (e as any).meta && (e as any).meta.id) {
+        await prefs.loadPrefs((e as any).meta.id);
         const name = prefs.getPrefs().budgetName;
         prefs.unloadPrefs();
-
-        e.meta = { ...e.meta, name };
+        if (typeof e === 'object' && e !== null && 'meta' in e && (e as any).meta) {
+          (e as any).meta = { ...(e as any).meta, name };
+        }
       }
-
-      return { error: e };
+      return { error: { reason: getErrorMessage(e), meta: (e as any).meta } };
     } else {
-      captureException(getError(e));
+      captureException(new Error(getErrorMessage(e)));
       return { error: { reason: 'internal' } };
     }
   }
@@ -367,7 +368,7 @@ async function duplicateBudget({
         await fs.removeDirRecursively(newBudgetDir);
       }
     } catch {} // Ignore cleanup errors
-    throw new Error(`Failed to duplicate budget file: ${error.message}`);
+  throw new Error(`Failed to duplicate budget file: ${getErrorMessage(error)}`);
   }
 
   // load in and validate
@@ -437,8 +438,8 @@ async function createBudget({
   // Load it in
   const { error } = await _loadBudget(id);
   if (error) {
-    logger.log('Error creating budget: ' + error);
-    return { error };
+    logger.log('Error creating budget: ' + getErrorMessage(error));
+    return { error: { reason: getErrorMessage(error) } };
   }
 
   if (!avoidUpload && !testMode) {
@@ -473,8 +474,12 @@ async function importBudget({
     const results = await handleBudgetImport(type, filepath, buffer);
     return results || {};
   } catch (err) {
-    err.message = 'Error importing budget: ' + err.message;
-    captureException(err);
+    if (err instanceof Error) {
+      err.message = 'Error importing budget: ' + err.message;
+      captureException(err);
+    } else {
+      captureException(new Error(getErrorMessage(err)));
+    }
     return { error: 'internal-error' };
   }
 }
@@ -485,8 +490,12 @@ async function exportBudget() {
       data: await cloudStorage.exportBuffer(),
     };
   } catch (err) {
-    err.message = 'Error exporting budget: ' + err.message;
-    captureException(err);
+    if (err instanceof Error) {
+      err.message = 'Error exporting budget: ' + err.message;
+      captureException(err);
+    } else {
+      captureException(new Error(getErrorMessage(err)));
+    }
     return { error: 'internal-error' };
   }
 }
@@ -529,7 +538,7 @@ async function _loadBudget(id: Budget['id']): Promise<{
     await db.openDatabase(id);
   } catch (e) {
     captureBreadcrumb({ message: 'Error loading budget ' + id });
-    captureException(getError(e));
+  captureException(new Error(getErrorMessage(e)));
     await closeBudget();
     return { error: 'opening-budget' };
   }
@@ -551,7 +560,7 @@ async function _loadBudget(id: Budget['id']): Promise<{
     } else if (getErrorMessage(e).includes('out-of-sync-data')) {
       result = { error: 'out-of-sync-data' };
     } else {
-      captureException(getError(e));
+  captureException(new Error(getErrorMessage(e)));
       logger.info('Error updating budget ' + id, e);
       logger.log('Error updating budget', e);
       result = { error: 'loading-budget' };
@@ -586,7 +595,7 @@ async function _loadBudget(id: Budget['id']): Promise<{
   try {
     await sheet.loadSpreadsheet(db, onSheetChange);
   } catch (e) {
-    captureException(getError(e));
+  captureException(new Error(getErrorMessage(e)));
     await closeBudget();
     return { error: 'opening-budget' };
   }

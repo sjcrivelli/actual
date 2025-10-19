@@ -21,7 +21,7 @@ export const init: T.Init = function (_socketName, handlers) {
       runHandler(handlers[name], args, { undoTag, name }).then(
         result => {
           if (catchErrors) {
-            result = { data: result, error: null };
+            result = Promise.resolve({ data: result, error: null });
           }
 
           process.parentPort.postMessage({

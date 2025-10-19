@@ -1,8 +1,15 @@
-export function getError(e: unknown): Error {
-  if (e instanceof Error) return e;
-  return new Error(typeof e === 'string' ? e : JSON.stringify(e));
-}
+// packages/loot-core/src/shared/error-utils.ts
 
-export function getErrorMessage(e: unknown): string {
-  return getError(e).message;
+export function getErrorMessage(error: unknown): string {
+  if (error instanceof Error) {
+    return error.message;
+  }
+  if (typeof error === 'string') {
+    return error;
+  }
+  try {
+    return JSON.stringify(error);
+  } catch {
+    return 'Unknown error';
+  }
 }

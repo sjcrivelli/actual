@@ -16,13 +16,16 @@
     "noEmit": true,
 
     // ✅ Alias setup so desktop-client resolves itself
-    "baseUrl": "src",
+    "baseUrl": "./src",
     "types": ["vite/client", "vitest/globals"],
     "paths": {
-      "@desktop-client/*": ["./*"],
-      "@actual-app/types/*": ["../types/*"],
-      "loot-core/*": ["../loot-core/src/*"]
-    }
+      "@desktop-client/*": ["*"],
+      "@actual-app/types/*": ["../../types/*"],
+      "@loot-core/*": ["../../loot-core/src/*"],
+      "loot-core/*": ["../../loot-core/src/*"]
+    },
+    "rootDir": "src",
+    "outDir": "lib-dist"
   },
 
   "include": [

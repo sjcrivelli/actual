@@ -1,13 +1,10 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 
-import { send } from 'loot-core/platform/client/fetch';
+import { send } from '../../../loot-core/src/platform/client/fetch';
 import { type Handlers } from 'loot-core/types/handlers';
 
 import { resetApp } from '@desktop-client/app/appSlice';
-import {
-  closeBudget,
-  loadAllFiles,
-} from '@desktop-client/budgetfiles/budgetfilesSlice';
+import { closeBudget, loadAllFiles } from '@desktop-client/budgetfiles/budgetfilesSlice';
 import { loadGlobalPrefs } from '@desktop-client/prefs/prefsSlice';
 import { createAppAsyncThunk } from '@desktop-client/redux';
 

@@ -1,7 +1,7 @@
 // packages/loot-core/src/types/api-handlers.ts
 
 // Import shared model types if available
-import { type AccountEntity, type TransactionEntity, type CategoryEntity, type PayeeEntity } from '../types/models';
+import type { AccountEntity, TransactionEntity, CategoryEntity, CategoryGroupEntity, PayeeEntity } from './models';
 
 // Define common API payloads and response shapes
 export interface QueryArgs {
@@ -23,12 +23,12 @@ export interface AccountUpdateArgs {
 }
 
 export interface CategoryGroupCreateArgs {
-  group: CategoryEntity;
+  group: CategoryGroupEntity;
 }
 
 export interface CategoryGroupUpdateArgs {
   id: string;
-  fields: Partial<CategoryEntity>;
+  fields: Partial<CategoryGroupEntity>;
 }
 
 export interface CategoryCreateArgs {
@@ -83,4 +83,10 @@ export interface APIHandlers {
   'api/payee-update': (arg: PayeeUpdateArgs) => Promise<void>;
   'api/payee-delete': (arg: PayeeDeleteArgs) => Promise<void>;
   'api/transaction-batch': (arg: TransactionBatchArgs) => Promise<void>;
+  'api/schedule-create': (arg: unknown) => Promise<void>;
+  'api/schedule-update': (arg: unknown) => Promise<void>;
+  'api/schedule-delete': (arg: unknown) => Promise<void>;
+  'api/schedules-get': () => Promise<unknown>;
+  'api/get-id-by-name': (arg: { type: string; name: string }) => Promise<string>;
+  'api/get-server-version': () => Promise<string>;
 }

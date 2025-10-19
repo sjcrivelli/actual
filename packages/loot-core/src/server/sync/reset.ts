@@ -1,5 +1,6 @@
 // @ts-strict-ignore
 import { captureException } from '../../platform/exceptions';
+import { getErrorMessage } from '../../shared/error-utils';
 import * as asyncStorage from '../../platform/server/asyncStorage';
 import * as connection from '../../platform/server/connection';
 import * as cloudStorage from '../cloud-storage';
@@ -78,10 +79,11 @@ export async function resetSync(
   try {
     await cloudStorage.upload();
   } catch (e) {
-    if (e.reason) {
-      return { error: e };
+    if (typeof e === 'object' && e !== null && 'reason' in e && typeof (e as any).reason === 'string') {
+      // Ensure error is typed correctly
+      return { error: { reason: String((e as any).reason), meta: (e as any).meta } };
     }
-    captureException(getError(e));
+    captureException(new Error(getErrorMessage(e)));
     return { error: { reason: 'upload-failure' } };
   } finally {
     connection.send('prefs-updated');

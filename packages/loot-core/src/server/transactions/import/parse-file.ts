@@ -3,6 +3,7 @@ import { parse as csv2json } from 'csv-parse/sync';
 
 import * as fs from '../../../platform/server/fs';
 import { logger } from '../../../platform/server/log';
+import { getErrorMessage } from '../../../shared/error-utils';
 import { looselyParseAmount } from '../../../shared/util';
 
 import { ofx2json } from './ofx2json';
@@ -129,9 +130,10 @@ async function parseCSV(
       skip_empty_lines: true,
     });
   } catch (err) {
+    const msg = typeof err === 'object' && err !== null && 'message' in err ? (err as any).message : String(err);
     errors.push({
-      message: 'Failed parsing: ' + err.message,
-      internal: err.message,
+      message: 'Failed parsing: ' + msg,
+      internal: msg,
     });
     return { errors, transactions: [] };
   }
@@ -150,9 +152,10 @@ async function parseQIF(
   try {
     data = qif2json(contents);
   } catch (err) {
+    const stack = typeof err === 'object' && err !== null && 'stack' in err ? (err as any).stack : getErrorMessage(err);
     errors.push({
       message: 'Failed parsing: doesn’t look like a valid QIF file.',
-      internal: err.stack,
+      internal: stack,
     });
     return { errors, transactions: [] };
   }
@@ -182,9 +185,10 @@ async function parseOFX(
   try {
     data = await ofx2json(contents);
   } catch (err) {
+    const stack = typeof err === 'object' && err !== null && 'stack' in err ? (err as any).stack : getErrorMessage(err);
     errors.push({
       message: 'Failed importing file',
-      internal: err.stack,
+      internal: stack,
     });
     return { errors };
   }
@@ -228,9 +232,10 @@ async function parseCAMT(
     data = await xmlCAMT2json(contents);
   } catch (err) {
     logger.error(err);
+    const stack = typeof err === 'object' && err !== null && 'stack' in err ? (err as any).stack : getErrorMessage(err);
     errors.push({
       message: 'Failed importing file',
-      internal: err.stack,
+      internal: stack,
     });
     return { errors };
   }
