@@ -1,4 +1,6 @@
-const global = globalThis || this || self;
+// Ensure a Node-like `global` exists in browsers
+const global = (typeof globalThis !== "undefined" ? globalThis : (typeof self !== "undefined" ? self : this));
+if (typeof window !== "undefined") { window.global = global; }
 
 const process = {
   env: {

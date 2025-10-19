@@ -20,10 +20,10 @@
     ]
   },
   "include": [
-    "src/**/*.ts",
-    "src/**/*.js",
-    "types/**/*.d.ts"
-  ],
+  "src",
+  "src/app.ts"
+],
+
   "exclude": [
     "node_modules",
     "build",

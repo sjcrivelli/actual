@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import {
@@ -126,6 +126,11 @@ function AppInner() {
     }
 
     async function initAll() {
+  // TEMP DEV BYPASS: skip local DB worker init for web dev
+  await installPolyfills();
+  dispatch(setAppState({ loadingText: null }));
+  return;
+
       await Promise.all([installPolyfills(), init()]);
       dispatch(setAppState({ loadingText: null }));
     }

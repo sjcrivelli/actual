@@ -1,192 +1,44 @@
-import { initBackend as initSQLBackend } from 'absurd-sql/dist/indexeddb-main-thread';
-// eslint-disable-next-line import/no-unresolved
-import { registerSW } from 'virtual:pwa-register';
+/* Dev initializer: create the browser worker and expose a socket-like bridge.
+ * We pass hash: 'dev' so browser-server.js imports `kcab.worker.dev.js`.
+ * We also bypass the SharedArrayBuffer check for local dev.
+ */
 
-import * as Platform from 'loot-core/shared/platform';
+(function () {
+  // If something already set the socket, keep it
+  if (window.__actualWebSocket) return;
 
-// eslint-disable-next-line typescript-paths/absolute-parent-import
-import packageJson from '../package.json';
+  // Start the worker that orchestrates loading the backend bundle
+  const worker = new Worker(new URL('./browser-server.js', import.meta.url), {
+    type: 'module',
+  });
 
-const backendWorkerUrl = new URL('./browser-server.js', import.meta.url);
+  // Minimal socket-like bridge that the app expects
+  const socket = {
+    send(message) {
+      worker.postMessage(message);
+    },
+    onmessage: null,
+    close() {
+      try { worker.terminate(); } catch {}
+    },
+  };
 
-// This file installs global variables that the app expects.
-// Normally these are already provided by electron, but in a real
-// browser environment this is where we initialize the backend and
-// everything else.
+  // Forward messages from the worker to whoever attaches `onmessage`
+  worker.onmessage = evt => {
+    if (socket.onmessage) socket.onmessage(evt);
+  };
 
-const IS_DEV = process.env.NODE_ENV === 'development';
-const ACTUAL_VERSION = Platform.isPlaywright
-  ? '99.9.9'
-  : process.env.REACT_APP_REVIEW_ID
-    ? '.preview'
-    : packageJson.version;
+  // Expose to the app
+  window.__actualWebSocket = socket;
 
-// *** Start the backend ***
-let worker = null;
-
-function createBackendWorker() {
-  worker = new Worker(backendWorkerUrl);
-  initSQLBackend(worker);
-
-  if (window.SharedArrayBuffer) {
-    localStorage.removeItem('SharedArrayBufferOverride');
-  }
-
+  // Tell the worker to initialize. `hash: 'dev'` matches the output name
+  // from `packages/loot-core/bin/build-browser` (kcab.worker.dev.js)
   worker.postMessage({
     type: 'init',
-    version: ACTUAL_VERSION,
-    isDev: IS_DEV,
-    publicUrl: process.env.PUBLIC_URL,
-    hash: process.env.REACT_APP_BACKEND_WORKER_HASH,
-    isSharedArrayBufferOverrideEnabled: localStorage.getItem(
-      'SharedArrayBufferOverride',
-    ),
+    isDev: true,
+    publicUrl: import.meta.env.BASE_URL.replace(/\/$/, ''),
+    hash: 'dev',
+    // Skip SAB requirement in local dev environments
+    isSharedArrayBufferOverrideEnabled: true,
   });
-}
-
-createBackendWorker();
-
-let isUpdateReadyForDownload = false;
-let markUpdateReadyForDownload;
-const isUpdateReadyForDownloadPromise = new Promise(resolve => {
-  markUpdateReadyForDownload = () => {
-    isUpdateReadyForDownload = true;
-    resolve(true);
-  };
-});
-const updateSW = registerSW({
-  immediate: true,
-  onNeedRefresh: markUpdateReadyForDownload,
-});
-
-global.Actual = {
-  IS_DEV,
-  ACTUAL_VERSION,
-
-  logToTerminal: (...args) => {
-    console.log(...args);
-  },
-
-  relaunch: () => {
-    window.location.reload();
-  },
-
-  reload: () => {
-    if (window.navigator.serviceWorker == null) return;
-
-    // Unregister the service worker handling routing and then reload. This should force the reload
-    // to query the actual server rather than delegating to the worker
-    return window.navigator.serviceWorker
-      .getRegistration('/')
-      .then(registration => {
-        if (registration == null) return;
-        return registration.unregister();
-      })
-      .then(() => {
-        window.location.reload();
-      });
-  },
-
-  startSyncServer: () => {},
-
-  stopSyncServer: () => {},
-
-  isSyncServerRunning: () => false,
-
-  startOAuthServer: () => {
-    return '';
-  },
-
-  restartElectronServer: () => {},
-
-  openFileDialog: async ({ filters = [] }) => {
-    return new Promise(resolve => {
-      let createdElement = false;
-      // Attempt to reuse an already-created file input.
-      let input = document.body.querySelector(
-        'input[id="open-file-dialog-input"]',
-      );
-      if (!input) {
-        createdElement = true;
-        input = document.createElement('input');
-      }
-
-      input.type = 'file';
-      input.id = 'open-file-dialog-input';
-      input.value = null;
-
-      const filter = filters.find(filter => filter.extensions);
-      if (filter) {
-        input.accept = filter.extensions.map(ext => '.' + ext).join(',');
-      }
-
-      input.style.position = 'absolute';
-      input.style.top = '0px';
-      input.style.left = '0px';
-      input.style.display = 'none';
-
-      input.onchange = e => {
-        const file = e.target.files[0];
-        const filename = file.name.replace(/.*(\.[^.]*)/, 'file$1');
-
-        if (file) {
-          const reader = new FileReader();
-          reader.readAsArrayBuffer(file);
-          reader.onload = async function (ev) {
-            const filepath = `/uploads/${filename}`;
-
-            window.__actionsForMenu
-              .uploadFile(filename, ev.target.result)
-              .then(() => resolve([filepath]));
-          };
-          reader.onerror = function () {
-            alert('Error reading file');
-          };
-        }
-      };
-
-      // In Safari the file input has to be in the DOM for change events to
-      // reliably fire.
-      if (createdElement) {
-        document.body.appendChild(input);
-      }
-
-      input.click();
-    });
-  },
-
-  saveFile: (contents, defaultFilename) => {
-    const temp = document.createElement('a');
-    temp.style = 'display: none';
-    temp.download = defaultFilename;
-    temp.rel = 'noopener';
-
-    const blob = new Blob([contents]);
-    temp.href = URL.createObjectURL(blob);
-    temp.dispatchEvent(new MouseEvent('click'));
-  },
-
-  openURLInBrowser: url => {
-    window.open(url, '_blank');
-  },
-  onEventFromMain: () => {},
-  isUpdateReadyForDownload: () => isUpdateReadyForDownload,
-  waitForUpdateReadyForDownload: () => isUpdateReadyForDownloadPromise,
-  applyAppUpdate: async () => {
-    updateSW();
-
-    // Wait for the app to reload
-    await new Promise(() => {});
-  },
-
-  ipcConnect: () => {},
-  getServerSocket: async () => {
-    return worker;
-  },
-
-  setTheme: theme => {
-    window.__actionsForMenu.saveGlobalPrefs({ prefs: { theme } });
-  },
-
-  moveBudgetDirectory: () => {},
-};
+})();

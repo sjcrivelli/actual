@@ -57,7 +57,7 @@ function Version() {
       }}
     >
       <Trans>
-        App: v{{ appVersion: window.Actual.ACTUAL_VERSION }} | Server:{' '}
+        App: v{{ appVersion: (window as any)?.Actual?.ACTUAL_VERSION ?? "dev" }} | Server:{' '}
         {{ serverVersion: version }}
       </Trans>
     </Text>
@@ -65,6 +65,9 @@ function Version() {
 }
 
 export function ManagementApp() {
+  /* DEV: force ConfigServer */
+  return <ConfigServer />;
+
   const { isNarrowWidth } = useResponsive();
   useMetaThemeColor(
     isNarrowWidth ? theme.mobileConfigServerViewTheme : undefined,
