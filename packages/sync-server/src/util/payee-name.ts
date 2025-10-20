@@ -1,16 +1,16 @@
 import { title } from './title/index.js';
 
-function formatPayeeIban(iban) {
+function formatPayeeIban(iban: string): string {
   return '(' + iban.slice(0, 4) + ' XXX ' + iban.slice(-4) + ')';
 }
 
-export const formatPayeeName = trans => {
+export const formatPayeeName = (trans: any): string => {
   const amount = trans.transactionAmount.amount;
-  const nameParts = [];
+  const nameParts: string[] = [];
 
   // get the correct name and account fields for the transaction amount
-  let name;
-  let account;
+  let name: any;
+  let account: any;
   if (amount > 0 || Object.is(Number(amount), 0)) {
     name = trans.debtorName;
     account = trans.debtorAccount;
