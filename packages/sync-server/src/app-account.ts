@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { Request, Response } from 'express';
 
 import {
   bootstrap,
@@ -29,7 +29,7 @@ export { app as handlers };
 // /boostrap (special endpoint for setting up the instance, cant call again)
 // /login
 
-app.get('/needs-bootstrap', (req, res) => {
+app.get('/needs-bootstrap', (req: Request, res: Response) => {
   const availableLoginMethods = listLoginMethods();
   res.send({
     status: 'ok',
@@ -45,7 +45,7 @@ app.get('/needs-bootstrap', (req, res) => {
   });
 });
 
-app.post('/bootstrap', async (req, res) => {
+app.post('/bootstrap', async (req: Request, res: Response) => {
   const boot = await bootstrap(req.body);
 
   if (boot?.error) {
@@ -55,19 +55,19 @@ app.post('/bootstrap', async (req, res) => {
   res.send({ status: 'ok', data: boot });
 });
 
-app.get('/login-methods', (req, res) => {
+app.get('/login-methods', (req: Request, res: Response) => {
   const methods = listLoginMethods();
   res.send({ status: 'ok', methods });
 });
 
-app.post('/login', async (req, res) => {
+app.post('/login', async (req: Request, res: Response) => {
   const loginMethod = getLoginMethod(req);
   console.log('Logging in via ' + loginMethod);
-  let tokenRes = null;
+  let tokenRes: any = null;
   switch (loginMethod) {
     case 'header': {
-      const headerVal = req.get('x-actual-password') || '';
-      const obfuscated =
+      const headerVal: string = req.get('x-actual-password') || '';
+      const obfuscated: string =
         '*'.repeat(headerVal.length) || 'No password provided.';
       console.debug('HEADER VALUE: ' + obfuscated);
       if (headerVal === '') {
@@ -117,7 +117,7 @@ app.post('/login', async (req, res) => {
   res.send({ status: 'ok', data: { token } });
 });
 
-app.post('/change-password', (req, res) => {
+app.post('/change-password', (req: Request, res: Response) => {
   const session = validateSession(req, res);
   if (!session) return;
 
@@ -131,7 +131,7 @@ app.post('/change-password', (req, res) => {
   res.send({ status: 'ok', data: {} });
 });
 
-app.get('/validate', (req, res) => {
+app.get('/validate', (req: Request, res: Response) => {
   const session = validateSession(req, res);
   if (session) {
     const user = getUserInfo(session.user_id);

@@ -2,15 +2,15 @@ import ipaddr from 'ipaddr.js';
 
 import { getSession } from '../account-db.js';
 import { config } from '../load-config.js';
+import { Request, Response } from 'express';
 
 export const TOKEN_EXPIRATION_NEVER = -1;
 const MS_PER_SECOND = 1000;
 
-/**
- * @param {import('express').Request} req
- * @param {import('express').Response} res
- */
-export function validateSession(req, res) {
+export function validateSession(
+  req: Request,
+  res: Response
+): ReturnType<typeof getSession> | null {
   let { token } = req.body || {};
 
   if (!token) {
@@ -44,15 +44,19 @@ export function validateSession(req, res) {
   return session;
 }
 
-export function validateAuthHeader(req) {
+export function validateAuthHeader(req: Request): boolean {
   // fallback to trustedProxies when trustedAuthProxies not set
   const trustedAuthProxies =
     config.get('trustedAuthProxies') ?? config.get('trustedProxies');
   // ensure the first hop from our server is trusted
   const peer = req.socket.remoteAddress;
+  if (!peer) {
+    console.warn('Header Auth Login attempted from unknown peer');
+    return false;
+  }
   const peerIp = ipaddr.process(peer);
   const rangeList = {
-    allowed_ips: trustedAuthProxies.map(q => ipaddr.parseCIDR(q)),
+    allowed_ips: trustedAuthProxies.map((q: string) => ipaddr.parseCIDR(q)),
   };
 
   // @ts-ignore : there is an error in the ts definition for the function, but this is valid

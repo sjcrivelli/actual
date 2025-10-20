@@ -1,13 +1,13 @@
 import { createInterface, cursorTo } from 'node:readline';
 
-export async function prompt(message) {
+export async function prompt(message: string): Promise<string> {
   const rl = createInterface({
     input: process.stdin,
     output: process.stdout,
   });
 
-  const promise = new Promise(resolve => {
-    rl.question(message, answer => {
+  const promise = new Promise<string>(resolve => {
+    rl.question(message, (answer: string) => {
       resolve(answer);
       rl.close();
     });
@@ -18,7 +18,7 @@ export async function prompt(message) {
   return answer;
 }
 
-export async function promptPassword() {
+export async function promptPassword(): Promise<string> {
   const password = await askForPassword('Enter a password, then press enter: ');
 
   if (password === '') {
@@ -38,15 +38,17 @@ export async function promptPassword() {
   return password;
 }
 
-async function askForPassword(prompt) {
-  let dataListener, endListener;
+async function askForPassword(prompt: string): Promise<string> {
+  let dataListener: (key: Buffer | string) => void = () => {};
+  let endListener: () => void = () => {};
 
-  const promise = new Promise(resolve => {
+  const promise = new Promise<string>(resolve => {
     let result = '';
     process.stdout.write(prompt);
     process.stdin.setRawMode(true);
     process.stdin.resume();
-    dataListener = key => {
+    dataListener = (key: Buffer | string) => {
+      const char = typeof key === 'string' ? key : key.toString();
       switch (key[0]) {
         case 0x03: // ^C
           process.exit();
@@ -66,7 +68,7 @@ async function askForPassword(prompt) {
           }
           break;
         default:
-          result += key;
+          result += char;
           process.stdout.write('*');
           break;
       }
