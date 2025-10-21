@@ -1,26 +1,29 @@
-// @ts-strict-ignore
+// @ts-strict
 import { type Locale, formatDistanceToNow } from 'date-fns';
 
-export function last<T>(arr: Array<T>) {
+
+// --------------------------------------------------------
+// Generic Helpers
+// --------------------------------------------------------
+
+export function last<T>(arr: Array<T>): T | undefined {
   return arr[arr.length - 1];
 }
 
 export function getChangedValues<T extends { id?: string }>(obj1: T, obj2: T) {
-  const diff: Partial<T> = {};
+  const diff: Partial<T> = {} as Partial<T>;
   const keys = Object.keys(obj2);
   let hasChanged = false;
 
-  // Keep the id field because this is mostly used to diff database
-  // objects
   if (obj1.id) {
     diff.id = obj1.id;
   }
 
-  for (let i = 0; i < keys.length; i++) {
-    const key = keys[i];
-
-    if (obj1[key] !== obj2[key]) {
-      diff[key] = obj2[key];
+  for (const key of keys) {
+    const v1 = (obj1 as Record<string, unknown>)[key];
+    const v2 = (obj2 as Record<string, unknown>)[key];
+    if (v1 !== v2) {
+  (diff as Record<string, unknown>)[key] = v2;
       hasChanged = true;
     }
   }
@@ -33,15 +36,7 @@ export function hasFieldsChanged<T extends object>(
   obj2: T,
   fields: Array<keyof T>,
 ) {
-  let changed = false;
-  for (let i = 0; i < fields.length; i++) {
-    const field = fields[i];
-    if (obj1[field] !== obj2[field]) {
-      changed = true;
-      break;
-    }
-  }
-  return changed;
+  return fields.some(field => obj1[field] !== obj2[field]);
 }
 
 export type Diff<T extends { id: string }> = {
@@ -54,69 +49,49 @@ export function applyChanges<T extends { id: string }>(
   changes: Diff<T>,
   items: T[],
 ) {
-  items = [...items];
+  let updatedItems = [...items];
 
-  if (changes.added) {
-    changes.added.forEach(add => {
-      items.push(add);
-    });
-  }
+  if (changes.added) updatedItems.push(...changes.added);
 
   if (changes.updated) {
-    changes.updated.forEach(({ id, ...fields }) => {
-      const idx = items.findIndex(t => t.id === id);
-      items[idx] = {
-        ...items[idx],
-        ...fields,
-      };
-    });
+    for (const { id, ...fields } of changes.updated) {
+      const idx = updatedItems.findIndex(t => t.id === id);
+      if (idx !== -1) {
+        updatedItems[idx] = { ...updatedItems[idx], ...fields };
+      }
+    }
   }
 
   if (changes.deleted) {
-    changes.deleted.forEach(t => {
-      const idx = items.findIndex(t2 => t.id === t2.id);
-      if (idx !== -1) {
-        items.splice(idx, 1);
-      }
-    });
+    updatedItems = updatedItems.filter(
+      item => !changes.deleted.some(d => d.id === item.id),
+    );
   }
 
-  return items;
+  return updatedItems;
 }
 
-export function partitionByField<T, K extends keyof T>(data: T[], field: K) {
-  const res = new Map();
-  for (let i = 0; i < data.length; i++) {
-    const item = data[i];
+export function partitionByField<T, K extends keyof T>(
+  data: T[],
+  field: K,
+): Map<T[K], T[]> {
+  const res = new Map<T[K], T[]>();
+  for (const item of data) {
     const key = item[field];
-
-    const items = res.get(key) || [];
-    items.push(item);
-
-    res.set(key, items);
+    const group = res.get(key) || [];
+    group.push(item);
+    res.set(key, group);
   }
   return res;
 }
 
 export function groupBy<T, K extends keyof T>(data: T[], field: K) {
-  const res = new Map<T[K], T[]>();
-  for (let i = 0; i < data.length; i++) {
-    const item = data[i];
-    const key = item[field];
-    const existing = res.get(key) || [];
-    res.set(key, existing.concat([item]));
-  }
-  return res;
+  return partitionByField(data, field);
 }
 
-// This should replace the existing `groupById` function, since a
-// `Map` is better, but we can't swap it out because `Map` has a
-// different API and we need to go through and update everywhere that
-// uses it.
 function _groupById<T extends { id: string }>(data: T[]) {
   const res = new Map<string, T>();
-  for (let i = 0; i < data.length; i++) {
-    const item = data[i];
+  for (const item of data) {
     res.set(item.id, item);
   }
   return res;
@@ -130,22 +105,23 @@ export function diffItems<T extends { id: string }>(
   const newGrouped = _groupById(newItems);
   const added: T[] = [];
   const updated: Partial<T>[] = [];
+  const deleted: Pick<T, 'id'>[] = [];
 
-  const deleted: Pick<T, 'id'>[] = items
-    .filter(item => !newGrouped.has(item.id))
-    .map(item => ({ id: item.id }));
+  for (const item of items) {
+    if (!newGrouped.has(item.id)) {
+      deleted.push({ id: item.id });
+    }
+  }
 
-  newItems.forEach(newItem => {
-    const item = grouped.get(newItem.id);
-    if (!item) {
+  for (const newItem of newItems) {
+    const existing = grouped.get(newItem.id);
+    if (!existing) {
       added.push(newItem);
     } else {
-      const changes = getChangedValues(item, newItem);
-      if (changes) {
-        updated.push(changes);
-      }
+      const diff = getChangedValues(existing, newItem);
+      if (diff) updated.push(diff);
     }
-  });
+  }
 
   return { added, updated, deleted };
 }
@@ -153,122 +129,88 @@ export function diffItems<T extends { id: string }>(
 export function groupById<T extends { id: string }>(
   data: T[] | null | undefined,
 ): Record<string, T> {
-  if (!data) {
-    return {};
-  }
-  const res: { [key: string]: T } = {};
-  for (let i = 0; i < data.length; i++) {
-    const item = data[i];
-    res[item.id] = item;
-  }
-  return res;
+  if (!data) return {};
+  return Object.fromEntries(data.map(item => [item.id, item]));
 }
+
+// --------------------------------------------------------
+// Map & Nested Structures
+// --------------------------------------------------------
 
 export function setIn(
   map: Map<string, unknown>,
   keys: string[],
   item: unknown,
 ): void {
+  let current = map;
   for (let i = 0; i < keys.length; i++) {
     const key = keys[i];
-
     if (i === keys.length - 1) {
-      map.set(key, item);
+      current.set(key, item);
     } else {
-      if (!map.has(key)) {
-        map.set(key, new Map<string, unknown>());
+      if (!current.has(key)) {
+        current.set(key, new Map<string, unknown>());
       }
-
-      map = map.get(key) as Map<string, unknown>;
+      current = current.get(key) as Map<string, unknown>;
     }
   }
 }
 
-export function getIn(map, keys) {
-  let item = map;
-  for (let i = 0; i < keys.length; i++) {
-    item = item.get(keys[i]);
-
-    if (item == null) {
-      return item;
+export function getIn(map: Map<string, unknown>, keys: string[]): unknown {
+  let current: unknown = map;
+  for (const key of keys) {
+    if (current instanceof Map) {
+      current = current.get(key);
+    } else {
+      return undefined;
     }
+    if (current == null) return current;
   }
-  return item;
+  return current;
 }
 
-export function fastSetMerge<T>(set1: Set<T>, set2: Set<T>) {
-  const finalSet = new Set(set1);
-  const iter = set2.values();
-  let value = iter.next();
-  while (!value.done) {
-    finalSet.add(value.value);
-    value = iter.next();
-  }
-  return finalSet;
+export function fastSetMerge<T>(set1: Set<T>, set2: Set<T>): Set<T> {
+  const result = new Set(set1);
+  for (const v of set2) result.add(v);
+  return result;
 }
 
 export function titleFirst(str: string | null | undefined) {
-  if (!str || str.length <= 1) {
-    return str?.toUpperCase() ?? '';
-  }
-  return str[0].toUpperCase() + str.slice(1);
+  return str ? str.charAt(0).toUpperCase() + str.slice(1) : '';
 }
 
-export function reapplyThousandSeparators(amountText: string) {
-  if (!amountText || typeof amountText !== 'string') {
-    return amountText;
-  }
+// --------------------------------------------------------
+// Number & Currency Handling
+// --------------------------------------------------------
 
-  const { decimalSeparator, thousandsSeparator } = getNumberFormat();
-  const [integerPartRaw, decimalPart = ''] = amountText.split(decimalSeparator);
+export type Amount = number;
+export type CurrencyAmount = string;
+export type IntegerAmount = number;
 
-  const numericValue = Number(
-    integerPartRaw.replaceAll(thousandsSeparator, ''),
-  );
-  if (isNaN(numericValue)) {
-    return amountText; // Return original if parsing fails
-  }
+const MAX_SAFE_NUMBER = 2 ** 51 - 1;
+const MIN_SAFE_NUMBER = -MAX_SAFE_NUMBER;
 
-  const integerPart = numericValue
-    .toLocaleString('en-US')
-    .replaceAll(',', thousandsSeparator);
-  return decimalPart
-    ? integerPart + decimalSeparator + decimalPart
-    : integerPart;
+export function safeNumber(value: number) {
+  if (!Number.isInteger(value))
+    throw new Error(`safeNumber: number is not an integer: ${value}`);
+  if (value > MAX_SAFE_NUMBER || value < MIN_SAFE_NUMBER)
+    throw new Error(`safeNumber: unsafe number: ${value}`);
+  return value;
 }
 
-export function appendDecimals(
-  amountText: string,
-  hideDecimals = false,
-): string {
-  const { decimalSeparator: separator } = getNumberFormat();
-  let result = amountText;
-  if (result.slice(-1) === separator) {
-    result = result.slice(0, -1);
-  }
-  if (!hideDecimals) {
-    result = result.replaceAll(/[,.]/g, '');
-    result = result.replace(/^0+(?!$)/, '');
-    result = result.padStart(3, '0');
-    result = result.slice(0, -2) + separator + result.slice(-2);
-  }
-  return amountToCurrency(currencyToAmount(result));
-}
+// --------------------------------------------------------
+// Number Formatting Utilities
+// --------------------------------------------------------
 
 const NUMBER_FORMATS = [
   'comma-dot',
   'dot-comma',
   'space-comma',
   'apostrophe-dot',
-  'comma-dot',
   'comma-dot-in',
 ] as const;
 
 export type NumberFormats = (typeof NUMBER_FORMATS)[number];
-
-function isNumberFormat(input: string = ''): input is NumberFormats {
-  return (NUMBER_FORMATS as readonly string[]).includes(input);
-}
 
 export const numberFormats: Array<{
   value: NumberFormats;
@@ -279,10 +221,10 @@ export const numberFormats: Array<{
   { value: 'dot-comma', label: '1.000,33', labelNoFraction: '1.000' },
   {
     value: 'space-comma',
-    label: '1\u202F000,33',
-    labelNoFraction: '1\u202F000',
+    label: '1 000,33',
+    labelNoFraction: '1 000',
   },
-  { value: 'apostrophe-dot', label: '1’000.33', labelNoFraction: '1’000' },
+  { value: 'apostrophe-dot', label: "1’000.33", labelNoFraction: "1’000" },
   { value: 'comma-dot-in', label: '1,00,000.33', labelNoFraction: '1,00,000' },
 ];
 
@@ -293,6 +235,10 @@ let numberFormatConfig: {
   format: 'comma-dot',
   hideFraction: false,
 };
+
+function isNumberFormat(input: string = ''): input is NumberFormats {
+  return (NUMBER_FORMATS as readonly string[]).includes(input);
+}
 
 export function parseNumberFormat({
   format,
@@ -320,13 +266,9 @@ export function getNumberFormat({
   hideFraction?: boolean;
   decimalPlaces?: number;
 } = numberFormatConfig) {
-  let locale, thousandsSeparator, decimalSeparator;
-
-  const currentFormat = format || numberFormatConfig.format;
-  const currentHideFraction =
-    typeof hideFraction === 'boolean'
-      ? hideFraction
-      : numberFormatConfig.hideFraction;
+  let locale: string;
+  let thousandsSeparator: string;
+  let decimalSeparator: string;
 
   switch (format) {
     case 'space-comma':
@@ -356,130 +298,50 @@ export function getNumberFormat({
       decimalSeparator = '.';
   }
 
-  const fractionDigitsOptions: {
-    minimumFractionDigits: number;
-    maximumFractionDigits: number;
-  } =
+  const fractionDigitsOptions =
     typeof decimalPlaces === 'number'
       ? {
           minimumFractionDigits: decimalPlaces,
           maximumFractionDigits: decimalPlaces,
         }
       : {
-          minimumFractionDigits: currentHideFraction ? 0 : 2,
-          maximumFractionDigits: currentHideFraction ? 0 : 2,
+          minimumFractionDigits: hideFraction ? 0 : 2,
+          maximumFractionDigits: hideFraction ? 0 : 2,
         };
 
   return {
-    value: currentFormat,
+    value: format,
     thousandsSeparator,
     decimalSeparator,
     formatter: new Intl.NumberFormat(locale, fractionDigitsOptions),
   };
 }
 
-// Number utilities
+export function currencyToAmount(currencyAmount: string): number | null {
+  const trimmed = currencyAmount.trim();
+  if (!trimmed) return null;
 
-/**
- * The exact amount.
- */
-export type Amount = number;
-/**
- * The exact amount that is formatted based on the configured number format.
- * For example, 123.45 would be '123.45' or '123,45'.
- */
-export type CurrencyAmount = string;
-/**
- * The amount with the decimal point removed.
- * For example, 123.45 would be 12345.
- */
-export type IntegerAmount = number;
+  const match = trimmed.match(/[,.](?=[^.,]*$)/);
+  let integerPart = '';
+  let fractionPart = '';
 
-// We dont use `Number.MAX_SAFE_NUMBER` and such here because those
-// numbers are so large that it's not safe to convert them to floats
-// (i.e. N / 100). For example, `9007199254740987 / 100 ===
-// 90071992547409.88`. While the internal arithemetic would be correct
-// because we always do that on numbers, the app would potentially
-// display wrong numbers. Instead of `2**53` we use `2**51` which
-// gives division more room to be correct
-const MAX_SAFE_NUMBER = 2 ** 51 - 1;
-const MIN_SAFE_NUMBER = -MAX_SAFE_NUMBER;
-
-export function safeNumber(value: number) {
-  if (!Number.isInteger(value)) {
-    throw new Error(
-      'safeNumber: number is not an integer: ' + JSON.stringify(value),
-    );
-  }
-  if (value > MAX_SAFE_NUMBER || value < MIN_SAFE_NUMBER) {
-    throw new Error(
-      'safeNumber: can’t safely perform arithmetic with number: ' + value,
-    );
-  }
-  return value;
-}
-
-export function toRelaxedNumber(currencyAmount: CurrencyAmount): Amount {
-  return integerToAmount(currencyToInteger(currencyAmount) || 0);
-}
-
-export function integerToCurrency(
-  integerAmount: IntegerAmount,
-  formatter = getNumberFormat().formatter,
-  decimalPlaces: number = 2,
-) {
-  const divisor = Math.pow(10, decimalPlaces);
-  const amount = safeNumber(integerAmount) / divisor;
-
-  return formatter.format(amount);
-}
-
-export function integerToCurrencyWithDecimal(integerAmount: IntegerAmount) {
-  // If decimal digits exist, keep them. Otherwise format them as usual.
-  if (integerAmount % 100 !== 0) {
-    return integerToCurrency(
-      integerAmount,
-      getNumberFormat({
-        ...numberFormatConfig,
-        hideFraction: false,
-      }).formatter,
-    );
-  }
-
-  return integerToCurrency(integerAmount);
-}
-
-export function amountToCurrency(amount: Amount): CurrencyAmount {
-  return getNumberFormat().formatter.format(amount);
-}
-
-export function amountToCurrencyNoDecimal(amount: Amount): CurrencyAmount {
-  return getNumberFormat({
-    ...numberFormatConfig,
-    hideFraction: true,
-  }).formatter.format(amount);
-}
-
-export function currencyToAmount(currencyAmount: string): Amount | null {
-  let integer, fraction;
-
-  // match the last dot or comma in the string
-  const match = currencyAmount.match(/[,.](?=[^.,]*$)/);
+  const { thousandsSeparator } = getNumberFormat();
 
   if (
     !match ||
-    (match[0] === getNumberFormat().thousandsSeparator &&
-      match.index + 4 <= currencyAmount.length)
+    (match[0] === thousandsSeparator &&
+      typeof match.index === 'number' &&
+      match.index + 4 <= trimmed.length)
   ) {
-    fraction = null;
-    integer = currencyAmount.replace(/[^\d-]/g, '');
-  } else {
-    integer = currencyAmount.slice(0, match.index).replace(/[^\d-]/g, '');
-    fraction = currencyAmount.slice(match.index + 1);
+    integerPart = trimmed.replace(/[^\d-]/g, '');
+  } else if (typeof match.index === 'number') {
+    integerPart = trimmed.slice(0, match.index).replace(/[^\d-]/g, '');
+    fractionPart = trimmed.slice(match.index + 1).replace(/[^\d]/g, '');
   }
 
-  const amount = parseFloat(integer + '.' + fraction);
-  return isNaN(amount) ? null : amount;
+  const normalized = `${integerPart}.${fractionPart}`;
+  const parsed = parseFloat(normalized);
+  return Number.isNaN(parsed) ? null : parsed;
 }
 
 export function currencyToInteger(
@@ -489,17 +351,9 @@ export function currencyToInteger(
   return amount == null ? null : amountToInteger(amount);
 }
 
-export function stringToInteger(str: string): number | null {
-  const amount = parseInt(str.replace(/[^-0-9.,]/g, ''));
-  if (!isNaN(amount)) {
-    return amount;
-  }
-  return null;
-}
-
 export function amountToInteger(
   amount: Amount,
-  decimalPlaces: number = 2,
+  decimalPlaces = 2,
 ): IntegerAmount {
   const multiplier = Math.pow(10, decimalPlaces);
   return Math.round(amount * multiplier);
@@ -507,80 +361,29 @@ export function amountToInteger(
 
 export function integerToAmount(
   integerAmount: IntegerAmount,
-  decimalPlaces: number = 2,
+  decimalPlaces = 2,
 ): Amount {
-  const divisor = Math.pow(10, decimalPlaces);
-  return integerAmount / divisor;
+  return integerAmount / Math.pow(10, decimalPlaces);
 }
 
-// This is used when the input format could be anything (from
-// financial files and we don't want to parse based on the user's
-// number format, because the user could be importing from many
-// currencies. We extract out the numbers and just ignore separators.
-export function looselyParseAmount(amount: string) {
-  function safeNumber(v: number): null | number {
-    if (isNaN(v)) {
-      return null;
-    }
-
-    const value = v * 100;
-    if (value > MAX_SAFE_NUMBER || value < MIN_SAFE_NUMBER) {
-      return null;
-    }
-
-    return v;
-  }
-
-  function extractNumbers(v: string): string {
-    return v.replace(/[^0-9-]/g, '');
-  }
-
-  if (amount.startsWith('(') && amount.endsWith(')')) {
-    amount = amount.replace('(', '-').replace(')', '');
-  }
-
-  // Look for a decimal marker, then look for either 1-2 or 4-9 decimal places.
-  // This avoids matching against 3 places which may not actually be decimal
-  const m = amount.match(/[.,]([^.,]{4,9}|[^.,]{1,2})$/);
-  if (!m || m.index === undefined) {
-    return safeNumber(parseFloat(extractNumbers(amount)));
-  }
-
-  const left = extractNumbers(amount.slice(0, m.index));
-  const right = extractNumbers(amount.slice(m.index + 1));
-
-  return safeNumber(parseFloat(left + '.' + right));
+export function amountToCurrency(amount: Amount): CurrencyAmount {
+  return getNumberFormat().formatter.format(amount);
 }
 
-export function sortByKey<T>(arr: T[], key: keyof T): T[] {
-  return [...arr].sort((item1, item2) => {
-    if (item1[key] < item2[key]) {
-      return -1;
-    } else if (item1[key] > item2[key]) {
-      return 1;
-    }
-    return 0;
-  });
-}
-
+// --------------------------------------------------------
 // Date utilities
+// --------------------------------------------------------
 
 export function tsToRelativeTime(
   ts: string | null,
   locale: Locale,
-  options: {
-    capitalize: boolean;
-  } = { capitalize: false },
+  options: { capitalize: boolean } = { capitalize: false },
 ): string {
   if (!ts) return 'Unknown';
-
   const parsed = new Date(parseInt(ts, 10));
-
   let distance = formatDistanceToNow(parsed, { addSuffix: true, locale });
-
   if (options.capitalize) {
     distance = distance.charAt(0).toUpperCase() + distance.slice(1);
   }
-
   return distance;
 }
