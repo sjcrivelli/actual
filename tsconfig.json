@@ -1,10 +1,10 @@
 {
   "references": [
     { "path": "packages/types" },
-    { "path": "packages/loot-core" },
-  // { "path": "packages/desktop-client" },
-    { "path": "packages/sync-server" }
-],
+    { "path": "packages/loot-core" }
+    // { "path": "packages/desktop-client" },
+    ,{ "path": "packages/sync-server" }
+  ],
   "compilerOptions": {
     // "composite": true,
     "target": "ES2022",

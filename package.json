@@ -65,6 +65,7 @@
   },
   "devDependencies": {
     "@octokit/rest": "^22.0.0",
+    "@types/deep-equal": "^1.0.4",
     "@types/md5": "^2.3.6",
     "@types/node": "^24.9.0",
     "@types/prompts": "^2.4.9",

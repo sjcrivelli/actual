@@ -24,7 +24,7 @@
       "@actual-app/types/*": ["packages/types/*"]
     }
   },
-  "include": ["src/**/*","src", "src/types"],
+  "include": ["src/**/*","src", "src/types", "src/types/declarations"],
   "exclude": ["node_modules", "lib-dist", "coverage"],
   // "references" removed to break circular dependency
 }
