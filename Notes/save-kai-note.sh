@@ -1,7 +1,7 @@
 #!/bin/bash
 # 🧠 Kai Autosave & Memory Script — Full Version
 
-NOTES_DIR="Notes"
+NOTES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 TODAY=$(date +"%Y-%m-%d")
 TIME=$(date +"%H:%M:%S")
 BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "no-branch")
