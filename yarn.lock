@@ -6162,6 +6162,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/md5@npm:^2.3.6":
+  version: 2.3.6
+  resolution: "@types/md5@npm:2.3.6"
+  checksum: 10/88d041abea4d5509ec27ae43a5e9df9caf836f29dc393e1cee0537132f732275c2bb78350d10847c1db06d068c03cb59786502f02bf06d5c1a220c1c2e6d305d
+  languageName: node
+  linkType: hard
+
 "@types/mdast@npm:^4.0.0":
   version: 4.0.4
   resolution: "@types/mdast@npm:4.0.4"
@@ -6965,6 +6972,7 @@ __metadata:
   resolution: "actual@workspace:."
   dependencies:
     "@octokit/rest": "npm:^22.0.0"
+    "@types/md5": "npm:^2.3.6"
     "@types/node": "npm:^24.9.0"
     "@types/prompts": "npm:^2.4.9"
     "@typescript-eslint/parser": "npm:^8.46.0"
@@ -6982,6 +6990,7 @@ __metadata:
     husky: "npm:^9.1.7"
     lint-staged: "npm:^16.2.3"
     marked: "npm:^16.4.1"
+    md5: "npm:^2.3.0"
     minimatch: "npm:^10.0.3"
     node-jq: "npm:^6.3.1"
     npm-run-all: "npm:^4.1.5"
