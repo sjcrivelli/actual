@@ -4,29 +4,17 @@
     "composite": true,
     "rootDir": "src",
     "outDir": "lib-dist",
-    "declaration": true,
-  "emitDeclarationOnly": false,
-    "module": "esnext",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
     "target": "ES2022",
     "esModuleInterop": true,
-    "moduleResolution": "bundler",
-    "strict": true,
+    "allowSyntheticDefaultImports": true,
+    "resolveJsonModule": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "resolveJsonModule": true,
-    "isolatedModules": true,
-    "baseUrl": "../../",
-    "types": [],
-    "paths": {
-      "@loot-core/*": ["packages/loot-core/src/*"],
-      "@desktop-client/*": ["packages/desktop-client/src/*"],
-      "@actual-app/types/*": ["packages/types/*"]
-    },
-    "allowJs": true,
-    "checkJs": false,
-    "allowImportingTsExtensions": true
+    "strict": true,
+    "isolatedModules": true
   },
-  "include": ["src/**/*", "src/**/*.js", "src/**/*.ts"],
-  "exclude": ["node_modules", "lib-dist", "coverage", "**/*.test.js", "**/*.test.ts", "dist"],
-  "references": [{ "path": "../types" }]
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "lib-dist"]
 }

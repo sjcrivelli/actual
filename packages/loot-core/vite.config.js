@@ -1,33 +1,39 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 // @ts-strict-ignore
-import path from 'path';
-import { visualizer } from 'rollup-plugin-visualizer';
-import { defineConfig } from 'vite';
-import { nodePolyfills } from 'vite-plugin-node-polyfills';
-import peggyLoader from 'vite-plugin-peggy-loader';
+var path_1 = require("path");
+var rollup_plugin_visualizer_1 = require("rollup-plugin-visualizer");
+var vite_1 = require("vite");
+var vite_plugin_node_polyfills_1 = require("vite-plugin-node-polyfills");
+var vite_plugin_peggy_loader_1 = require("vite-plugin-peggy-loader");
 // https://vitejs.dev/config/
 // eslint-disable-next-line import/no-default-export
-export default defineConfig(({ mode }) => {
-    const isDev = mode === 'development';
-    const outDir = path.resolve(__dirname, 'lib-dist/browser');
-    const crdtDir = path.resolve(__dirname, '../crdt');
+exports.default = (0, vite_1.defineConfig)(function (_a) {
+    var mode = _a.mode;
+    var isDev = mode === 'development';
+    var outDir = path_1.default.resolve(__dirname, 'lib-dist/browser');
+    var crdtDir = path_1.default.resolve(__dirname, '../crdt');
     return {
-        mode,
+        mode: mode,
         base: '/kcab/',
         build: {
             target: 'es2020',
-            outDir,
+            outDir: outDir,
             emptyOutDir: true,
             lib: {
-                entry: path.resolve(__dirname, 'src/server/main.ts'),
+                entry: path_1.default.resolve(__dirname, 'src/server/main.ts'),
                 name: 'backend',
                 formats: ['iife'],
-                fileName: () => isDev ? 'kcab.worker.dev.js' : `kcab.worker.[hash].js`,
+                fileName: function () {
+                    return isDev ? 'kcab.worker.dev.js' : "kcab.worker.[hash].js";
+                },
             },
             rollupOptions: {
-                onwarn(warning, warn) {
+                onwarn: function (warning, warn) {
+                    var _a;
                     // Suppress sourcemap warnings from peggy-loader
                     if (warning.plugin === 'peggy-loader' &&
-                        warning.message?.includes('Sourcemap')) {
+                        ((_a = warning.message) === null || _a === void 0 ? void 0 : _a.includes('Sourcemap'))) {
                         return;
                     }
                     // Use default warning handler for other warnings
@@ -68,7 +74,7 @@ export default defineConfig(({ mode }) => {
             alias: [
                 {
                     find: /^@actual-app\/crdt(\/.*)?$/,
-                    replacement: path.resolve(crdtDir, 'src') + '$1',
+                    replacement: path_1.default.resolve(crdtDir, 'src') + '$1',
                 },
             ],
         },
@@ -80,8 +86,8 @@ export default defineConfig(({ mode }) => {
             'process.env.ACTUAL_DOCUMENT_DIR': JSON.stringify('/documents'),
         },
         plugins: [
-            peggyLoader(),
-            nodePolyfills({
+            (0, vite_plugin_peggy_loader_1.default)(),
+            (0, vite_plugin_node_polyfills_1.nodePolyfills)({
                 include: [
                     'process',
                     'stream',
@@ -96,7 +102,7 @@ export default defineConfig(({ mode }) => {
                     global: true,
                 },
             }),
-            visualizer({ template: 'raw-data', filename: `${outDir}/stats.json` }),
+            (0, rollup_plugin_visualizer_1.visualizer)({ template: 'raw-data', filename: "".concat(outDir, "/stats.json") }),
         ],
         optimizeDeps: {
             include: [

@@ -1,74 +1,82 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.resetEvents = exports.send = exports.getNumClients = exports.init = void 0;
 // @ts-strict-ignore
-import { APIError } from '../../../server/errors';
-import { runHandler, isMutating } from '../../../server/mutators';
-import { captureException } from '../../exceptions';
+var errors_1 = require("../../../server/errors");
+var mutators_1 = require("../../../server/mutators");
+var exceptions_1 = require("../../exceptions");
 function coerceError(error) {
     if (error.type && error.type === 'APIError') {
         return error;
     }
     return { type: 'InternalError', message: error.message };
 }
-export const init = function (_socketName, handlers) {
-    process.parentPort.on('message', ({ data }) => {
-        const { id, name, args, undoTag, catchErrors } = data;
+var init = function (_socketName, handlers) {
+    process.parentPort.on('message', function (_a) {
+        var data = _a.data;
+        var id = data.id, name = data.name, args = data.args, undoTag = data.undoTag, catchErrors = data.catchErrors;
         if (handlers[name]) {
-            runHandler(handlers[name], args, { undoTag, name }).then(result => {
+            (0, mutators_1.runHandler)(handlers[name], args, { undoTag: undoTag, name: name }).then(function (result) {
                 if (catchErrors) {
                     result = { data: result, error: null };
                 }
                 process.parentPort.postMessage({
                     type: 'reply',
-                    id,
-                    result,
-                    mutated: isMutating(handlers[name]) && name !== 'undo' && name !== 'redo',
-                    undoTag,
+                    id: id,
+                    result: result,
+                    mutated: (0, mutators_1.isMutating)(handlers[name]) && name !== 'undo' && name !== 'redo',
+                    undoTag: undoTag,
                 });
-            }, nativeError => {
-                const error = coerceError(nativeError);
+            }, function (nativeError) {
+                var error = coerceError(nativeError);
                 if (name.startsWith('api/')) {
                     // The API is newer and does automatically forward
                     // errors
                     process.parentPort.postMessage({
                         type: 'reply',
-                        id,
-                        error,
+                        id: id,
+                        error: error,
                     });
                 }
                 else if (catchErrors) {
                     process.parentPort.postMessage({
                         type: 'reply',
-                        id,
-                        result: { error, data: null },
+                        id: id,
+                        result: { error: error, data: null },
                     });
                 }
                 else {
-                    process.parentPort.postMessage({ type: 'error', id });
+                    process.parentPort.postMessage({ type: 'error', id: id });
                 }
                 if (error.type === 'InternalError' && name !== 'api/load-budget') {
-                    captureException(nativeError);
+                    (0, exceptions_1.captureException)(nativeError);
                 }
                 if (!catchErrors) {
                     // Notify the frontend that something bad happend
-                    send('server-error');
+                    (0, exports.send)('server-error');
                 }
             });
         }
         else {
             console.warn('Unknown method: ' + name);
-            captureException(new Error('Unknown server method: ' + name));
+            (0, exceptions_1.captureException)(new Error('Unknown server method: ' + name));
             process.parentPort.postMessage({
                 type: 'reply',
-                id,
+                id: id,
                 result: null,
-                error: APIError('Unknown method: ' + name),
+                error: (0, errors_1.APIError)('Unknown method: ' + name),
             });
         }
     });
 };
-export const getNumClients = function () {
+exports.init = init;
+var getNumClients = function () {
     return 0;
 };
-export const send = function (name, args) {
-    process.parentPort.postMessage({ type: 'push', name, args });
+exports.getNumClients = getNumClients;
+var send = function (name, args) {
+    process.parentPort.postMessage({ type: 'push', name: name, args: args });
 };
-export const resetEvents = function () { };
+exports.send = send;
+var resetEvents = function () { };
+exports.resetEvents = resetEvents;

@@ -1,38 +1,40 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 // @ts-strict-ignore
-import * as db from '../db';
-import { makeViews } from './views';
+var db = require("../db");
+var views_1 = require("./views");
 beforeEach(global.emptyDatabase());
-const schema = {
+var schema = {
     transactions: {
         id: { type: 'id' },
         amount: { type: 'integer' },
         transfer_id: { type: 'integer' },
     },
 };
-const schemaConfig = {
+var schemaConfig = {
     views: {
         transactions: {
             fields: {
                 amount: 'a_mo_unt',
             },
-            v_transactions1: internalFields => {
-                const fields = internalFields({
+            v_transactions1: function (internalFields) {
+                var fields = internalFields({
                     transfer_id: 'CASE WHEN amount < 4 THEN null ELSE transfer_id END',
                 });
-                return `SELECT ${fields} FROM transactions`;
+                return "SELECT ".concat(fields, " FROM transactions");
             },
-            v_transactions2: (_, publicFields) => {
-                const fields = publicFields({
+            v_transactions2: function (_, publicFields) {
+                var fields = publicFields({
                     transfer_id: 'COERCE(transfer_id, "foo")',
                 });
-                return `SELECT ${fields} FROM v_transactions1`;
+                return "SELECT ".concat(fields, " FROM v_transactions1");
             },
         },
     },
 };
-describe('schema views', () => {
-    test('generates views with all the right fields', () => {
-        const str = makeViews(schema, schemaConfig);
+describe('schema views', function () {
+    test('generates views with all the right fields', function () {
+        var str = (0, views_1.makeViews)(schema, schemaConfig);
         expect(str).toMatch('DROP VIEW IF EXISTS v_transactions1;');
         expect(str).toMatch('CREATE VIEW v_transactions1 AS SELECT _.id, _.a_mo_unt AS amount, CASE WHEN amount < 4 THEN null ELSE transfer_id END AS transfer_id FROM transactions;');
         expect(str).toMatch('DROP VIEW IF EXISTS v_transactions2;');

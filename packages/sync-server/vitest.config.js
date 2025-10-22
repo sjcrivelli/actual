@@ -1,4 +1,6 @@
-export default {
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.default = {
     test: {
         exclude: ['**/node_modules/**', '**/dist/**', '**/build/**'],
         globalSetup: ['./vitest.globalSetup.js'],

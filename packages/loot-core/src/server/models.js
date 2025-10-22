@@ -1,90 +1,122 @@
-import { convertForInsert, convertForUpdate, convertFromSelect, schema, schemaConfig, } from './aql';
-import { ValidationError } from './errors';
-export function requiredFields(name, row, fields, update) {
-    fields.forEach(field => {
+"use strict";
+var __assign = (this && this.__assign) || function () {
+    __assign = Object.assign || function(t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+            s = arguments[i];
+            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+                t[p] = s[p];
+        }
+        return t;
+    };
+    return __assign.apply(this, arguments);
+};
+var __rest = (this && this.__rest) || function (s, e) {
+    var t = {};
+    for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0)
+        t[p] = s[p];
+    if (s != null && typeof Object.getOwnPropertySymbols === "function")
+        for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
+            if (e.indexOf(p[i]) < 0 && Object.prototype.propertyIsEnumerable.call(s, p[i]))
+                t[p[i]] = s[p[i]];
+        }
+    return t;
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.payeeModel = exports.categoryGroupModel = exports.categoryModel = exports.accountModel = void 0;
+exports.requiredFields = requiredFields;
+exports.toDateRepr = toDateRepr;
+exports.fromDateRepr = fromDateRepr;
+var aql_1 = require("./aql");
+var errors_1 = require("./errors");
+function requiredFields(name, row, fields, update) {
+    fields.forEach(function (field) {
         if (update) {
             if (row.hasOwnProperty(field) && row[field] == null) {
-                throw new ValidationError(`${name} is missing field ${String(field)}`);
+                throw new errors_1.ValidationError("".concat(name, " is missing field ").concat(String(field)));
             }
         }
         else {
             if (!row.hasOwnProperty(field) || row[field] == null) {
-                throw new ValidationError(`${name} is missing field ${String(field)}`);
+                throw new errors_1.ValidationError("".concat(name, " is missing field ").concat(String(field)));
             }
         }
     });
 }
-export function toDateRepr(str) {
+function toDateRepr(str) {
     if (typeof str !== 'string') {
         throw new Error('toDateRepr not passed a string: ' + str);
     }
     return parseInt(str.replace(/-/g, ''));
 }
-export function fromDateRepr(number) {
+function fromDateRepr(number) {
     if (typeof number !== 'number') {
         throw new Error('fromDateRepr not passed a number: ' + number);
     }
-    const dateString = number.toString();
+    var dateString = number.toString();
     return (dateString.slice(0, 4) +
         '-' +
         dateString.slice(4, 6) +
         '-' +
         dateString.slice(6));
 }
-export const accountModel = {
-    validate(account, { update } = {}) {
+exports.accountModel = {
+    validate: function (account, _a) {
+        var _b = _a === void 0 ? {} : _a, update = _b.update;
         requiredFields('account', account, update ? ['name', 'offbudget', 'closed'] : ['name'], update);
         return account;
     },
 };
-export const categoryModel = {
-    validate(category, { update } = {}) {
+exports.categoryModel = {
+    validate: function (category, _a) {
+        var _b = _a === void 0 ? {} : _a, update = _b.update;
         requiredFields('category', category, update ? ['name', 'is_income', 'cat_group'] : ['name', 'cat_group'], update);
-        const { sort_order, ...rest } = category;
-        return { ...rest };
+        var sort_order = category.sort_order, rest = __rest(category, ["sort_order"]);
+        return __assign({}, rest);
     },
-    toDb(category, { update } = {}) {
+    toDb: function (category, _a) {
+        var _b = _a === void 0 ? {} : _a, update = _b.update;
         return (update
-            ? convertForUpdate(schema, schemaConfig, 'categories', category)
-            : convertForInsert(schema, schemaConfig, 'categories', category));
+            ? (0, aql_1.convertForUpdate)(aql_1.schema, aql_1.schemaConfig, 'categories', category)
+            : (0, aql_1.convertForInsert)(aql_1.schema, aql_1.schemaConfig, 'categories', category));
     },
-    fromDb(category) {
-        return convertFromSelect(schema, schemaConfig, 'categories', category);
+    fromDb: function (category) {
+        return (0, aql_1.convertFromSelect)(aql_1.schema, aql_1.schemaConfig, 'categories', category);
     },
 };
-export const categoryGroupModel = {
-    validate(categoryGroup, { update } = {}) {
+exports.categoryGroupModel = {
+    validate: function (categoryGroup, _a) {
+        var _b = _a === void 0 ? {} : _a, update = _b.update;
         requiredFields('categoryGroup', categoryGroup, update ? ['name', 'is_income'] : ['name'], update);
-        const { sort_order, ...rest } = categoryGroup;
-        return { ...rest };
+        var sort_order = categoryGroup.sort_order, rest = __rest(categoryGroup, ["sort_order"]);
+        return __assign({}, rest);
     },
-    toDb(categoryGroup, { update } = {}) {
+    toDb: function (categoryGroup, _a) {
+        var _b = _a === void 0 ? {} : _a, update = _b.update;
         return (update
-            ? convertForUpdate(schema, schemaConfig, 'category_groups', categoryGroup)
-            : convertForInsert(schema, schemaConfig, 'category_groups', categoryGroup));
+            ? (0, aql_1.convertForUpdate)(aql_1.schema, aql_1.schemaConfig, 'category_groups', categoryGroup)
+            : (0, aql_1.convertForInsert)(aql_1.schema, aql_1.schemaConfig, 'category_groups', categoryGroup));
     },
-    fromDb(categoryGroup) {
-        const { categories, ...rest } = categoryGroup;
-        const categoryGroupEntity = convertFromSelect(schema, schemaConfig, 'category_groups', rest);
-        return {
-            ...categoryGroupEntity,
-            categories: categories
-                .filter(category => category.cat_group === categoryGroup.id)
-                .map(categoryModel.fromDb),
-        };
+    fromDb: function (categoryGroup) {
+        var categories = categoryGroup.categories, rest = __rest(categoryGroup, ["categories"]);
+        var categoryGroupEntity = (0, aql_1.convertFromSelect)(aql_1.schema, aql_1.schemaConfig, 'category_groups', rest);
+        return __assign(__assign({}, categoryGroupEntity), { categories: categories
+                .filter(function (category) { return category.cat_group === categoryGroup.id; })
+                .map(exports.categoryModel.fromDb) });
     },
 };
-export const payeeModel = {
-    validate(payee, { update } = {}) {
+exports.payeeModel = {
+    validate: function (payee, _a) {
+        var _b = _a === void 0 ? {} : _a, update = _b.update;
         requiredFields('payee', payee, update ? [] : ['name'], update);
         return payee;
     },
-    toDb(payee, { update } = {}) {
+    toDb: function (payee, _a) {
+        var _b = _a === void 0 ? {} : _a, update = _b.update;
         return (update
-            ? convertForUpdate(schema, schemaConfig, 'payees', payee)
-            : convertForInsert(schema, schemaConfig, 'payees', payee));
+            ? (0, aql_1.convertForUpdate)(aql_1.schema, aql_1.schemaConfig, 'payees', payee)
+            : (0, aql_1.convertForInsert)(aql_1.schema, aql_1.schemaConfig, 'payees', payee));
     },
-    fromDb(payee) {
-        return convertFromSelect(schema, schemaConfig, 'payees', payee);
+    fromDb: function (payee) {
+        return (0, aql_1.convertFromSelect)(aql_1.schema, aql_1.schemaConfig, 'payees', payee);
     },
 };

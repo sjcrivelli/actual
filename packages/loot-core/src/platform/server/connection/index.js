@@ -1,9 +1,12 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.resetEvents = exports.getNumClients = exports.send = exports.init = void 0;
 // @ts-strict-ignore
-import { APIError } from '../../../server/errors';
-import { runHandler, isMutating } from '../../../server/mutators';
-import { captureException } from '../../exceptions';
+var errors_1 = require("../../../server/errors");
+var mutators_1 = require("../../../server/mutators");
+var exceptions_1 = require("../../exceptions");
 function getGlobalObject() {
-    const obj = typeof window !== 'undefined'
+    var obj = typeof window !== 'undefined'
         ? window
         : typeof self !== 'undefined'
             ? self
@@ -20,12 +23,12 @@ function coerceError(error) {
     }
     return { type: 'InternalError', message: error.message };
 }
-export const init = function (serverChn, handlers) {
-    const serverChannel = serverChn;
+var init = function (serverChn, handlers) {
+    var serverChannel = serverChn;
     getGlobalObject().__globalServerChannel = serverChannel;
-    serverChannel.addEventListener('message', e => {
-        const data = e.data;
-        const msg = typeof data === 'string' ? JSON.parse(data) : data;
+    serverChannel.addEventListener('message', function (e) {
+        var data = e.data;
+        var msg = typeof data === 'string' ? JSON.parse(data) : data;
         if (msg.type && (msg.type === 'init' || msg.type.startsWith('__'))) {
             return;
         }
@@ -35,40 +38,40 @@ export const init = function (serverChn, handlers) {
             clearInterval(reconnectToClientInterval);
             return;
         }
-        const { id, name, args, undoTag, catchErrors } = msg;
+        var id = msg.id, name = msg.name, args = msg.args, undoTag = msg.undoTag, catchErrors = msg.catchErrors;
         if (handlers[name]) {
-            runHandler(handlers[name], args, { undoTag, name }).then(result => {
+            (0, mutators_1.runHandler)(handlers[name], args, { undoTag: undoTag, name: name }).then(function (result) {
                 serverChannel.postMessage({
                     type: 'reply',
-                    id,
+                    id: id,
                     result: catchErrors ? { data: result, error: null } : result,
-                    mutated: isMutating(handlers[name]),
-                    undoTag,
+                    mutated: (0, mutators_1.isMutating)(handlers[name]),
+                    undoTag: undoTag,
                 });
-            }, nativeError => {
-                const error = coerceError(nativeError);
+            }, function (nativeError) {
+                var error = coerceError(nativeError);
                 if (name.startsWith('api/')) {
                     // The API is newer and does automatically forward
                     // errors
-                    serverChannel.postMessage({ type: 'reply', id, error });
+                    serverChannel.postMessage({ type: 'reply', id: id, error: error });
                 }
                 else if (catchErrors) {
                     serverChannel.postMessage({
                         type: 'reply',
-                        id,
-                        result: { error, data: null },
+                        id: id,
+                        result: { error: error, data: null },
                     });
                 }
                 else {
-                    serverChannel.postMessage({ type: 'error', id });
+                    serverChannel.postMessage({ type: 'error', id: id });
                 }
                 // Only report internal errors
                 if (error.type === 'InternalError') {
-                    captureException(nativeError);
+                    (0, exceptions_1.captureException)(nativeError);
                 }
                 if (!catchErrors) {
                     // Notify the frontend that something bad happend
-                    send('server-error');
+                    (0, exports.send)('server-error');
                 }
             });
         }
@@ -76,37 +79,41 @@ export const init = function (serverChn, handlers) {
             console.warn('Unknown method: ' + name);
             serverChannel.postMessage({
                 type: 'reply',
-                id,
+                id: id,
                 result: null,
-                error: APIError('Unknown method: ' + name),
+                error: (0, errors_1.APIError)('Unknown method: ' + name),
             });
         }
     }, false);
-    const RECONNECT_INTERVAL_MS = 200;
-    const MAX_RECONNECT_ATTEMPTS = 500;
-    let reconnectAttempts = 0;
-    const reconnectToClientInterval = setInterval(() => {
+    var RECONNECT_INTERVAL_MS = 200;
+    var MAX_RECONNECT_ATTEMPTS = 500;
+    var reconnectAttempts = 0;
+    var reconnectToClientInterval = setInterval(function () {
         console.info('Backend: Trying to connect to client');
         serverChannel.postMessage({ type: 'connect' });
         reconnectAttempts++;
         if (reconnectAttempts >= MAX_RECONNECT_ATTEMPTS) {
             // Failed to connect to client - signal server error
-            send('server-error');
+            (0, exports.send)('server-error');
             clearInterval(reconnectToClientInterval);
         }
     }, RECONNECT_INTERVAL_MS);
 };
-export const send = function (name, args) {
-    const { __globalServerChannel } = getGlobalObject();
+exports.init = init;
+var send = function (name, args) {
+    var __globalServerChannel = getGlobalObject().__globalServerChannel;
     if (__globalServerChannel) {
         __globalServerChannel.postMessage({
             type: 'push',
-            name,
-            args,
+            name: name,
+            args: args,
         });
     }
 };
-export const getNumClients = function () {
+exports.send = send;
+var getNumClients = function () {
     return 1;
 };
-export const resetEvents = function () { };
+exports.getNumClients = getNumClients;
+var resetEvents = function () { };
+exports.resetEvents = resetEvents;

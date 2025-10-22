@@ -1,69 +1,25 @@
 {
+  "files": [],
   "references": [
     { "path": "packages/types" },
-    { "path": "packages/loot-core" }
-    // { "path": "packages/desktop-client" },
-    ,{ "path": "packages/sync-server" }
+    { "path": "packages/loot-core" },
+    { "path": "packages/desktop-client" },
+    { "path": "packages/sync-server" },
+    { "path": "packages/plugins-service" }
   ],
   "compilerOptions": {
-    // "composite": true,
     "target": "ES2022",
-    "lib": ["ES2022", "DOM", "DOM.Iterable"],
-    "allowSyntheticDefaultImports": true,
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "lib": ["ES2022", "DOM"],
     "esModuleInterop": true,
-    "experimentalDecorators": true,
-    "resolveJsonModule": true,
-    "downlevelIteration": true,
-    // TODO: enable once every file is ts
-    // "strict": true,
-    "strictFunctionTypes": true,
-    "noFallthroughCasesInSwitch": true,
     "skipLibCheck": true,
-    "jsx": "preserve",
-    "types": ["vite/client", "vitest/globals"],
-    // Check JS files too
-    "allowJs": true,
-    "checkJs": false,
-    // Used for temp builds
-  // "outDir": "build",
-    "moduleResolution": "bundler",
-    "module": "es2022",
-  // Until/if we build using tsc
-  // "noEmit": true,
-    "paths": {
-      // TEMPORARY: Until we can fix the "exports" in the loot-core package.json
-      "loot-core/*": ["./packages/loot-core/src/*"],
-      "@desktop-client/*": ["./packages/desktop-client/src/*"],
-      "@desktop-client/e2e/*": ["./packages/desktop-client/e2e/*"]
-    },
-    "plugins": [
-      {
-        "name": "typescript-strict-plugin",
-        "path": ["./packages"]
-      }
-    ]
+    "forceConsistentCasingInFileNames": true,
+    "strict": false,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "allowSyntheticDefaultImports": true,
+    "composite": true
   },
-  "include": [
-    "packages/types/src/index.ts",
-    "packages/loot-core/src/index.ts",
-    "packages/sync-server/app.ts",
-    "bin/*.ts"
-  ],
-  "exclude": [
-    "**/.*/",
-    "node_modules",
-    "**/node_modules/*",
-    "**/build/*",
-    "**/client-build/*",
-    "**/dist/*",
-    "**/lib-dist/*",
-    "**/test-results/*",
-    "**/playwright-report/*",
-    "**/service-worker/*"
-  ],
-  "ts-node": {
-    "compilerOptions": {
-      "module": "CommonJS"
-    }
-  }
+  "include": ["packages/**/*.ts", "packages/**/*.tsx"]
 }

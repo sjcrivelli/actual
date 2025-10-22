@@ -1,4 +1,7 @@
-export const specials = [
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.specials = void 0;
+exports.specials = [
     'CLI',
     'API',
     'HTTP',

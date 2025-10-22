@@ -1,71 +1,165 @@
+"use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __generator = (this && this.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g = Object.create((typeof Iterator === "function" ? Iterator : Object).prototype);
+    return g.next = verb(0), g["throw"] = verb(1), g["return"] = verb(2), typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (g && (g = 0, op[0] && (_ = 0)), _) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.getKey = getKey;
+exports.hasKey = hasKey;
+exports.encrypt = encrypt;
+exports.decrypt = decrypt;
+exports.randomBytes = randomBytes;
+exports.loadKey = loadKey;
+exports.unloadKey = unloadKey;
+exports.unloadAllKeys = unloadAllKeys;
+exports.createKey = createKey;
 // @ts-strict-ignore
-import { v4 as uuidv4 } from 'uuid';
-import * as internals from './encryption-internals';
+var uuid_1 = require("uuid");
+var internals = require("./encryption-internals");
 // A map of all possible master encryption keys to use, keyed by
 // unique id
-let keys = {};
-class Key {
-    id;
-    value;
-    constructor({ id }) {
-        this.id = id || uuidv4();
+var keys = {};
+var Key = /** @class */ (function () {
+    function Key(_a) {
+        var id = _a.id;
+        this.id = id || (0, uuid_1.v4)();
     }
-    async createFromPassword({ password, salt }) {
-        this.value = await internals.createKey({ secret: password, salt });
-    }
-    async createFromBase64(str) {
-        this.value = await internals.importKey(str);
-    }
-    getId() {
+    Key.prototype.createFromPassword = function (_a) {
+        return __awaiter(this, arguments, void 0, function (_b) {
+            var _c;
+            var password = _b.password, salt = _b.salt;
+            return __generator(this, function (_d) {
+                switch (_d.label) {
+                    case 0:
+                        _c = this;
+                        return [4 /*yield*/, internals.createKey({ secret: password, salt: salt })];
+                    case 1:
+                        _c.value = _d.sent();
+                        return [2 /*return*/];
+                }
+            });
+        });
+    };
+    Key.prototype.createFromBase64 = function (str) {
+        return __awaiter(this, void 0, void 0, function () {
+            var _a;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
+                    case 0:
+                        _a = this;
+                        return [4 /*yield*/, internals.importKey(str)];
+                    case 1:
+                        _a.value = _b.sent();
+                        return [2 /*return*/];
+                }
+            });
+        });
+    };
+    Key.prototype.getId = function () {
         return this.id;
-    }
-    getValue() {
+    };
+    Key.prototype.getValue = function () {
         return this.value;
-    }
-    serialize() {
+    };
+    Key.prototype.serialize = function () {
         return {
             id: this.id,
             base64: this.value.base64,
         };
-    }
-}
-export function getKey(keyId) {
+    };
+    return Key;
+}());
+function getKey(keyId) {
     if (keyId == null || keys[keyId] == null) {
         throw new Error('missing-key');
     }
     return keys[keyId];
 }
-export function hasKey(keyId) {
+function hasKey(keyId) {
     return keyId in keys;
 }
-export function encrypt(value, keyId) {
+function encrypt(value, keyId) {
     return internals.encrypt(getKey(keyId), value);
 }
-export function decrypt(encrypted, meta) {
+function decrypt(encrypted, meta) {
     return internals.decrypt(getKey(meta.keyId), encrypted, meta);
 }
-export function randomBytes(n) {
+function randomBytes(n) {
     return internals.randomBytes(n);
 }
-export async function loadKey(key) {
-    let keyInstance;
-    if (!(key instanceof Key)) {
-        keyInstance = new Key({ id: key.id });
-        await keyInstance.createFromBase64(key.base64);
-    }
-    else {
-        keyInstance = key;
-    }
-    keys[keyInstance.getId()] = keyInstance;
+function loadKey(key) {
+    return __awaiter(this, void 0, void 0, function () {
+        var keyInstance;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    if (!!(key instanceof Key)) return [3 /*break*/, 2];
+                    keyInstance = new Key({ id: key.id });
+                    return [4 /*yield*/, keyInstance.createFromBase64(key.base64)];
+                case 1:
+                    _a.sent();
+                    return [3 /*break*/, 3];
+                case 2:
+                    keyInstance = key;
+                    _a.label = 3;
+                case 3:
+                    keys[keyInstance.getId()] = keyInstance;
+                    return [2 /*return*/];
+            }
+        });
+    });
 }
-export function unloadKey(key) {
+function unloadKey(key) {
     delete keys[key.getId()];
 }
-export function unloadAllKeys() {
+function unloadAllKeys() {
     keys = {};
 }
-export async function createKey({ id, password, salt }) {
-    const key = new Key({ id });
-    await key.createFromPassword({ password, salt });
-    return key;
+function createKey(_a) {
+    return __awaiter(this, arguments, void 0, function (_b) {
+        var key;
+        var id = _b.id, password = _b.password, salt = _b.salt;
+        return __generator(this, function (_c) {
+            switch (_c.label) {
+                case 0:
+                    key = new Key({ id: id });
+                    return [4 /*yield*/, key.createFromPassword({ password: password, salt: salt })];
+                case 1:
+                    _c.sent();
+                    return [2 /*return*/, key];
+            }
+        });
+    });
 }

@@ -1,24 +1,25 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.RuleIndexer = void 0;
 // @ts-strict-ignore
-import { fastSetMerge } from '../../shared/util';
-export class RuleIndexer {
-    field;
-    method;
-    rules;
-    constructor({ field, method }) {
+var util_1 = require("../../shared/util");
+var RuleIndexer = /** @class */ (function () {
+    function RuleIndexer(_a) {
+        var field = _a.field, method = _a.method;
         this.field = field;
         this.method = method;
         this.rules = new Map();
     }
-    getIndex(key) {
+    RuleIndexer.prototype.getIndex = function (key) {
         if (!this.rules.has(key)) {
             this.rules.set(key, new Set());
         }
         return this.rules.get(key);
-    }
-    getIndexForValue(value) {
+    };
+    RuleIndexer.prototype.getIndexForValue = function (value) {
         return this.getIndex(this.getKey(value) || '*');
-    }
-    getKey(value) {
+    };
+    RuleIndexer.prototype.getKey = function (value) {
         if (typeof value === 'string' && value !== '') {
             if (this.method === 'firstchar') {
                 return value[0].toLowerCase();
@@ -26,17 +27,18 @@ export class RuleIndexer {
             return value.toLowerCase();
         }
         return null;
-    }
-    getIndexes(rule) {
-        const cond = rule.conditions.find(cond => cond.field === this.field);
-        const indexes = [];
+    };
+    RuleIndexer.prototype.getIndexes = function (rule) {
+        var _this = this;
+        var cond = rule.conditions.find(function (cond) { return cond.field === _this.field; });
+        var indexes = [];
         if (cond &&
             (cond.op === 'oneOf' ||
                 cond.op === 'is' ||
                 cond.op === 'isNot' ||
                 cond.op === 'notOneOf')) {
             if (cond.op === 'oneOf' || cond.op === 'notOneOf') {
-                cond.value.forEach(val => indexes.push(this.getIndexForValue(val)));
+                cond.value.forEach(function (val) { return indexes.push(_this.getIndexForValue(val)); });
             }
             else {
                 indexes.push(this.getIndexForValue(cond.value));
@@ -46,27 +48,29 @@ export class RuleIndexer {
             indexes.push(this.getIndex('*'));
         }
         return indexes;
-    }
-    index(rule) {
-        const indexes = this.getIndexes(rule);
-        indexes.forEach(index => {
+    };
+    RuleIndexer.prototype.index = function (rule) {
+        var indexes = this.getIndexes(rule);
+        indexes.forEach(function (index) {
             index.add(rule);
         });
-    }
-    remove(rule) {
-        const indexes = this.getIndexes(rule);
-        indexes.forEach(index => {
+    };
+    RuleIndexer.prototype.remove = function (rule) {
+        var indexes = this.getIndexes(rule);
+        indexes.forEach(function (index) {
             index.delete(rule);
         });
-    }
-    getApplicableRules(object) {
-        let indexedRules;
+    };
+    RuleIndexer.prototype.getApplicableRules = function (object) {
+        var indexedRules;
         if (this.field in object) {
-            const key = this.getKey(object[this.field]);
+            var key = this.getKey(object[this.field]);
             if (key) {
                 indexedRules = this.rules.get(key);
             }
         }
-        return fastSetMerge(indexedRules || new Set(), this.rules.get('*') || new Set());
-    }
-}
+        return (0, util_1.fastSetMerge)(indexedRules || new Set(), this.rules.get('*') || new Set());
+    };
+    return RuleIndexer;
+}());
+exports.RuleIndexer = RuleIndexer;

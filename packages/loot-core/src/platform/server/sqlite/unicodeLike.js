@@ -1,18 +1,21 @@
-import { LRUCache } from 'lru-cache';
-const likePatternCache = new LRUCache({ max: 500 });
-export function unicodeLike(pattern, value) {
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.unicodeLike = unicodeLike;
+var lru_cache_1 = require("lru-cache");
+var likePatternCache = new lru_cache_1.LRUCache({ max: 500 });
+function unicodeLike(pattern, value) {
     if (!pattern) {
         return 0;
     }
     if (!value) {
         value = '';
     }
-    let cachedRegExp = likePatternCache.get(pattern);
+    var cachedRegExp = likePatternCache.get(pattern);
     if (!cachedRegExp) {
         // we don't escape ? and % because we don't know
         // whether they originate from the user input or from our query compiler.
         // Maybe improve the query compiler to correctly process these characters?
-        const processedPattern = pattern
+        var processedPattern = pattern
             .replace(/[.*+^${}()|[\]\\]/g, '\\$&')
             .replaceAll('?', '.')
             .replaceAll('%', '.*');

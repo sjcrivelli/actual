@@ -1,15 +1,33 @@
+"use strict";
+var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
+    if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
+        if (ar || !(i in from)) {
+            if (!ar) ar = Array.prototype.slice.call(from, 0, i);
+            ar[i] = from[i];
+        }
+    }
+    return to.concat(ar || Array.prototype.slice.call(from));
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.assert = assert;
+exports.rankRules = rankRules;
+exports.migrateIds = migrateIds;
+exports.iterateIds = iterateIds;
+exports.parseRecurDate = parseRecurDate;
+exports.parseDateString = parseDateString;
+exports.parseBetweenAmount = parseBetweenAmount;
 // @ts-strict-ignore
-import * as dateFns from 'date-fns';
-import { logger } from '../../platform/server/log';
-import { recurConfigToRSchedule } from '../../shared/schedules';
-import { RuleError } from '../errors';
-import { RSchedule } from '../util/rschedule';
-export function assert(test, type, msg) {
+var dateFns = require("date-fns");
+var log_1 = require("../../platform/server/log");
+var schedules_1 = require("../../shared/schedules");
+var errors_1 = require("../errors");
+var rschedule_1 = require("../util/rschedule");
+function assert(test, type, msg) {
     if (!test) {
-        throw new RuleError(type, msg);
+        throw new errors_1.RuleError(type, msg);
     }
 }
-const OP_SCORES = {
+var OP_SCORES = {
     is: 10,
     isNot: 10,
     oneOf: 9,
@@ -28,33 +46,35 @@ const OP_SCORES = {
     offBudget: 0,
 };
 function computeScore(rule) {
-    const initialScore = rule.conditions.reduce((score, condition) => {
+    var initialScore = rule.conditions.reduce(function (score, condition) {
         if (OP_SCORES[condition.op] == null) {
-            logger.log(`Found invalid operation while ranking: ${condition.op}`);
+            log_1.logger.log("Found invalid operation while ranking: ".concat(condition.op));
             return 0;
         }
         return score + OP_SCORES[condition.op];
     }, 0);
-    if (rule.conditions.every(cond => cond.op === 'is' ||
-        cond.op === 'isNot' ||
-        cond.op === 'isapprox' ||
-        cond.op === 'oneOf' ||
-        cond.op === 'notOneOf')) {
+    if (rule.conditions.every(function (cond) {
+        return cond.op === 'is' ||
+            cond.op === 'isNot' ||
+            cond.op === 'isapprox' ||
+            cond.op === 'oneOf' ||
+            cond.op === 'notOneOf';
+    })) {
         return initialScore * 2;
     }
     return initialScore;
 }
 function _rankRules(rules) {
-    const scores = new Map();
-    rules.forEach(rule => {
+    var scores = new Map();
+    rules.forEach(function (rule) {
         scores.set(rule, computeScore(rule));
     });
     // No matter the order of rules, this must always return exactly the same
     // order. That's why rules have ids: if two rules have the same score, it
     // sorts by id
-    return [...rules].sort((r1, r2) => {
-        const score1 = scores.get(r1);
-        const score2 = scores.get(r2);
+    return __spreadArray([], rules, true).sort(function (r1, r2) {
+        var score1 = scores.get(r1);
+        var score2 = scores.get(r2);
         if (score1 < score2) {
             return -1;
         }
@@ -62,17 +82,18 @@ function _rankRules(rules) {
             return 1;
         }
         else {
-            const id1 = r1.getId();
-            const id2 = r2.getId();
+            var id1 = r1.getId();
+            var id2 = r2.getId();
             return id1 < id2 ? -1 : id1 > id2 ? 1 : 0;
         }
     });
 }
-export function rankRules(rules) {
-    let pre = [];
-    let normal = [];
-    let post = [];
-    for (const rule of rules) {
+function rankRules(rules) {
+    var pre = [];
+    var normal = [];
+    var post = [];
+    for (var _i = 0, rules_1 = rules; _i < rules_1.length; _i++) {
+        var rule = rules_1[_i];
         switch (rule.stage) {
             case 'pre':
                 pre.push(rule);
@@ -89,7 +110,7 @@ export function rankRules(rules) {
     post = _rankRules(post);
     return pre.concat(normal).concat(post);
 }
-export function migrateIds(rule, mappings) {
+function migrateIds(rule, mappings) {
     // Go through the in-memory rules and patch up ids that have been
     // "migrated" to other ids. This is a little tricky, but a lot
     // easier than trying to keep an up-to-date mapping in the db. This
@@ -105,8 +126,8 @@ export function migrateIds(rule, mappings) {
     // mapped to something else there's no way to no to map *only* the
     // first id back to make [1, 2]. Keeping the original value around
     // solves this.
-    for (let ci = 0; ci < rule.conditions.length; ci++) {
-        const cond = rule.conditions[ci];
+    for (var ci = 0; ci < rule.conditions.length; ci++) {
+        var cond = rule.conditions[ci];
         if (cond.type === 'id') {
             switch (cond.op) {
                 case 'is':
@@ -118,19 +139,19 @@ export function migrateIds(rule, mappings) {
                     cond.unparsedValue = cond.value;
                     break;
                 case 'oneOf':
-                    cond.value = cond.rawValue.map(v => mappings.get(v) || v);
-                    cond.unparsedValue = [...cond.value];
+                    cond.value = cond.rawValue.map(function (v) { return mappings.get(v) || v; });
+                    cond.unparsedValue = __spreadArray([], cond.value, true);
                     break;
                 case 'notOneOf':
-                    cond.value = cond.rawValue.map(v => mappings.get(v) || v);
-                    cond.unparsedValue = [...cond.value];
+                    cond.value = cond.rawValue.map(function (v) { return mappings.get(v) || v; });
+                    cond.unparsedValue = __spreadArray([], cond.value, true);
                     break;
                 default:
             }
         }
     }
-    for (let ai = 0; ai < rule.actions.length; ai++) {
-        const action = rule.actions[ai];
+    for (var ai = 0; ai < rule.actions.length; ai++) {
+        var action = rule.actions[ai];
         if (action.type === 'id') {
             if (action.op === 'set') {
                 action.value = mappings.get(action.rawValue) || action.rawValue;
@@ -139,12 +160,12 @@ export function migrateIds(rule, mappings) {
     }
 }
 // This finds all the rules that reference the `id`
-export function iterateIds(rules, fieldName, func) {
-    let i;
+function iterateIds(rules, fieldName, func) {
+    var i;
     ruleiter: for (i = 0; i < rules.length; i++) {
-        const rule = rules[i];
-        for (let ci = 0; ci < rule.conditions.length; ci++) {
-            const cond = rule.conditions[ci];
+        var rule = rules[i];
+        for (var ci = 0; ci < rule.conditions.length; ci++) {
+            var cond = rule.conditions[ci];
             if (cond.type === 'id' && cond.field === fieldName) {
                 switch (cond.op) {
                     case 'is':
@@ -158,14 +179,14 @@ export function iterateIds(rules, fieldName, func) {
                         }
                         break;
                     case 'oneOf':
-                        for (let vi = 0; vi < cond.value.length; vi++) {
+                        for (var vi = 0; vi < cond.value.length; vi++) {
                             if (func(rule, cond.value[vi])) {
                                 continue ruleiter;
                             }
                         }
                         break;
                     case 'notOneOf':
-                        for (let vi = 0; vi < cond.value.length; vi++) {
+                        for (var vi = 0; vi < cond.value.length; vi++) {
                             if (func(rule, cond.value[vi])) {
                                 continue ruleiter;
                             }
@@ -175,8 +196,8 @@ export function iterateIds(rules, fieldName, func) {
                 }
             }
         }
-        for (let ai = 0; ai < rule.actions.length; ai++) {
-            const action = rule.actions[ai];
+        for (var ai = 0; ai < rule.actions.length; ai++) {
+            var action = rule.actions[ai];
             if (action.type === 'id' && action.field === fieldName) {
                 // Currently `set` is the only op, but if we add more this
                 // will need to be extended
@@ -189,12 +210,12 @@ export function iterateIds(rules, fieldName, func) {
         }
     }
 }
-export function parseRecurDate(desc) {
+function parseRecurDate(desc) {
     try {
-        const rules = recurConfigToRSchedule(desc);
+        var rules = (0, schedules_1.recurConfigToRSchedule)(desc);
         return {
             type: 'recur',
-            schedule: new RSchedule({
+            schedule: new rschedule_1.RSchedule({
                 rrules: rules,
                 data: {
                     skipWeekend: desc.skipWeekend,
@@ -204,10 +225,10 @@ export function parseRecurDate(desc) {
         };
     }
     catch (e) {
-        throw new RuleError('parse-recur-date', e.message);
+        throw new errors_1.RuleError('parse-recur-date', e.message);
     }
 }
-export function parseDateString(str) {
+function parseDateString(str) {
     if (typeof str !== 'string') {
         return null;
     }
@@ -234,10 +255,10 @@ export function parseDateString(str) {
     }
     return null;
 }
-export function parseBetweenAmount(between) {
-    const { num1, num2 } = between;
+function parseBetweenAmount(between) {
+    var num1 = between.num1, num2 = between.num2;
     if (typeof num1 !== 'number' || typeof num2 !== 'number') {
         return null;
     }
-    return { type: 'between', num1, num2 };
+    return { type: 'between', num1: num1, num2: num2 };
 }

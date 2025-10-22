@@ -1,12 +1,30 @@
-import * as fs from '../platform/server/fs';
-import { logger } from '../platform/server/log';
-let config = null;
-function joinURL(base, ...paths) {
-    const url = new URL(base);
-    url.pathname = fs.join(url.pathname, ...paths);
+"use strict";
+var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
+    if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
+        if (ar || !(i in from)) {
+            if (!ar) ar = Array.prototype.slice.call(from, 0, i);
+            ar[i] = from[i];
+        }
+    }
+    return to.concat(ar || Array.prototype.slice.call(from));
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.isValidBaseURL = isValidBaseURL;
+exports.setServer = setServer;
+exports.getServer = getServer;
+var fs = require("../platform/server/fs");
+var log_1 = require("../platform/server/log");
+var config = null;
+function joinURL(base) {
+    var paths = [];
+    for (var _i = 1; _i < arguments.length; _i++) {
+        paths[_i - 1] = arguments[_i];
+    }
+    var url = new URL(base);
+    url.pathname = fs.join.apply(fs, __spreadArray([url.pathname], paths, false));
     return url.toString();
 }
-export function isValidBaseURL(base) {
+function isValidBaseURL(base) {
     try {
         return Boolean(new URL(base));
     }
@@ -14,7 +32,7 @@ export function isValidBaseURL(base) {
         return false;
     }
 }
-export function setServer(url) {
+function setServer(url) {
     if (url == null) {
         config = null;
     }
@@ -23,7 +41,7 @@ export function setServer(url) {
     }
 }
 // `url` is optional; if not given it will provide the global config
-export function getServer(url) {
+function getServer(url) {
     if (url) {
         try {
             return {
@@ -36,7 +54,7 @@ export function getServer(url) {
             };
         }
         catch (error) {
-            logger.warn('Unable to parse server URL - using the global config.', { config }, error);
+            log_1.logger.warn('Unable to parse server URL - using the global config.', { config: config }, error);
             return config;
         }
     }
