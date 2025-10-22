@@ -35,3 +35,13 @@ export interface ReconcileResult {
   conflictsResolved: number;
   timestamp: string;
 }
+
+/** * Result summary returned after a full sync operation.*/
+export interface SyncResult {
+  status: 'success' | 'failed';
+  durationMs: number;
+  applied?: number;
+  resolved?: number;
+  timestamp: string;
+  error?: string;
+}
