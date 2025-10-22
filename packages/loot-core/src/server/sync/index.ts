@@ -124,11 +124,16 @@ export async function stopSync() {
   logger.info('[sync] Stopping background synchronization...');
   // You can extend this with controller cleanup logic later
 }
+// ------------------------------------------------------------
+// 🧩 Temporary Legacy Re-Exports (verified existing symbols)
+// ------------------------------------------------------------
+export { applyMessages } from './handlers/applyMessages';
+export { compareMessages } from './handlers/compareMessages';
+export type { SyncMessage, SyncConfig } from './types';
 
 // ------------------------------------------------------------
 // 🧾 Module Exports
 // ------------------------------------------------------------
-
 export default {
   sync,
   startScheduledSync,
