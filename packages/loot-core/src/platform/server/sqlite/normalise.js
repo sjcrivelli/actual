@@ -1,7 +1,10 @@
-import { getNormalisedString } from '../../../shared/normalisation';
-export function normalise(value) {
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.normalise = normalise;
+var normalisation_1 = require("../../../shared/normalisation");
+function normalise(value) {
     if (!value) {
         return null;
     }
-    return getNormalisedString(value);
+    return (0, normalisation_1.getNormalisedString)(value);
 }

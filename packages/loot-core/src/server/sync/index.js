@@ -48,7 +48,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.compareMessages = exports.applyMessages = exports.DEFAULT_RETRY_DELAY_MS = exports.DEFAULT_SYNC_INTERVAL_MS = void 0;
+exports.makeTestMessage = exports.initialFullSync = exports.clearFullSyncTimeout = exports.fullSync = exports.addSyncListener = exports.sendMessages = exports.setSyncingMode = exports.batchMessages = exports.compareMessages = exports.applyMessages = exports.DEFAULT_RETRY_DELAY_MS = exports.DEFAULT_SYNC_INTERVAL_MS = void 0;
 exports.sync = sync;
 exports.startScheduledSync = startScheduledSync;
 exports.stopSync = stopSync;
@@ -180,3 +180,30 @@ exports.default = {
     startScheduledSync: startScheduledSync,
     stopSync: stopSync,
 };
+// 🩹 Temporary legacy stubs for compatibility during refactor
+var batchMessages = function () {
+    throw new Error("batchMessages() has been removed or refactored. Check new sync API.");
+};
+exports.batchMessages = batchMessages;
+var setSyncingMode = function () {
+    throw new Error("setSyncingMode() removed. Update to new sync scheduler logic.");
+};
+exports.setSyncingMode = setSyncingMode;
+var sendMessages = function () {
+    throw new Error("sendMessages() removed. Use applyMessages() or compareMessages() instead.");
+};
+exports.sendMessages = sendMessages;
+var addSyncListener = function () {
+    throw new Error("addSyncListener() deprecated. See controller.ts for sync orchestration.");
+};
+exports.addSyncListener = addSyncListener;
+var fullSync = function () {
+    throw new Error("fullSync() deprecated. Use runSyncController() entrypoint.");
+};
+exports.fullSync = fullSync;
+var clearFullSyncTimeout = function () { };
+exports.clearFullSyncTimeout = clearFullSyncTimeout;
+var initialFullSync = function () { };
+exports.initialFullSync = initialFullSync;
+var makeTestMessage = function () { };
+exports.makeTestMessage = makeTestMessage;

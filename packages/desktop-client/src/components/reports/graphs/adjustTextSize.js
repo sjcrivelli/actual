@@ -1,0 +1,100 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.adjustTextSize = void 0;
+var adjustTextSize = function (_a) {
+    var sized = _a.sized, type = _a.type, _b = _a.values, values = _b === void 0 ? 0 : _b;
+    var source = [{ size: -1, font: -1 }];
+    switch (type) {
+        case 'variable':
+            var findLookup = variableLookup.find(function (_a) {
+                var value = _a.value;
+                return values >= value;
+            });
+            if (!findLookup) {
+                break;
+            }
+            source = findLookup.arr;
+            break;
+        case 'donut':
+            source = donutLookup;
+            break;
+        default:
+            source = defaultLookup;
+    }
+    var findSource = source.find(function (_a) {
+        var size = _a.size;
+        return sized >= size;
+    });
+    if (!findSource) {
+        return '13px';
+    }
+    return "".concat(findSource.font, "px");
+};
+exports.adjustTextSize = adjustTextSize;
+var defaultLookup = [
+    { size: 600, font: 16 },
+    { size: 500, font: 15 },
+    { size: 400, font: 14 },
+    { size: 300, font: 13 },
+    { size: 200, font: 12 },
+    { size: 100, font: 11 },
+    { size: 0, font: 10 },
+];
+var donutLookup = [
+    { size: 300, font: 20 },
+    { size: 266, font: 18 },
+    { size: 233, font: 16 },
+    { size: 200, font: 14 },
+    { size: 166, font: 12 },
+    { size: 0, font: 10 },
+];
+var variableLookup = [
+    {
+        value: 10000,
+        arr: [
+            { size: 66, font: 16 },
+            { size: 60, font: 15 },
+            { size: 54, font: 14 },
+            { size: 48, font: 13 },
+            { size: 42, font: 12 },
+            { size: 36, font: 11 },
+            { size: 0, font: 10 },
+        ],
+    },
+    {
+        value: 1000,
+        arr: [
+            { size: 55, font: 16 },
+            { size: 50, font: 15 },
+            { size: 45, font: 14 },
+            { size: 40, font: 13 },
+            { size: 35, font: 12 },
+            { size: 30, font: 11 },
+            { size: 0, font: 10 },
+        ],
+    },
+    {
+        value: 100,
+        arr: [
+            { size: 38, font: 16 },
+            { size: 35, font: 15 },
+            { size: 32, font: 14 },
+            { size: 29, font: 13 },
+            { size: 26, font: 12 },
+            { size: 23, font: 11 },
+            { size: 0, font: 10 },
+        ],
+    },
+    {
+        value: 0,
+        arr: [
+            { size: 25, font: 16 },
+            { size: 22, font: 15 },
+            { size: 19, font: 14 },
+            { size: 16, font: 13 },
+            { size: 13, font: 12 },
+            { size: 9, font: 11 },
+            { size: 0, font: 10 },
+        ],
+    },
+];

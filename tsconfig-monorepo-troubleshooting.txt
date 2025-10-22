@@ -1,0 +1,63 @@
+Monorepo TypeScript Project Reference Troubleshooting
+====================================================
+
+1. Root Cause: Why `/tsconfig.json`?
+-----------------------------------
+- If a package’s `tsconfig.json` uses "extends": "../../tsconfig.json", TypeScript resolves this path relative to the package’s directory.
+- If you see `Cannot read file '/tsconfig.json'`, it means somewhere, "extends" is set to "/tsconfig.json" (absolute path), or the working directory is wrong, or a tool is misinterpreting the path.
+
+2. Check for Misconfigurations
+------------------------------
+- Correct "extends" usage:
+  In `/workspaces/ActualFork/packages/loot-core/tsconfig.json`, use:
+  "extends": "../../tsconfig.json"
+  (NOT "/tsconfig.json")
+- Check "baseUrl":
+  "baseUrl" should be "./" or "src" for package-local imports.
+  Do NOT set "baseUrl": "/" or similar.
+- Check for absolute paths:
+  No "extends": "/tsconfig.json" or "baseUrl": "/" anywhere.
+
+3. VS Code/Container Environment Issues
+---------------------------------------
+- VS Code sometimes uses its own workspace root for path resolution.
+- Docker/Dev Containers may mount the repo at `/workspaces/ActualFork`, but TypeScript should resolve relative paths correctly if you run `npx tsc -p packages/loot-core/tsconfig.json` from the repo root.
+
+4. Correct "extends" Path for Each Package
+------------------------------------------
+- For any package at `/workspaces/ActualFork/packages/<name>/tsconfig.json`, use:
+  "extends": "../../tsconfig.json"
+- For a package at `/workspaces/ActualFork/packages/types/tsconfig.json`, use:
+  "extends": "../../tsconfig.json"
+- Never use an absolute path like "/tsconfig.json".
+
+5. Module System Consistency
+----------------------------
+- If you use "module": "NodeNext" in the root, use it in all packages for consistency.
+- "type": "module" in `package.json` is only needed if you want Node.js to treat the package as ESM. For TypeScript, "module": "NodeNext" is enough.
+
+6. Bash Command to Verify All Extends Paths
+-------------------------------------------
+find /workspaces/ActualFork/packages -name tsconfig.json -exec jq '.extends' {} \; -exec echo {} \;
+This will print the "extends" value and the file path for every package tsconfig.
+
+7. Step-by-Step Verification
+----------------------------
+To confirm each package is extending the correct root config:
+cd /workspaces/ActualFork/packages/loot-core
+cat tsconfig.json | grep extends
+# Should output: "extends": "../../tsconfig.json"
+
+cd /workspaces/ActualFork/packages/types
+cat tsconfig.json | grep extends
+# Should output: "extends": "../../tsconfig.json"
+Repeat for each package.
+
+Summary
+-------
+- All "extends" should be relative, never absolute.
+- "baseUrl" should be local, not `/`.
+- Use "module": "NodeNext" everywhere for consistency.
+- Use the bash command above to audit all configs.
+
+If you still get errors, paste the actual "extends" lines from each package’s tsconfig.json and I’ll help you debug further!

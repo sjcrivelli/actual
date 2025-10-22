@@ -1,90 +1,92 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 // @ts-strict-ignore
-import { parseDateString, rankRules, iterateIds, Condition, Action, Rule, RuleIndexer, } from '.';
-describe('Condition', () => {
-    test('parses date formats correctly', () => {
-        expect(parseDateString('2020-08-10')).toEqual({
+var _1 = require(".");
+describe('Condition', function () {
+    test('parses date formats correctly', function () {
+        expect((0, _1.parseDateString)('2020-08-10')).toEqual({
             type: 'date',
             date: '2020-08-10',
         });
-        expect(parseDateString('2020-08')).toEqual({
+        expect((0, _1.parseDateString)('2020-08')).toEqual({
             type: 'month',
             date: '2020-08',
         });
-        expect(parseDateString('2020')).toEqual({
+        expect((0, _1.parseDateString)('2020')).toEqual({
             type: 'year',
             date: '2020',
         });
         // Invalid dates
-        expect(parseDateString('2020-0')).toBe(null);
-        expect(parseDateString('2020-14-01')).toBe(null);
-        expect(parseDateString('2020-05-53')).toBe(null);
+        expect((0, _1.parseDateString)('2020-0')).toBe(null);
+        expect((0, _1.parseDateString)('2020-14-01')).toBe(null);
+        expect((0, _1.parseDateString)('2020-05-53')).toBe(null);
     });
-    test('ops handles null fields', () => {
-        let cond = new Condition('contains', 'notes', 'foo', null);
+    test('ops handles null fields', function () {
+        var cond = new _1.Condition('contains', 'notes', 'foo', null);
         expect(cond.eval({ notes: null })).toBe(false);
-        cond = new Condition('matches', 'notes', '^fo*$', null);
+        cond = new _1.Condition('matches', 'notes', '^fo*$', null);
         expect(cond.eval({ notes: null })).toBe(false);
-        cond = new Condition('oneOf', 'notes', ['foo'], null);
+        cond = new _1.Condition('oneOf', 'notes', ['foo'], null);
         expect(cond.eval({ notes: null })).toBe(false);
-        ['gt', 'gte', 'lt', 'lte', 'isapprox'].forEach(op => {
-            const cond = new Condition(op, 'date', '2020-01-01', null);
+        ['gt', 'gte', 'lt', 'lte', 'isapprox'].forEach(function (op) {
+            var cond = new _1.Condition(op, 'date', '2020-01-01', null);
             expect(cond.eval({ date: null })).toBe(false);
         });
-        cond = new Condition('is', 'payee', null, null);
+        cond = new _1.Condition('is', 'payee', null, null);
         expect(cond.eval({ payee: null })).toBe(true);
-        cond = new Condition('is', 'notes', '', null);
+        cond = new _1.Condition('is', 'notes', '', null);
         expect(cond.eval({ notes: null })).toBe(true);
     });
-    test('ops handles undefined fields', () => {
-        const spy = vi.spyOn(console, 'warn').mockImplementation(() => null);
-        let cond = new Condition('is', 'payee', null, null);
+    test('ops handles undefined fields', function () {
+        var spy = vi.spyOn(console, 'warn').mockImplementation(function () { return null; });
+        var cond = new _1.Condition('is', 'payee', null, null);
         // null is strict and won't match undefined
         expect(cond.eval({ notes: 'James' })).toBe(false);
-        cond = new Condition('contains', 'notes', 'foo', null);
+        cond = new _1.Condition('contains', 'notes', 'foo', null);
         expect(cond.eval({ date: '2020-01-01' })).toBe(false);
-        cond = new Condition('matches', 'notes', '^fo*$', null);
+        cond = new _1.Condition('matches', 'notes', '^fo*$', null);
         expect(cond.eval({ date: '2020-01-01' })).toBe(false);
         spy.mockRestore();
     });
-    test('date restricts operators for each type', () => {
-        expect(() => {
-            new Condition('isapprox', 'date', '2020-08', null);
+    test('date restricts operators for each type', function () {
+        expect(function () {
+            new _1.Condition('isapprox', 'date', '2020-08', null);
         }).toThrow('Invalid date value for');
-        expect(() => {
-            new Condition('gt', 'date', '2020-08', null);
+        expect(function () {
+            new _1.Condition('gt', 'date', '2020-08', null);
         }).toThrow('Invalid date value for');
-        expect(() => {
-            new Condition('gte', 'date', '2020-08', null);
+        expect(function () {
+            new _1.Condition('gte', 'date', '2020-08', null);
         }).toThrow('Invalid date value for');
-        expect(() => {
-            new Condition('lt', 'date', '2020-08', null);
+        expect(function () {
+            new _1.Condition('lt', 'date', '2020-08', null);
         }).toThrow('Invalid date value for');
-        expect(() => {
-            new Condition('lte', 'date', '2020-08', null);
+        expect(function () {
+            new _1.Condition('lte', 'date', '2020-08', null);
         }).toThrow('Invalid date value for');
     });
-    test('date conditions work with `is` operator', () => {
-        let cond = new Condition('is', 'date', '2020-08-10', null);
+    test('date conditions work with `is` operator', function () {
+        var cond = new _1.Condition('is', 'date', '2020-08-10', null);
         expect(cond.eval({ date: '2020-08-05' })).toBe(false);
         expect(cond.eval({ date: '2020-08-10' })).toBe(true);
-        cond = new Condition('is', 'date', '2020-08', null);
+        cond = new _1.Condition('is', 'date', '2020-08', null);
         expect(cond.eval({ date: '2020-08-05' })).toBe(true);
         expect(cond.eval({ date: '2020-08-10' })).toBe(true);
         expect(cond.eval({ date: '2020-09-10' })).toBe(false);
-        cond = new Condition('is', 'date', '2020', null);
+        cond = new _1.Condition('is', 'date', '2020', null);
         expect(cond.eval({ date: '2020-08-05' })).toBe(true);
         expect(cond.eval({ date: '2020-08-10' })).toBe(true);
         expect(cond.eval({ date: '2020-09-10' })).toBe(true);
         expect(cond.eval({ date: '2019-09-10' })).toBe(false);
         // Approximate dates
-        cond = new Condition('isapprox', 'date', '2020-08-07', null);
+        cond = new _1.Condition('isapprox', 'date', '2020-08-07', null);
         expect(cond.eval({ date: '2020-08-04' })).toBe(false);
         expect(cond.eval({ date: '2020-08-05' })).toBe(true);
         expect(cond.eval({ date: '2020-08-09' })).toBe(true);
         expect(cond.eval({ date: '2020-08-10' })).toBe(false);
     });
-    test('recurring date conditions work with `is` operator', () => {
-        let cond = new Condition('is', 'date', {
+    test('recurring date conditions work with `is` operator', function () {
+        var cond = new _1.Condition('is', 'date', {
             start: '2019-01-01',
             frequency: 'monthly',
             patterns: [{ type: 'day', value: 15 }],
@@ -94,7 +96,7 @@ describe('Condition', () => {
         expect(cond.eval({ date: '2020-05-15' })).toBe(true);
         expect(cond.eval({ date: '2020-06-15' })).toBe(true);
         expect(cond.eval({ date: '2020-06-10' })).toBe(false);
-        cond = new Condition('is', 'date', {
+        cond = new _1.Condition('is', 'date', {
             start: '2018-01-12',
             frequency: 'monthly',
             interval: 3,
@@ -104,7 +106,7 @@ describe('Condition', () => {
         expect(cond.eval({ date: '2020-07-12' })).toBe(true);
         expect(cond.eval({ date: '2020-06-12' })).toBe(false);
         // Approximate dates
-        cond = new Condition('isapprox', 'date', {
+        cond = new _1.Condition('isapprox', 'date', {
             start: '2019-01-01',
             frequency: 'monthly',
             patterns: [{ type: 'day', value: 15 }],
@@ -118,44 +120,44 @@ describe('Condition', () => {
         expect(cond.eval({ date: '2019-05-15' })).toBe(true);
         expect(cond.eval({ date: '2019-05-17' })).toBe(true);
     });
-    test('date conditions work with comparison operators', () => {
-        let cond = new Condition('gt', 'date', '2020-08-10', null);
+    test('date conditions work with comparison operators', function () {
+        var cond = new _1.Condition('gt', 'date', '2020-08-10', null);
         expect(cond.eval({ date: '2020-08-11' })).toBe(true);
         expect(cond.eval({ date: '2020-08-10' })).toBe(false);
-        cond = new Condition('gte', 'date', '2020-08-10', null);
+        cond = new _1.Condition('gte', 'date', '2020-08-10', null);
         expect(cond.eval({ date: '2020-08-11' })).toBe(true);
         expect(cond.eval({ date: '2020-08-10' })).toBe(true);
         expect(cond.eval({ date: '2020-08-09' })).toBe(false);
-        cond = new Condition('lt', 'date', '2020-08-10', null);
+        cond = new _1.Condition('lt', 'date', '2020-08-10', null);
         expect(cond.eval({ date: '2020-08-09' })).toBe(true);
         expect(cond.eval({ date: '2020-08-10' })).toBe(false);
-        cond = new Condition('lte', 'date', '2020-08-10', null);
+        cond = new _1.Condition('lte', 'date', '2020-08-10', null);
         expect(cond.eval({ date: '2020-08-09' })).toBe(true);
         expect(cond.eval({ date: '2020-08-10' })).toBe(true);
         expect(cond.eval({ date: '2020-08-11' })).toBe(false);
     });
-    test('id works with all operators', () => {
-        let cond = new Condition('is', 'payee', 'foo', null);
+    test('id works with all operators', function () {
+        var cond = new _1.Condition('is', 'payee', 'foo', null);
         expect(cond.eval({ payee: 'foo' })).toBe(true);
         expect(cond.eval({ payee: 'FOO' })).toBe(true);
         expect(cond.eval({ payee: 'foo2' })).toBe(false);
-        cond = new Condition('oneOf', 'payee', ['foo', 'bar'], null);
+        cond = new _1.Condition('oneOf', 'payee', ['foo', 'bar'], null);
         expect(cond.eval({ payee: 'foo' })).toBe(true);
         expect(cond.eval({ payee: 'FOO' })).toBe(true);
         expect(cond.eval({ payee: 'Bar' })).toBe(true);
         expect(cond.eval({ payee: 'bar2' })).toBe(false);
     });
-    test('string works with all operators', () => {
-        let cond = new Condition('is', 'notes', 'foo', null);
+    test('string works with all operators', function () {
+        var cond = new _1.Condition('is', 'notes', 'foo', null);
         expect(cond.eval({ notes: 'foo' })).toBe(true);
         expect(cond.eval({ notes: 'FOO' })).toBe(true);
         expect(cond.eval({ notes: 'foo2' })).toBe(false);
-        cond = new Condition('oneOf', 'notes', ['foo', 'bar'], null);
+        cond = new _1.Condition('oneOf', 'notes', ['foo', 'bar'], null);
         expect(cond.eval({ notes: 'foo' })).toBe(true);
         expect(cond.eval({ notes: 'FOO' })).toBe(true);
         expect(cond.eval({ notes: 'Bar' })).toBe(true);
         expect(cond.eval({ notes: 'bar2' })).toBe(false);
-        cond = new Condition('contains', 'notes', 'foo', null);
+        cond = new _1.Condition('contains', 'notes', 'foo', null);
         expect(cond.eval({ notes: 'bar foo baz' })).toBe(true);
         expect(cond.eval({ notes: 'bar FOOb' })).toBe(true);
         expect(cond.eval({ notes: 'foo' })).toBe(true);
@@ -163,7 +165,7 @@ describe('Condition', () => {
         expect(cond.eval({ notes: 'bfoo' })).toBe(true);
         expect(cond.eval({ notes: 'bfo' })).toBe(false);
         expect(cond.eval({ notes: 'f o o' })).toBe(false);
-        cond = new Condition('matches', 'notes', '^fo*$', null);
+        cond = new _1.Condition('matches', 'notes', '^fo*$', null);
         expect(cond.eval({ notes: 'bar foo baz' })).toBe(false);
         expect(cond.eval({ notes: 'bar FOOb' })).toBe(false);
         expect(cond.eval({ notes: 'foo' })).toBe(true);
@@ -173,103 +175,103 @@ describe('Condition', () => {
         expect(cond.eval({ notes: 'bfo' })).toBe(false);
         expect(cond.eval({ notes: 'f o o' })).toBe(false);
     });
-    test('matches handles invalid regex', () => {
-        const cond = new Condition('matches', 'notes', 'fo**', null);
+    test('matches handles invalid regex', function () {
+        var cond = new _1.Condition('matches', 'notes', 'fo**', null);
         expect(cond.eval({ notes: 'foo' })).toBe(false);
     });
-    test('number validates value', () => {
-        new Condition('isapprox', 'amount', 34, null);
-        expect(() => {
-            new Condition('isapprox', 'amount', 'hello', null);
+    test('number validates value', function () {
+        new _1.Condition('isapprox', 'amount', 34, null);
+        expect(function () {
+            new _1.Condition('isapprox', 'amount', 'hello', null);
         }).toThrow('Value must be a number or between amount');
-        expect(() => {
-            new Condition('is', 'amount', { num1: 0, num2: 10 }, null);
+        expect(function () {
+            new _1.Condition('is', 'amount', { num1: 0, num2: 10 }, null);
         }).toThrow('Invalid number value for');
-        new Condition('isbetween', 'amount', { num1: 0, num2: 10 }, null);
-        expect(() => {
-            new Condition('isbetween', 'amount', 34.22, null);
+        new _1.Condition('isbetween', 'amount', { num1: 0, num2: 10 }, null);
+        expect(function () {
+            new _1.Condition('isbetween', 'amount', 34.22, null);
         }).toThrow('Invalid between value for');
-        expect(() => {
-            new Condition('isbetween', 'amount', { num1: 0 }, null);
+        expect(function () {
+            new _1.Condition('isbetween', 'amount', { num1: 0 }, null);
         }).toThrow('Value must be a number or between amount');
     });
-    test('number works with all operators', () => {
-        let cond = new Condition('is', 'amount', 155, null);
+    test('number works with all operators', function () {
+        var cond = new _1.Condition('is', 'amount', 155, null);
         expect(cond.eval({ amount: 155 })).toBe(true);
         expect(cond.eval({ amount: 167 })).toBe(false);
-        cond = new Condition('isapprox', 'amount', 1535, null);
+        cond = new _1.Condition('isapprox', 'amount', 1535, null);
         expect(cond.eval({ amount: 1540 })).toBe(true);
         expect(cond.eval({ amount: 1300 })).toBe(false);
         expect(cond.eval({ amount: 1650 })).toBe(true);
         expect(cond.eval({ amount: 1800 })).toBe(false);
-        cond = new Condition('isbetween', 'amount', { num1: 32, num2: 86 }, null);
+        cond = new _1.Condition('isbetween', 'amount', { num1: 32, num2: 86 }, null);
         expect(cond.eval({ amount: 30 })).toBe(false);
         expect(cond.eval({ amount: 32 })).toBe(true);
         expect(cond.eval({ amount: 80 })).toBe(true);
         expect(cond.eval({ amount: 86 })).toBe(true);
         expect(cond.eval({ amount: 90 })).toBe(false);
-        cond = new Condition('isbetween', 'amount', { num1: -16, num2: -20 }, null);
+        cond = new _1.Condition('isbetween', 'amount', { num1: -16, num2: -20 }, null);
         expect(cond.eval({ amount: -18 })).toBe(true);
         expect(cond.eval({ amount: -12 })).toBe(false);
-        cond = new Condition('gt', 'amount', 1.55, null);
+        cond = new _1.Condition('gt', 'amount', 1.55, null);
         expect(cond.eval({ amount: 1.55 })).toBe(false);
         expect(cond.eval({ amount: 1.67 })).toBe(true);
         expect(cond.eval({ amount: 1.5 })).toBe(false);
-        cond = new Condition('gte', 'amount', 1.55, null);
+        cond = new _1.Condition('gte', 'amount', 1.55, null);
         expect(cond.eval({ amount: 1.55 })).toBe(true);
         expect(cond.eval({ amount: 1.67 })).toBe(true);
         expect(cond.eval({ amount: 1.5 })).toBe(false);
-        cond = new Condition('lt', 'amount', 1.55, null);
+        cond = new _1.Condition('lt', 'amount', 1.55, null);
         expect(cond.eval({ amount: 1.55 })).toBe(false);
         expect(cond.eval({ amount: 1.67 })).toBe(false);
         expect(cond.eval({ amount: 1.5 })).toBe(true);
-        cond = new Condition('lte', 'amount', 1.55, null);
+        cond = new _1.Condition('lte', 'amount', 1.55, null);
         expect(cond.eval({ amount: 1.55 })).toBe(true);
         expect(cond.eval({ amount: 1.67 })).toBe(false);
         expect(cond.eval({ amount: 1.5 })).toBe(true);
     });
 });
-describe('Action', () => {
-    test('`set` operator sets a field', () => {
-        const action = new Action('set', 'notes', 'James', null);
-        const item = { notes: 'Sarah' };
+describe('Action', function () {
+    test('`set` operator sets a field', function () {
+        var action = new _1.Action('set', 'notes', 'James', null);
+        var item = { notes: 'Sarah' };
         action.exec(item);
         expect(item.notes).toBe('James');
-        expect(() => {
-            new Action('set', 'foo', 'James', null);
+        expect(function () {
+            new _1.Action('set', 'foo', 'James', null);
         }).toThrow(/invalid field/i);
-        expect(() => {
-            new Action(null, 'notes', 'James', null);
+        expect(function () {
+            new _1.Action(null, 'notes', 'James', null);
         }).toThrow(/invalid action operation/i);
     });
-    test('empty account values result in error', () => {
-        expect(() => {
-            new Action('set', 'account', '', null);
+    test('empty account values result in error', function () {
+        expect(function () {
+            new _1.Action('set', 'account', '', null);
         }).toThrow(/Field cannot be empty/i);
     });
-    describe('templating', () => {
-        test('should use available fields', () => {
-            const action = new Action('set', 'notes', '', {
+    describe('templating', function () {
+        test('should use available fields', function () {
+            var action = new _1.Action('set', 'notes', '', {
                 template: 'Hey {{notes}}! You just payed {{amount}}',
             });
-            const item = { notes: 'Sarah', amount: 10 };
+            var item = { notes: 'Sarah', amount: 10 };
             action.exec(item);
             expect(item.notes).toBe('Hey Sarah! You just payed 10');
         });
-        test('should not escape text', () => {
-            const action = new Action('set', 'notes', '', {
+        test('should not escape text', function () {
+            var action = new _1.Action('set', 'notes', '', {
                 template: '{{notes}}',
             });
-            const note = 'Sarah !@#$%^&*()<> Special';
-            const item = { notes: note };
+            var note = 'Sarah !@#$%^&*()<> Special';
+            var item = { notes: note };
             action.exec(item);
             expect(item.notes).toBe(note);
         });
-        describe('regex helper', () => {
+        describe('regex helper', function () {
             function testHelper(template, expected) {
-                test(template, () => {
-                    const action = new Action('set', 'notes', '', { template });
-                    const item = { notes: 'Sarah Condition' };
+                test(template, function () {
+                    var action = new _1.Action('set', 'notes', '', { template: template });
+                    var item = { notes: 'Sarah Condition' };
                     action.exec(item);
                     expect(item.notes).toBe(expected);
                 });
@@ -295,11 +297,13 @@ describe('Action', () => {
             // should replace all with non regex
             testHelper('{{replaceAll notes "a" "b"}}', 'Sbrbh Condition');
         });
-        describe('math helpers', () => {
-            function testHelper(template, expected, field = 'amount') {
-                test(template, () => {
-                    const action = new Action('set', field, '', { template });
-                    const item = { [field]: 10 };
+        describe('math helpers', function () {
+            function testHelper(template, expected, field) {
+                if (field === void 0) { field = 'amount'; }
+                test(template, function () {
+                    var _a;
+                    var action = new _1.Action('set', field, '', { template: template });
+                    var item = (_a = {}, _a[field] = 10, _a);
                     action.exec(item);
                     expect(item[field]).toBe(expected);
                 });
@@ -324,11 +328,11 @@ describe('Action', () => {
             testHelper('{{max amount 5 500}}', 500);
             testHelper('{{fixed (div 10 4) 2}}', '2.50', 'notes');
         });
-        describe('date helpers', () => {
+        describe('date helpers', function () {
             function testHelper(template, expected) {
-                test(template, () => {
-                    const action = new Action('set', 'notes', '', { template });
-                    const item = { notes: '' };
+                test(template, function () {
+                    var action = new _1.Action('set', 'notes', '', { template: template });
+                    var item = { notes: '' };
                     action.exec(item);
                     expect(item.notes).toBe(expected);
                 });
@@ -366,11 +370,11 @@ describe('Action', () => {
             testHelper('{{setDay "2002-07-25" 0}}', '2002-06-30');
             testHelper('{{setDay}}', '');
         });
-        describe('other helpers', () => {
+        describe('other helpers', function () {
             function testHelper(template, expected) {
-                test(template, () => {
-                    const action = new Action('set', 'notes', '', { template });
-                    const item = { notes: '' };
+                test(template, function () {
+                    var action = new _1.Action('set', 'notes', '', { template: template });
+                    var item = { notes: '' };
                     action.exec(item);
                     expect(item.notes).toBe(expected);
                 });
@@ -378,21 +382,21 @@ describe('Action', () => {
             testHelper('{{concat "Sarah" "Trops"}}', 'SarahTrops');
             testHelper('{{concat "Sarah" "Trops" 12 "Wow"}}', 'SarahTrops12Wow');
         });
-        test('{{debug}} should log the item', () => {
-            const action = new Action('set', 'notes', '', {
+        test('{{debug}} should log the item', function () {
+            var action = new _1.Action('set', 'notes', '', {
                 template: '{{debug notes}}',
             });
-            const item = { notes: 'Sarah' };
-            const spy = vi.spyOn(console, 'log').mockImplementation(() => null);
+            var item = { notes: 'Sarah' };
+            var spy = vi.spyOn(console, 'log').mockImplementation(function () { return null; });
             action.exec(item);
             expect(spy).toHaveBeenCalledWith('Sarah');
             spy.mockRestore();
         });
     });
 });
-describe('Rule', () => {
-    test('executing a rule works', () => {
-        let rule = new Rule({
+describe('Rule', function () {
+    test('executing a rule works', function () {
+        var rule = new _1.Rule({
             conditionsOp: 'and',
             conditions: [{ op: 'is', field: 'notes', value: 'James' }],
             actions: [{ op: 'set', field: 'notes', value: 'Sarah' }],
@@ -406,7 +410,7 @@ describe('Rule', () => {
         // This does not match
         expect(rule.exec({ notes: 'James2' })).toEqual(null);
         expect(rule.apply({ notes: 'James2' })).toEqual({ notes: 'James2' });
-        rule = new Rule({
+        rule = new _1.Rule({
             conditionsOp: 'and',
             conditions: [{ op: 'is', field: 'notes', value: 'James' }],
             actions: [
@@ -421,8 +425,8 @@ describe('Rule', () => {
         expect(rule.exec({ notes: 'James2' })).toEqual(null);
         expect(rule.apply({ notes: 'James2' })).toEqual({ notes: 'James2' });
     });
-    test('rule with `and` conditionsOp evaluates conditions as AND', () => {
-        const rule = new Rule({
+    test('rule with `and` conditionsOp evaluates conditions as AND', function () {
+        var rule = new _1.Rule({
             conditionsOp: 'and',
             conditions: [
                 { op: 'is', field: 'notes', value: 'James' },
@@ -447,8 +451,8 @@ describe('Rule', () => {
         });
         expect(rule.exec({ notes: 'James', date: '2018-01-15' })).toEqual(null);
     });
-    test('rule with `or` conditionsOp evaluates conditions as OR', () => {
-        const rule = new Rule({
+    test('rule with `or` conditionsOp evaluates conditions as OR', function () {
+        var rule = new _1.Rule({
             conditionsOp: 'or',
             conditions: [
                 { op: 'is', field: 'notes', value: 'James' },
@@ -477,9 +481,9 @@ describe('Rule', () => {
             notes: 'Sarah',
         });
     });
-    describe('split actions', () => {
-        test('splits can change the payee', () => {
-            const rule = new Rule({
+    describe('split actions', function () {
+        test('splits can change the payee', function () {
+            var rule = new _1.Rule({
                 conditionsOp: 'and',
                 conditions: [{ op: 'is', field: 'payee', value: '123' }],
                 actions: [
@@ -501,7 +505,7 @@ describe('Rule', () => {
                 subtransactions: [{ payee: '456' }],
             });
         });
-        const fixedAmountRule = new Rule({
+        var fixedAmountRule = new _1.Rule({
             conditionsOp: 'and',
             conditions: [{ op: 'is', field: 'imported_payee', value: 'James' }],
             actions: [
@@ -519,13 +523,13 @@ describe('Rule', () => {
                 },
             ],
         });
-        test('basic fixed-amount', () => {
+        test('basic fixed-amount', function () {
             expect(fixedAmountRule.exec({ imported_payee: 'James', amount: 200 })).toMatchObject({
                 subtransactions: [{ amount: 100 }, { amount: 100 }],
             });
         });
-        test('basic fixed-percent', () => {
-            const rule = new Rule({
+        test('basic fixed-percent', function () {
+            var rule = new _1.Rule({
                 conditionsOp: 'and',
                 conditions: [{ op: 'is', field: 'imported_payee', value: 'James' }],
                 actions: [
@@ -547,8 +551,8 @@ describe('Rule', () => {
                 subtransactions: [{ amount: 100 }, { amount: 100 }],
             });
         });
-        test('basic remainder', () => {
-            const rule = new Rule({
+        test('basic remainder', function () {
+            var rule = new _1.Rule({
                 conditionsOp: 'and',
                 conditions: [{ op: 'is', field: 'imported_payee', value: 'James' }],
                 actions: [
@@ -568,7 +572,7 @@ describe('Rule', () => {
                 subtransactions: [{ amount: 100 }, { amount: 100 }],
             });
         });
-        const prioritizationRule = new Rule({
+        var prioritizationRule = new _1.Rule({
             conditionsOp: 'and',
             conditions: [{ op: 'is', field: 'imported_payee', value: 'James' }],
             actions: [
@@ -591,20 +595,20 @@ describe('Rule', () => {
                 },
             ],
         });
-        test('percent is of the post-fixed-amount total', () => {
+        test('percent is of the post-fixed-amount total', function () {
             // Percent is a percent of the amount pre-remainder
             expect(prioritizationRule.exec({ imported_payee: 'James', amount: 200 })).toMatchObject({
                 subtransactions: [{ amount: 100 }, { amount: 50 }, { amount: 50 }],
             });
         });
-        test('remainder/percent goes negative if less than expected after fixed amounts', () => {
+        test('remainder/percent goes negative if less than expected after fixed amounts', function () {
             // Remainder/percent goes negative if less than expected after fixed amounts
             expect(prioritizationRule.exec({ imported_payee: 'James', amount: 50 })).toMatchObject({
                 subtransactions: [{ amount: 100 }, { amount: -25 }, { amount: -25 }],
             });
         });
-        test('remainder zeroes out if nothing left', () => {
-            const rule = new Rule({
+        test('remainder zeroes out if nothing left', function () {
+            var rule = new _1.Rule({
                 conditionsOp: 'and',
                 conditions: [{ op: 'is', field: 'imported_payee', value: 'James' }],
                 actions: [
@@ -631,8 +635,8 @@ describe('Rule', () => {
                 subtransactions: [{ amount: 100 }, { amount: 50 }, { amount: 0 }],
             });
         });
-        test('remainder rounds correctly and only if necessary', () => {
-            const rule = new Rule({
+        test('remainder rounds correctly and only if necessary', function () {
+            var rule = new _1.Rule({
                 conditionsOp: 'and',
                 conditions: [{ op: 'is', field: 'imported_payee', value: 'James' }],
                 actions: [
@@ -658,7 +662,7 @@ describe('Rule', () => {
                 subtransactions: [{ amount: 50 }, { amount: 50 }],
             });
         });
-        test('generate errors when fixed amounts exceed the total', () => {
+        test('generate errors when fixed amounts exceed the total', function () {
             expect(fixedAmountRule.exec({ imported_payee: 'James', amount: 100 })).toMatchObject({
                 error: {
                     difference: -100,
@@ -668,7 +672,7 @@ describe('Rule', () => {
                 subtransactions: [{ amount: 100 }, { amount: 100 }],
             });
         });
-        test('generate errors when fixed amounts undershoot the total', () => {
+        test('generate errors when fixed amounts undershoot the total', function () {
             expect(fixedAmountRule.exec({ imported_payee: 'James', amount: 300 })).toMatchObject({
                 error: {
                     difference: 100,
@@ -679,20 +683,24 @@ describe('Rule', () => {
             });
         });
     });
-    test('rules are deterministically ranked', () => {
-        const rule = (id, conditions) => new Rule({
-            id,
-            conditionsOp: 'and',
-            conditions,
-            actions: [],
-        });
-        const expectOrder = (rules, ids) => expect(rules.map(r => r.getId())).toEqual(ids);
-        let rules = [
+    test('rules are deterministically ranked', function () {
+        var rule = function (id, conditions) {
+            return new _1.Rule({
+                id: id,
+                conditionsOp: 'and',
+                conditions: conditions,
+                actions: [],
+            });
+        };
+        var expectOrder = function (rules, ids) {
+            return expect(rules.map(function (r) { return r.getId(); })).toEqual(ids);
+        };
+        var rules = [
             rule('id1', [{ op: 'contains', field: 'notes', value: 'sar' }]),
             rule('id2', [{ op: 'contains', field: 'notes', value: 'jim' }]),
             rule('id3', [{ op: 'is', field: 'notes', value: 'James' }]),
         ];
-        expectOrder(rankRules(rules), ['id1', 'id2', 'id3']);
+        expectOrder((0, _1.rankRules)(rules), ['id1', 'id2', 'id3']);
         rules = [
             rule('id1', [{ op: 'contains', field: 'notes', value: 'sar' }]),
             rule('id2', [{ op: 'oneOf', field: 'notes', value: ['jim', 'sar'] }]),
@@ -707,11 +715,14 @@ describe('Rule', () => {
                 { op: 'lt', field: 'amount', value: 10 },
             ]),
         ];
-        expectOrder(rankRules(rules), ['id1', 'id4', 'id5', 'id2', 'id3']);
+        expectOrder((0, _1.rankRules)(rules), ['id1', 'id4', 'id5', 'id2', 'id3']);
     });
-    test('iterateIds finds all the ids', () => {
-        const rule = (id, conditions, actions = []) => new Rule({ id, conditionsOp: 'and', conditions, actions });
-        const rules = [
+    test('iterateIds finds all the ids', function () {
+        var rule = function (id, conditions, actions) {
+            if (actions === void 0) { actions = []; }
+            return new _1.Rule({ id: id, conditionsOp: 'and', conditions: conditions, actions: actions });
+        };
+        var rules = [
             rule('first', [{ op: 'is', field: 'payee', value: 'id1' }], [{ op: 'set', field: 'notes', value: 'sar' }]),
             rule('second', [{ op: 'oneOf', field: 'payee', value: ['id2', 'id3'] }]),
             rule('third', [{ op: 'is', field: 'notes', value: 'James' }], [{ op: 'set', field: 'payee', value: 'id3' }]),
@@ -725,23 +736,23 @@ describe('Rule', () => {
                 { op: 'lt', field: 'amount', value: 10 },
             ]),
         ];
-        const foundRules = [];
-        iterateIds(rules, 'payee', rule => {
+        var foundRules = [];
+        (0, _1.iterateIds)(rules, 'payee', function (rule) {
             foundRules.push(rule.getId());
         });
         expect(foundRules).toEqual(['first', 'second', 'second', 'third']);
     });
 });
-describe('RuleIndexer', () => {
-    test('indexing a single field works', () => {
-        const indexer = new RuleIndexer({ field: 'notes' });
-        const rule = new Rule({
+describe('RuleIndexer', function () {
+    test('indexing a single field works', function () {
+        var indexer = new _1.RuleIndexer({ field: 'notes' });
+        var rule = new _1.Rule({
             conditionsOp: 'and',
             conditions: [{ op: 'is', field: 'notes', value: 'James' }],
             actions: [{ op: 'set', field: 'notes', value: 'Sarah' }],
         });
         indexer.index(rule);
-        const rule2 = new Rule({
+        var rule2 = new _1.Rule({
             conditionsOp: 'and',
             conditions: [{ op: 'is', field: 'category', value: 'foo' }],
             actions: [{ op: 'set', field: 'notes', value: 'Sarah' }],
@@ -753,10 +764,10 @@ describe('RuleIndexer', () => {
         expect(indexer.getApplicableRules({ notes: 'James2' })).toEqual(new Set([rule2]));
         expect(indexer.getApplicableRules({ amount: 15 })).toEqual(new Set([rule2]));
     });
-    test('indexing using the firstchar method works', () => {
+    test('indexing using the firstchar method works', function () {
         // A condition that references both of the fields
-        const indexer = new RuleIndexer({ field: 'category', method: 'firstchar' });
-        const rule = new Rule({
+        var indexer = new _1.RuleIndexer({ field: 'category', method: 'firstchar' });
+        var rule = new _1.Rule({
             conditionsOp: 'and',
             conditions: [
                 { op: 'is', field: 'notes', value: 'James' },
@@ -765,13 +776,13 @@ describe('RuleIndexer', () => {
             actions: [{ op: 'set', field: 'notes', value: 'Sarah' }],
         });
         indexer.index(rule);
-        const rule2 = new Rule({
+        var rule2 = new _1.Rule({
             conditionsOp: 'and',
             conditions: [{ op: 'is', field: 'category', value: 'bars' }],
             actions: [{ op: 'set', field: 'notes', value: 'Sarah' }],
         });
         indexer.index(rule2);
-        const rule3 = new Rule({
+        var rule3 = new _1.Rule({
             conditionsOp: 'and',
             conditions: [{ op: 'is', field: 'date', value: '2020-01-20' }],
             actions: [{ op: 'set', field: 'notes', value: 'Sarah' }],
@@ -787,9 +798,9 @@ describe('RuleIndexer', () => {
         expect(indexer.getApplicableRules({ notes: 'James', category: 'bars' })).toEqual(new Set([rule2, rule3]));
         expect(indexer.getApplicableRules({ notes: 'James' })).toEqual(new Set([rule3]));
     });
-    test('re-indexing a field works', () => {
-        const indexer = new RuleIndexer({ field: 'category', method: 'firstchar' });
-        let rule = new Rule({
+    test('re-indexing a field works', function () {
+        var indexer = new _1.RuleIndexer({ field: 'category', method: 'firstchar' });
+        var rule = new _1.Rule({
             id: 'id1',
             conditionsOp: 'and',
             conditions: [{ op: 'is', field: 'category', value: 'food' }],
@@ -804,7 +815,7 @@ describe('RuleIndexer', () => {
         expect(indexer.rules.get('f').size).toBe(0);
         expect(indexer.getApplicableRules({ category: 'alco' }).size).toBe(0);
         expect(indexer.getApplicableRules({ category: 'food' }).size).toBe(0);
-        rule = new Rule({
+        rule = new _1.Rule({
             conditionsOp: 'and',
             conditions: [{ op: 'is', field: 'category', value: 'alcohol' }],
             actions: [{ op: 'set', field: 'notes', value: 'Sarah' }],
@@ -815,9 +826,9 @@ describe('RuleIndexer', () => {
         expect(indexer.getApplicableRules({ category: 'alco' }).size).toBe(1);
         expect(indexer.getApplicableRules({ category: 'food' }).size).toBe(0);
     });
-    test('indexing works with the oneOf operator', () => {
-        const indexer = new RuleIndexer({ field: 'notes', method: 'firstchar' });
-        const rule = new Rule({
+    test('indexing works with the oneOf operator', function () {
+        var indexer = new _1.RuleIndexer({ field: 'notes', method: 'firstchar' });
+        var rule = new _1.Rule({
             conditionsOp: 'and',
             conditions: [
                 { op: 'oneOf', field: 'notes', value: ['James', 'Sarah', 'Evy'] },
@@ -825,7 +836,7 @@ describe('RuleIndexer', () => {
             actions: [{ op: 'set', field: 'category', value: 'Food' }],
         });
         indexer.index(rule);
-        const rule2 = new Rule({
+        var rule2 = new _1.Rule({
             conditionsOp: 'and',
             conditions: [{ op: 'is', field: 'notes', value: 'Georgia' }],
             actions: [{ op: 'set', field: 'category', value: 'Food' }],

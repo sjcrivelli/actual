@@ -1,16 +1,38 @@
-import * as models from './models';
-export const accountModel = {
-    ...models.accountModel,
-    toExternal(account) {
+"use strict";
+var __assign = (this && this.__assign) || function () {
+    __assign = Object.assign || function(t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+            s = arguments[i];
+            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+                t[p] = s[p];
+        }
+        return t;
+    };
+    return __assign.apply(this, arguments);
+};
+var __rest = (this && this.__rest) || function (s, e) {
+    var t = {};
+    for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0)
+        t[p] = s[p];
+    if (s != null && typeof Object.getOwnPropertySymbols === "function")
+        for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
+            if (e.indexOf(p[i]) < 0 && Object.prototype.propertyIsEnumerable.call(s, p[i]))
+                t[p[i]] = s[p[i]];
+        }
+    return t;
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.scheduleModel = exports.budgetModel = exports.remoteFileModel = exports.payeeModel = exports.categoryGroupModel = exports.categoryModel = exports.accountModel = void 0;
+var models = require("./models");
+exports.accountModel = __assign(__assign({}, models.accountModel), { toExternal: function (account) {
         return {
             id: account.id,
             name: account.name,
             offbudget: account.offbudget ? true : false,
             closed: account.closed ? true : false,
         };
-    },
-    fromExternal(account) {
-        const result = { ...account };
+    }, fromExternal: function (account) {
+        var result = __assign({}, account);
         if ('offbudget' in account) {
             result.offbudget = account.offbudget ? 1 : 0;
         }
@@ -18,11 +40,8 @@ export const accountModel = {
             result.closed = account.closed ? 1 : 0;
         }
         return result;
-    },
-};
-export const categoryModel = {
-    ...models.categoryModel,
-    toExternal(category) {
+    } });
+exports.categoryModel = __assign(__assign({}, models.categoryModel), { toExternal: function (category) {
         return {
             id: category.id,
             name: category.name,
@@ -30,51 +49,39 @@ export const categoryModel = {
             hidden: category.hidden ? true : false,
             group_id: category.group,
         };
-    },
-    fromExternal(category) {
-        const { group_id, ...apiCategory } = category;
-        const result = {
-            ...apiCategory,
-            group: group_id,
-        };
+    }, fromExternal: function (category) {
+        var group_id = category.group_id, apiCategory = __rest(category, ["group_id"]);
+        var result = __assign(__assign({}, apiCategory), { group: group_id });
         return result;
-    },
-};
-export const categoryGroupModel = {
-    ...models.categoryGroupModel,
-    toExternal(group) {
+    } });
+exports.categoryGroupModel = __assign(__assign({}, models.categoryGroupModel), { toExternal: function (group) {
+        var _a;
         return {
             id: group.id,
             name: group.name,
             is_income: group.is_income ? true : false,
             hidden: group.hidden ? true : false,
-            categories: group.categories?.map(categoryModel.toExternal) || [],
+            categories: ((_a = group.categories) === null || _a === void 0 ? void 0 : _a.map(exports.categoryModel.toExternal)) || [],
         };
-    },
-    fromExternal(group) {
-        const result = { ...group };
+    }, fromExternal: function (group) {
+        var result = __assign({}, group);
         if ('categories' in group) {
-            result.categories = group.categories.map(categoryModel.fromExternal);
+            result.categories = group.categories.map(exports.categoryModel.fromExternal);
         }
         return result;
-    },
-};
-export const payeeModel = {
-    ...models.payeeModel,
-    toExternal(payee) {
+    } });
+exports.payeeModel = __assign(__assign({}, models.payeeModel), { toExternal: function (payee) {
         return {
             id: payee.id,
             name: payee.name,
             transfer_acct: payee.transfer_acct,
         };
-    },
-    fromExternal(payee) {
+    }, fromExternal: function (payee) {
         // No translation is needed
         return payee;
-    },
-};
-export const remoteFileModel = {
-    toExternal(file) {
+    } });
+exports.remoteFileModel = {
+    toExternal: function (file) {
         if (file.deleted) {
             return null;
         }
@@ -89,20 +96,20 @@ export const remoteFileModel = {
             usersWithAccess: file.usersWithAccess,
         };
     },
-    fromExternal(file) {
-        return { deleted: false, fileId: file.cloudFileId, ...file };
+    fromExternal: function (file) {
+        return __assign({ deleted: false, fileId: file.cloudFileId }, file);
     },
 };
-export const budgetModel = {
-    toExternal(file) {
+exports.budgetModel = {
+    toExternal: function (file) {
         return file;
     },
-    fromExternal(file) {
+    fromExternal: function (file) {
         return file;
     },
 };
-export const scheduleModel = {
-    toExternal(schedule) {
+exports.scheduleModel = {
+    toExternal: function (schedule) {
         return {
             id: schedule.id,
             name: schedule.name,
@@ -118,8 +125,8 @@ export const scheduleModel = {
         };
     },
     //just an update
-    fromExternal(schedule) {
-        const result = {
+    fromExternal: function (schedule) {
+        var result = {
             id: schedule.id,
             name: schedule.name,
             rule: String(schedule.rule),

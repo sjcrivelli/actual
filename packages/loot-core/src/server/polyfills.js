@@ -1,15 +1,17 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 // Polyfills for browser/web worker environment
-import * as jspb from 'google-protobuf';
+var jspb = require("google-protobuf");
 if (typeof globalThis !== 'undefined') {
     // Add a basic require polyfill for CommonJS modules
     if (typeof globalThis.require === 'undefined') {
         // @ts-ignore - we're creating a minimal require implementation
-        globalThis.require = (moduleId) => {
+        globalThis.require = function (moduleId) {
             switch (moduleId) {
                 case 'google-protobuf':
                     return jspb;
                 default:
-                    throw new Error(`Module not found: ${moduleId}. Add to polyfills if needed.`);
+                    throw new Error("Module not found: ".concat(moduleId, ". Add to polyfills if needed."));
             }
         };
     }

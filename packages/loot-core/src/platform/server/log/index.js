@@ -1,38 +1,67 @@
-let verboseMode = true;
-export function setVerboseMode(verbose) {
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.logger = void 0;
+exports.setVerboseMode = setVerboseMode;
+exports.isVerboseMode = isVerboseMode;
+var verboseMode = true;
+function setVerboseMode(verbose) {
     verboseMode = verbose;
 }
-export function isVerboseMode() {
+function isVerboseMode() {
     return verboseMode;
 }
-export const logger = {
-    info: (...args) => {
+exports.logger = {
+    info: function () {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
+        }
         if (verboseMode) {
-            console.log(...args);
+            console.log.apply(console, args);
         }
     },
-    warn: (...args) => {
-        console.warn(...args);
+    warn: function () {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
+        }
+        console.warn.apply(console, args);
     },
-    log: (...args) => {
+    log: function () {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
+        }
         if (verboseMode) {
-            console.log(...args);
+            console.log.apply(console, args);
         }
     },
-    error: (...args) => {
-        console.error(...args);
+    error: function () {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
+        }
+        console.error.apply(console, args);
     },
-    debug: (...args) => {
+    debug: function () {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
+        }
         if (verboseMode) {
-            console.debug(...args);
+            console.debug.apply(console, args);
         }
     },
-    group: (...args) => {
+    group: function () {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
+        }
         if (verboseMode) {
-            console.group(...args);
+            console.group.apply(console, args);
         }
     },
-    groupEnd: () => {
+    groupEnd: function () {
         if (verboseMode) {
             console.groupEnd();
         }

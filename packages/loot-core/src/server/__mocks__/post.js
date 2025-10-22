@@ -1,5 +1,11 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.get = exports.postBinary = exports.post = void 0;
 // @ts-strict-ignore
-export { handleRequest as post, handleRequestBinary as postBinary, } from '../tests/mockSyncServer';
-export const get = function () {
+var mockSyncServer_1 = require("../tests/mockSyncServer");
+Object.defineProperty(exports, "post", { enumerable: true, get: function () { return mockSyncServer_1.handleRequest; } });
+Object.defineProperty(exports, "postBinary", { enumerable: true, get: function () { return mockSyncServer_1.handleRequestBinary; } });
+var get = function () {
     throw new Error('get unimplemented');
 };
+exports.get = get;

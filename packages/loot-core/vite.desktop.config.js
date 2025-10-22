@@ -1,21 +1,24 @@
-import path from 'path';
-import { visualizer } from 'rollup-plugin-visualizer';
-import { defineConfig } from 'vite';
-import peggyLoader from 'vite-plugin-peggy-loader';
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+var path_1 = require("path");
+var rollup_plugin_visualizer_1 = require("rollup-plugin-visualizer");
+var vite_1 = require("vite");
+var vite_plugin_peggy_loader_1 = require("vite-plugin-peggy-loader");
 // eslint-disable-next-line import/no-default-export
-export default defineConfig(({ mode }) => {
-    const outDir = path.resolve(__dirname, 'lib-dist/electron');
-    const crdtDir = path.resolve(__dirname, '../crdt');
+exports.default = (0, vite_1.defineConfig)(function (_a) {
+    var mode = _a.mode;
+    var outDir = path_1.default.resolve(__dirname, 'lib-dist/electron');
+    var crdtDir = path_1.default.resolve(__dirname, '../crdt');
     return {
-        mode,
+        mode: mode,
         ssr: { noExternal: true, external: ['better-sqlite3'] },
         build: {
             target: 'node18',
-            outDir,
+            outDir: outDir,
             emptyOutDir: true,
             ssr: true,
             lib: {
-                entry: path.resolve(__dirname, 'src/server/main.ts'),
+                entry: path_1.default.resolve(__dirname, 'src/server/main.ts'),
                 formats: ['cjs'],
             },
             sourcemap: true,
@@ -45,13 +48,13 @@ export default defineConfig(({ mode }) => {
                 },
                 {
                     find: /^@actual-app\/crdt(\/.*)?$/,
-                    replacement: path.resolve(crdtDir, 'src') + '$1',
+                    replacement: path_1.default.resolve(crdtDir, 'src') + '$1',
                 },
             ],
         },
         plugins: [
-            peggyLoader(),
-            visualizer({ template: 'raw-data', filename: `${outDir}/stats.json` }),
+            (0, vite_plugin_peggy_loader_1.default)(),
+            (0, rollup_plugin_visualizer_1.visualizer)({ template: 'raw-data', filename: "".concat(outDir, "/stats.json") }),
         ],
     };
 });

@@ -1,5 +1,19 @@
+"use strict";
+var __assign = (this && this.__assign) || function () {
+    __assign = Object.assign || function(t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+            s = arguments[i];
+            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+                t[p] = s[p];
+        }
+        return t;
+    };
+    return __assign.apply(this, arguments);
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.schemaConfig = exports.schema = void 0;
 function f(type, opts) {
-    return { type, ...opts };
+    return __assign({ type: type }, opts);
 }
 // This is the table schema!
 //
@@ -26,7 +40,7 @@ function f(type, opts) {
 // might not work because the dependencies are wrong. If needed in the
 // future, we can provide another option in the schema config to map a
 // table name the internal table that is updated.
-export const schema = {
+exports.schema = {
     transactions: {
         id: f('id'),
         is_parent: f('boolean'),
@@ -43,7 +57,7 @@ export const schema = {
         imported_payee: f('string'),
         starting_balance_flag: f('boolean'),
         transfer_id: f('id'),
-        sort_order: f('float', { default: () => Date.now() }),
+        sort_order: f('float', { default: function () { return Date.now(); } }),
         cleared: f('boolean', { default: true }),
         reconciled: f('boolean', { default: false }),
         tombstone: f('boolean'),
@@ -187,11 +201,12 @@ export const schema = {
         tombstone: f('boolean'),
     },
 };
-export const schemaConfig = {
+exports.schemaConfig = {
     // Note: these views *must* represent the underlying table that we
     // are mapping here. The compiler makes optimizations with this
     // assumption
-    tableViews(name, { isJoin, withDead, tableOptions = { splits: undefined } }) {
+    tableViews: function (name, _a) {
+        var isJoin = _a.isJoin, withDead = _a.withDead, _b = _a.tableOptions, tableOptions = _b === void 0 ? { splits: undefined } : _b;
         switch (name) {
             case 'transactions': {
                 // If joining, we always only show alive transactions. There's
@@ -199,7 +214,7 @@ export const schemaConfig = {
                 if (isJoin) {
                     return 'v_transactions_internal_alive';
                 }
-                const splitType = tableOptions.splits || 'inline';
+                var splitType = tableOptions.splits || 'inline';
                 // Use the view to exclude dead transactions if using `inline` or `none`
                 if (!withDead && (splitType === 'inline' || splitType === 'none')) {
                     return 'v_transactions_internal_alive';
@@ -218,8 +233,8 @@ export const schemaConfig = {
         }
         return name;
     },
-    customizeQuery(queryState) {
-        const { table: tableName } = queryState;
+    customizeQuery: function (queryState) {
+        var tableName = queryState.table;
         function orderBy(orders) {
             // If order was specified, always add id as the last sort to make
             // it deterministic
@@ -252,60 +267,40 @@ export const schemaConfig = {
             }
             return [];
         }
-        return {
-            ...queryState,
-            orderExpressions: orderBy(queryState.orderExpressions),
-        };
+        return __assign(__assign({}, queryState), { orderExpressions: orderBy(queryState.orderExpressions) });
     },
     views: {
         payees: {
-            v_payees: internalFields => {
-                const fields = internalFields({
+            v_payees: function (internalFields) {
+                var fields = internalFields({
                     name: 'COALESCE(__accounts.name, _.name)',
                 });
-                return `
-          SELECT ${fields} FROM payees _
-          LEFT JOIN accounts __accounts ON (_.transfer_acct = __accounts.id AND __accounts.tombstone = 0)
-          -- We never want to show transfer payees that are pointing to deleted accounts.
-          -- Either this is not a transfer payee, if the account exists
-          WHERE _.transfer_acct IS NULL OR __accounts.id IS NOT NULL
-        `;
+                return "\n          SELECT ".concat(fields, " FROM payees _\n          LEFT JOIN accounts __accounts ON (_.transfer_acct = __accounts.id AND __accounts.tombstone = 0)\n          -- We never want to show transfer payees that are pointing to deleted accounts.\n          -- Either this is not a transfer payee, if the account exists\n          WHERE _.transfer_acct IS NULL OR __accounts.id IS NOT NULL\n        ");
             },
         },
         categories: {
             fields: {
                 group: 'cat_group',
             },
-            v_categories: internalFields => {
-                const fields = internalFields({ group: 'cat_group' });
-                return `SELECT ${fields} FROM categories _`;
+            v_categories: function (internalFields) {
+                var fields = internalFields({ group: 'cat_group' });
+                return "SELECT ".concat(fields, " FROM categories _");
             },
         },
         schedules: {
-            v_schedules: internalFields => {
+            v_schedules: function (internalFields) {
                 /* eslint-disable actual/typography */
-                const fields = internalFields({
-                    next_date: `
-            CASE
-              WHEN _nd.local_next_date_ts = _nd.base_next_date_ts THEN _nd.local_next_date
-              ELSE _nd.base_next_date
-            END
-          `,
-                    _payee: `pm.targetId`,
-                    _account: `json_extract(_rules.conditions, _paths.account || '.value')`,
-                    _amount: `json_extract(_rules.conditions, _paths.amount || '.value')`,
-                    _amountOp: `json_extract(_rules.conditions, _paths.amount || '.op')`,
-                    _date: `json_extract(_rules.conditions, _paths.date || '.value')`,
+                var fields = internalFields({
+                    next_date: "\n            CASE\n              WHEN _nd.local_next_date_ts = _nd.base_next_date_ts THEN _nd.local_next_date\n              ELSE _nd.base_next_date\n            END\n          ",
+                    _payee: "pm.targetId",
+                    _account: "json_extract(_rules.conditions, _paths.account || '.value')",
+                    _amount: "json_extract(_rules.conditions, _paths.amount || '.value')",
+                    _amountOp: "json_extract(_rules.conditions, _paths.amount || '.op')",
+                    _date: "json_extract(_rules.conditions, _paths.date || '.value')",
                     _conditions: '_rules.conditions',
                     _actions: '_rules.actions',
                 });
-                return `
-        SELECT ${fields} FROM schedules _
-        LEFT JOIN schedules_next_date _nd ON _nd.schedule_id = _.id
-        LEFT JOIN schedules_json_paths _paths ON _paths.schedule_id = _.id
-        LEFT JOIN rules _rules ON _rules.id = _.rule
-        LEFT JOIN payee_mapping pm ON pm.id = json_extract(_rules.conditions, _paths.payee || '.value')
-        `;
+                return "\n        SELECT ".concat(fields, " FROM schedules _\n        LEFT JOIN schedules_next_date _nd ON _nd.schedule_id = _.id\n        LEFT JOIN schedules_json_paths _paths ON _paths.schedule_id = _.id\n        LEFT JOIN rules _rules ON _rules.id = _.rule\n        LEFT JOIN payee_mapping pm ON pm.id = json_extract(_rules.conditions, _paths.payee || '.value')\n        ");
                 /* eslint-enable actual/typography */
             },
         },
@@ -319,34 +314,22 @@ export const schemaConfig = {
                 transfer_id: 'transferred_id',
                 payee: 'description',
             },
-            v_transactions_internal: internalFields => {
+            v_transactions_internal: function (internalFields) {
                 // Override some fields to make custom stuff
-                const fields = internalFields({
+                var fields = internalFields({
                     payee: 'pm.targetId',
-                    category: `CASE WHEN _.isParent = 1 THEN NULL ELSE cm.transferId END`,
-                    amount: `IFNULL(_.amount, 0)`,
+                    category: "CASE WHEN _.isParent = 1 THEN NULL ELSE cm.transferId END",
+                    amount: "IFNULL(_.amount, 0)",
                     parent_id: 'CASE WHEN _.isChild = 0 THEN NULL ELSE _.parent_id END',
                 });
-                return `
-          SELECT ${fields} FROM transactions _
-          LEFT JOIN category_mapping cm ON cm.id = _.category
-          LEFT JOIN payee_mapping pm ON pm.id = _.description
-          WHERE
-           _.date IS NOT NULL AND
-           _.acct IS NOT NULL AND
-           (_.isChild = 0 OR _.parent_id IS NOT NULL)
-        `;
+                return "\n          SELECT ".concat(fields, " FROM transactions _\n          LEFT JOIN category_mapping cm ON cm.id = _.category\n          LEFT JOIN payee_mapping pm ON pm.id = _.description\n          WHERE\n           _.date IS NOT NULL AND\n           _.acct IS NOT NULL AND\n           (_.isChild = 0 OR _.parent_id IS NOT NULL)\n        ");
             },
             // We join on t2 to only include valid child transactions. We
             // want to only include ones with valid parents, which is when
             // an alive parent transaction exists
-            v_transactions_internal_alive: `
-        SELECT _.* FROM v_transactions_internal _
-        LEFT JOIN transactions t2 ON (_.is_child = 1 AND t2.id = _.parent_id)
-        WHERE IFNULL(_.tombstone, 0) = 0 AND (_.is_child = 0 OR t2.tombstone = 0)
-      `,
-            v_transactions: (_, publicFields) => {
-                const fields = publicFields({
+            v_transactions_internal_alive: "\n        SELECT _.* FROM v_transactions_internal _\n        LEFT JOIN transactions t2 ON (_.is_child = 1 AND t2.id = _.parent_id)\n        WHERE IFNULL(_.tombstone, 0) = 0 AND (_.is_child = 0 OR t2.tombstone = 0)\n      ",
+            v_transactions: function (_, publicFields) {
+                var fields = publicFields({
                     payee: 'p.id',
                     category: 'c.id',
                     account: 'a.id',
@@ -354,13 +337,7 @@ export const schemaConfig = {
                 // This adds an order, and also validates any id references by
                 // selecting the ids through a join which return null if they
                 // are dead
-                return `
-          SELECT ${fields} FROM v_transactions_internal_alive _
-          LEFT JOIN payees p ON (p.id = _.payee AND p.tombstone = 0)
-          LEFT JOIN categories c ON (c.id = _.category AND c.tombstone = 0)
-          LEFT JOIN accounts a ON (a.id = _.account AND a.tombstone = 0)
-          ORDER BY _.date desc, _.starting_balance_flag, _.sort_order desc, _.id;
-        `;
+                return "\n          SELECT ".concat(fields, " FROM v_transactions_internal_alive _\n          LEFT JOIN payees p ON (p.id = _.payee AND p.tombstone = 0)\n          LEFT JOIN categories c ON (c.id = _.category AND c.tombstone = 0)\n          LEFT JOIN accounts a ON (a.id = _.account AND a.tombstone = 0)\n          ORDER BY _.date desc, _.starting_balance_flag, _.sort_order desc, _.id;\n        ");
             },
         },
     },

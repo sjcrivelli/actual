@@ -1,13 +1,16 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.join = void 0;
 // This code is pulled from
 // https://github.com/browserify/path-browserify/blob/master/index.js#L33
 // Resolves . and .. elements in a path with directory names
 function normalizeStringPosix(path, allowAboveRoot) {
-    let res = '';
-    let lastSegmentLength = 0;
-    let lastSlash = -1;
-    let dots = 0;
-    let code;
-    for (let i = 0; i <= path.length; ++i) {
+    var res = '';
+    var lastSegmentLength = 0;
+    var lastSlash = -1;
+    var dots = 0;
+    var code;
+    for (var i = 0; i <= path.length; ++i) {
         if (i < path.length)
             code = path.charCodeAt(i);
         else if (code === 47 /*/*/)
@@ -24,7 +27,7 @@ function normalizeStringPosix(path, allowAboveRoot) {
                     res.charCodeAt(res.length - 1) !== 46 /*.*/ ||
                     res.charCodeAt(res.length - 2) !== 46 /*.*/) {
                     if (res.length > 2) {
-                        const lastSlashIndex = res.lastIndexOf('/');
+                        var lastSlashIndex = res.lastIndexOf('/');
                         if (lastSlashIndex !== res.length - 1) {
                             if (lastSlashIndex === -1) {
                                 res = '';
@@ -77,8 +80,8 @@ function normalizeStringPosix(path, allowAboveRoot) {
 function normalizePath(path) {
     if (path.length === 0)
         return '.';
-    const isAbsolute = path.charCodeAt(0) === 47; /*/*/
-    const trailingSeparator = path.charCodeAt(path.length - 1) === 47; /*/*/
+    var isAbsolute = path.charCodeAt(0) === 47; /*/*/
+    var trailingSeparator = path.charCodeAt(path.length - 1) === 47; /*/*/
     // Normalize the path
     path = normalizeStringPosix(path, !isAbsolute);
     if (path.length === 0 && !isAbsolute)
@@ -89,12 +92,16 @@ function normalizePath(path) {
         return '/' + path;
     return path;
 }
-export const join = (...args) => {
+var join = function () {
+    var args = [];
+    for (var _i = 0; _i < arguments.length; _i++) {
+        args[_i] = arguments[_i];
+    }
     if (args.length === 0)
         return '.';
-    let joined;
-    for (let i = 0; i < args.length; ++i) {
-        const arg = args[i];
+    var joined;
+    for (var i = 0; i < args.length; ++i) {
+        var arg = args[i];
         if (arg.length > 0) {
             if (joined === undefined)
                 joined = arg;
@@ -106,3 +113,4 @@ export const join = (...args) => {
         return '.';
     return normalizePath(joined);
 };
+exports.join = join;

@@ -1,17 +1,24 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.randomBytes = randomBytes;
+exports.encrypt = encrypt;
+exports.decrypt = decrypt;
+exports.createKey = createKey;
+exports.importKey = importKey;
 // @ts-strict-ignore
-import crypto from 'crypto';
-const ENCRYPTION_ALGORITHM = 'aes-256-gcm';
-export function randomBytes(n) {
-    return crypto.randomBytes(n);
+var crypto_1 = require("crypto");
+var ENCRYPTION_ALGORITHM = 'aes-256-gcm';
+function randomBytes(n) {
+    return crypto_1.default.randomBytes(n);
 }
-export function encrypt(masterKey, value) {
-    const masterKeyBuffer = masterKey.getValue().raw;
+function encrypt(masterKey, value) {
+    var masterKeyBuffer = masterKey.getValue().raw;
     // let iv = createKeyBuffer({ numBytes: 12, secret: masterKeyBuffer });
-    const iv = crypto.randomBytes(12);
-    const cipher = crypto.createCipheriv(ENCRYPTION_ALGORITHM, masterKeyBuffer, iv);
-    let encrypted = cipher.update(value);
+    var iv = crypto_1.default.randomBytes(12);
+    var cipher = crypto_1.default.createCipheriv(ENCRYPTION_ALGORITHM, masterKeyBuffer, iv);
+    var encrypted = cipher.update(value);
     encrypted = Buffer.concat([encrypted, cipher.final()]);
-    const authTag = cipher.getAuthTag();
+    var authTag = cipher.getAuthTag();
     return {
         value: encrypted,
         meta: {
@@ -22,25 +29,26 @@ export function encrypt(masterKey, value) {
         },
     };
 }
-export function decrypt(masterKey, encrypted, meta) {
-    const masterKeyBuffer = masterKey.getValue().raw;
-    const { algorithm, iv: originalIv, authTag: originalAuthTag } = meta;
-    const iv = Buffer.from(originalIv, 'base64');
-    const authTag = Buffer.from(originalAuthTag, 'base64');
-    const decipher = crypto.createDecipheriv(algorithm, masterKeyBuffer, iv);
+function decrypt(masterKey, encrypted, meta) {
+    var masterKeyBuffer = masterKey.getValue().raw;
+    var algorithm = meta.algorithm, originalIv = meta.iv, originalAuthTag = meta.authTag;
+    var iv = Buffer.from(originalIv, 'base64');
+    var authTag = Buffer.from(originalAuthTag, 'base64');
+    var decipher = crypto_1.default.createDecipheriv(algorithm, masterKeyBuffer, iv);
     decipher.setAuthTag(authTag);
-    let decrypted = decipher.update(encrypted);
+    var decrypted = decipher.update(encrypted);
     decrypted = Buffer.concat([decrypted, decipher.final()]);
     return decrypted;
 }
-export function createKey({ secret, salt }) {
-    const buffer = createKeyBuffer({ secret, salt });
+function createKey(_a) {
+    var secret = _a.secret, salt = _a.salt;
+    var buffer = createKeyBuffer({ secret: secret, salt: salt });
     return {
         raw: buffer,
         base64: buffer.toString('base64'),
     };
 }
-export function importKey(str) {
+function importKey(str) {
     return {
         raw: Buffer.from(str, 'base64'),
         base64: str,
@@ -51,6 +59,7 @@ export function importKey(str) {
  *
  * @private
  */
-function createKeyBuffer({ numBytes, secret, salt, }) {
-    return crypto.pbkdf2Sync(secret || crypto.randomBytes(128).toString('base64'), salt || crypto.randomBytes(32).toString('base64'), 10000, numBytes || 32, 'sha512');
+function createKeyBuffer(_a) {
+    var numBytes = _a.numBytes, secret = _a.secret, salt = _a.salt;
+    return crypto_1.default.pbkdf2Sync(secret || crypto_1.default.randomBytes(128).toString('base64'), salt || crypto_1.default.randomBytes(32).toString('base64'), 10000, numBytes || 32, 'sha512');
 }

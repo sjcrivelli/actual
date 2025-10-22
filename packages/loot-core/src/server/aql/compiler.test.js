@@ -1,13 +1,24 @@
+"use strict";
+var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
+    if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
+        if (ar || !(i in from)) {
+            if (!ar) ar = Array.prototype.slice.call(from, 0, i);
+            ar[i] = from[i];
+        }
+    }
+    return to.concat(ar || Array.prototype.slice.call(from));
+};
+Object.defineProperty(exports, "__esModule", { value: true });
 // @ts-strict-ignore
-import { q } from '../../shared/query';
-import { generateSQLWithState } from './compiler';
+var query_1 = require("../../shared/query");
+var compiler_1 = require("./compiler");
 function sqlLines(str) {
     return str
         .split('\n')
-        .filter(s => !s.match(/^\s*$/))
-        .map(line => line.trim());
+        .filter(function (s) { return !s.match(/^\s*$/); })
+        .map(function (line) { return line.trim(); });
 }
-const basicSchema = {
+var basicSchema = {
     transactions: {
         id: { type: 'id' },
         date: { type: 'date' },
@@ -17,7 +28,7 @@ const basicSchema = {
         is_parent: { type: 'boolean' },
     },
 };
-const schemaWithRefs = {
+var schemaWithRefs = {
     transactions: {
         id: { type: 'id' },
         payee: { type: 'id', ref: 'payees' },
@@ -36,7 +47,7 @@ const schemaWithRefs = {
         trans3: { type: 'id', ref: 'transactions' },
     },
 };
-const schemaWithTombstone = {
+var schemaWithTombstone = {
     transactions: {
         id: { type: 'id' },
         payee: { type: 'id', ref: 'payees' },
@@ -53,168 +64,126 @@ const schemaWithTombstone = {
         trans: { type: 'id', ref: 'transactions' },
     },
 };
-describe('sheet language', () => {
-    it('`select` should select fields', () => {
-        let result = generateSQLWithState(q('accounts')
+describe('sheet language', function () {
+    it('`select` should select fields', function () {
+        var result = (0, compiler_1.generateSQLWithState)((0, query_1.q)('accounts')
             .select(['trans1', 'trans2'])
             .withoutValidatedRefs()
             .serialize(), schemaWithRefs);
         expect(result.sql).toMatch('SELECT accounts.trans1 AS trans1, accounts.trans2 AS trans2, accounts.id AS id FROM accounts');
         // Allows renaming
-        result = generateSQLWithState(q('accounts')
+        result = (0, compiler_1.generateSQLWithState)((0, query_1.q)('accounts')
             .select(['trans1', 'trans1.id', { transId: 'trans1.id' }])
             .withoutValidatedRefs()
             .serialize(), schemaWithRefs);
         expect(result.sql).toMatch('SELECT accounts.trans1 AS trans1, transactions1.id AS "trans1.id", transactions1.id AS transId, accounts.id AS id FROM');
         // Joined fields should be named by path
-        result = generateSQLWithState(q('accounts')
+        result = (0, compiler_1.generateSQLWithState)((0, query_1.q)('accounts')
             .select(['trans1.payee.name'])
             .withoutValidatedRefs()
             .serialize(), schemaWithRefs);
         expect(result.sql).toMatch('SELECT payees2.name AS "trans1.payee.name", accounts.id AS id FROM accounts');
         // Renaming works with joined fields
-        result = generateSQLWithState(q('accounts')
+        result = (0, compiler_1.generateSQLWithState)((0, query_1.q)('accounts')
             .select([{ payeeName: 'trans1.payee.name' }])
             .withoutValidatedRefs()
             .serialize(), schemaWithRefs);
         expect(result.sql).toMatch('SELECT payees2.name AS payeeName, accounts.id AS id FROM accounts');
         // By default, it should do id ref validation
-        result = generateSQLWithState(q('accounts').select(['trans1', 'trans2']).serialize(), schemaWithRefs);
-        expect(sqlLines(result.sql)).toEqual(sqlLines(`
-        SELECT transactions1.id AS trans1, transactions2.id AS trans2, accounts.id AS id FROM accounts
-        LEFT JOIN transactions transactions1 ON transactions1.id = accounts.trans1
-        LEFT JOIN transactions transactions2 ON transactions2.id = accounts.trans2
-        WHERE 1
-      `));
+        result = (0, compiler_1.generateSQLWithState)((0, query_1.q)('accounts').select(['trans1', 'trans2']).serialize(), schemaWithRefs);
+        expect(sqlLines(result.sql)).toEqual(sqlLines("\n        SELECT transactions1.id AS trans1, transactions2.id AS trans2, accounts.id AS id FROM accounts\n        LEFT JOIN transactions transactions1 ON transactions1.id = accounts.trans1\n        LEFT JOIN transactions transactions2 ON transactions2.id = accounts.trans2\n        WHERE 1\n      "));
     });
-    it('`like` should use unicode and normalise function', () => {
-        const result = generateSQLWithState(q('transactions')
+    it('`like` should use unicode and normalise function', function () {
+        var result = (0, compiler_1.generateSQLWithState)((0, query_1.q)('transactions')
             .select('payee')
-            .filter({ 'payee.name': { $like: `%TEST%` } })
+            .filter({ 'payee.name': { $like: "%TEST%" } })
             .serialize(), schemaWithRefs);
-        expect(result.sql).toMatch(`UNICODE_LIKE('%test%', NORMALISE(payees1.name))`);
+        expect(result.sql).toMatch("UNICODE_LIKE('%test%', NORMALISE(payees1.name))");
     });
-    it('`notlike` should use unicode and normalise function', () => {
-        const result = generateSQLWithState(q('transactions')
+    it('`notlike` should use unicode and normalise function', function () {
+        var result = (0, compiler_1.generateSQLWithState)((0, query_1.q)('transactions')
             .select('payee')
-            .filter({ 'payee.name': { $notlike: `%TEST%` } })
+            .filter({ 'payee.name': { $notlike: "%TEST%" } })
             .serialize(), schemaWithRefs);
-        expect(result.sql).toMatch(`NOT UNICODE_LIKE('%test%', NORMALISE(payees1.name))`);
+        expect(result.sql).toMatch("NOT UNICODE_LIKE('%test%', NORMALISE(payees1.name))");
     });
-    it('`select` allows nested functions', () => {
-        const result = generateSQLWithState(q('transactions')
+    it('`select` allows nested functions', function () {
+        var result = (0, compiler_1.generateSQLWithState)((0, query_1.q)('transactions')
             .select([{ num: { $idiv: [{ $neg: '$amount' }, 2] } }])
             .serialize(), schemaWithRefs);
         expect(result.sql).toMatch('SELECT ((-transactions.amount) / 2) AS num, transactions.id AS id FROM transactions');
     });
-    it('`select` allows selecting all fields with *', () => {
-        let result = generateSQLWithState(q('accounts').select(['*']).serialize(), schemaWithRefs);
-        expect(sqlLines(result.sql)).toEqual(sqlLines(`
-        SELECT accounts.id AS id, transactions1.id AS trans1, transactions2.id AS trans2, transactions3.id AS trans3 FROM accounts
-        LEFT JOIN transactions transactions1 ON transactions1.id = accounts.trans1
-        LEFT JOIN transactions transactions2 ON transactions2.id = accounts.trans2
-        LEFT JOIN transactions transactions3 ON transactions3.id = accounts.trans3
-        WHERE 1
-      `));
+    it('`select` allows selecting all fields with *', function () {
+        var result = (0, compiler_1.generateSQLWithState)((0, query_1.q)('accounts').select(['*']).serialize(), schemaWithRefs);
+        expect(sqlLines(result.sql)).toEqual(sqlLines("\n        SELECT accounts.id AS id, transactions1.id AS trans1, transactions2.id AS trans2, transactions3.id AS trans3 FROM accounts\n        LEFT JOIN transactions transactions1 ON transactions1.id = accounts.trans1\n        LEFT JOIN transactions transactions2 ON transactions2.id = accounts.trans2\n        LEFT JOIN transactions transactions3 ON transactions3.id = accounts.trans3\n        WHERE 1\n      "));
         // Test selecting from joined tables
-        result = generateSQLWithState(q('accounts').select(['*', 'trans1.*']).serialize(), schemaWithRefs);
-        expect(sqlLines(result.sql)).toEqual(sqlLines(`
-        SELECT accounts.id AS id, transactions1.id AS trans1, transactions2.id AS trans2, transactions3.id AS trans3, transactions1.id AS "trans1.id", payees4.id AS "trans1.payee", transactions1.date AS "trans1.date", transactions1.amount AS "trans1.amount" FROM accounts
-        LEFT JOIN transactions transactions1 ON transactions1.id = accounts.trans1
-        LEFT JOIN transactions transactions2 ON transactions2.id = accounts.trans2
-        LEFT JOIN transactions transactions3 ON transactions3.id = accounts.trans3
-        LEFT JOIN payees payees4 ON payees4.id = transactions1.payee
-        WHERE 1
-     `));
+        result = (0, compiler_1.generateSQLWithState)((0, query_1.q)('accounts').select(['*', 'trans1.*']).serialize(), schemaWithRefs);
+        expect(sqlLines(result.sql)).toEqual(sqlLines("\n        SELECT accounts.id AS id, transactions1.id AS trans1, transactions2.id AS trans2, transactions3.id AS trans3, transactions1.id AS \"trans1.id\", payees4.id AS \"trans1.payee\", transactions1.date AS \"trans1.date\", transactions1.amount AS \"trans1.amount\" FROM accounts\n        LEFT JOIN transactions transactions1 ON transactions1.id = accounts.trans1\n        LEFT JOIN transactions transactions2 ON transactions2.id = accounts.trans2\n        LEFT JOIN transactions transactions3 ON transactions3.id = accounts.trans3\n        LEFT JOIN payees payees4 ON payees4.id = transactions1.payee\n        WHERE 1\n     "));
     });
-    it('`select` excludes deleted rows by default and `withDead` includes them', () => {
+    it('`select` excludes deleted rows by default and `withDead` includes them', function () {
         // The tombstone flag is not added if not necessary (the table
         // doesn't have it )
-        let result = generateSQLWithState(q('accounts').select(['trans']).withoutValidatedRefs().serialize(), schemaWithTombstone);
+        var result = (0, compiler_1.generateSQLWithState)((0, query_1.q)('accounts').select(['trans']).withoutValidatedRefs().serialize(), schemaWithTombstone);
         expect(result.sql).not.toMatch('tombstone');
         // By default, the tombstone flag should be added if necessary
-        result = generateSQLWithState(q('transactions').select(['amount']).serialize(), schemaWithTombstone);
-        expect(sqlLines(result.sql)).toEqual(sqlLines(`
-        SELECT transactions.amount AS amount, transactions.id AS id FROM transactions
-        WHERE 1 AND transactions.tombstone = 0
-      `));
+        result = (0, compiler_1.generateSQLWithState)((0, query_1.q)('transactions').select(['amount']).serialize(), schemaWithTombstone);
+        expect(sqlLines(result.sql)).toEqual(sqlLines("\n        SELECT transactions.amount AS amount, transactions.id AS id FROM transactions\n        WHERE 1 AND transactions.tombstone = 0\n      "));
         // `withDead` should not add the tombstone flag
-        result = generateSQLWithState(q('transactions').select(['amount']).withDead().serialize(), schemaWithTombstone);
-        expect(sqlLines(result.sql)).toEqual(sqlLines(`
-        SELECT transactions.amount AS amount, transactions.id AS id FROM transactions
-        WHERE 1
-      `));
+        result = (0, compiler_1.generateSQLWithState)((0, query_1.q)('transactions').select(['amount']).withDead().serialize(), schemaWithTombstone);
+        expect(sqlLines(result.sql)).toEqual(sqlLines("\n        SELECT transactions.amount AS amount, transactions.id AS id FROM transactions\n        WHERE 1\n      "));
         // The tombstone flag should also be added if joining
-        result = generateSQLWithState(q('accounts').select(['trans.amount', 'trans.payee.name']).serialize(), schemaWithTombstone);
-        expect(sqlLines(result.sql)).toEqual(sqlLines(`
-        SELECT transactions1.amount AS "trans.amount", payees2.name AS "trans.payee.name", accounts.id AS id FROM accounts
-        LEFT JOIN transactions transactions1 ON transactions1.id = accounts.trans AND transactions1.tombstone = 0
-        LEFT JOIN payees payees2 ON payees2.id = transactions1.payee AND payees2.tombstone = 0
-        WHERE 1
-      `));
+        result = (0, compiler_1.generateSQLWithState)((0, query_1.q)('accounts').select(['trans.amount', 'trans.payee.name']).serialize(), schemaWithTombstone);
+        expect(sqlLines(result.sql)).toEqual(sqlLines("\n        SELECT transactions1.amount AS \"trans.amount\", payees2.name AS \"trans.payee.name\", accounts.id AS id FROM accounts\n        LEFT JOIN transactions transactions1 ON transactions1.id = accounts.trans AND transactions1.tombstone = 0\n        LEFT JOIN payees payees2 ON payees2.id = transactions1.payee AND payees2.tombstone = 0\n        WHERE 1\n      "));
         // TODO: provide a way to customize joins, which would allow
         // specifying include deleted
     });
-    it('`select` always includes the id', () => {
-        let result = generateSQLWithState(q('payees').select('name').serialize(), schemaWithRefs);
+    it('`select` always includes the id', function () {
+        var result = (0, compiler_1.generateSQLWithState)((0, query_1.q)('payees').select('name').serialize(), schemaWithRefs);
         expect(result.sql).toMatch('payees.id AS id');
-        result = generateSQLWithState(q('payees').select(['name', 'id']).serialize(), schemaWithRefs);
+        result = (0, compiler_1.generateSQLWithState)((0, query_1.q)('payees').select(['name', 'id']).serialize(), schemaWithRefs);
         // id is only included once, we manually selected it
         expect(result.sql).toMatch('SELECT payees.name AS name, payees.id AS id FROM');
-        result = generateSQLWithState(q('payees').select('name').groupBy('account').serialize(), schemaWithRefs);
+        result = (0, compiler_1.generateSQLWithState)((0, query_1.q)('payees').select('name').groupBy('account').serialize(), schemaWithRefs);
         // id should not automatically by selected if using `groupBy`
         expect(result.sql).not.toMatch('payees.id AS id');
     });
-    it('automatically joins tables if referenced by path', () => {
+    it('automatically joins tables if referenced by path', function () {
         // Join a simple table
-        let result = generateSQLWithState(q('transactions')
+        var result = (0, compiler_1.generateSQLWithState)((0, query_1.q)('transactions')
             .filter({ 'payee.name': 'kroger' })
             .select(['amount'])
             .serialize(), schemaWithRefs);
-        expect([...result.state.paths.keys()]).toEqual(['transactions.payee']);
-        expect(sqlLines(result.sql)).toEqual(sqlLines(`
-        SELECT transactions.amount AS amount, transactions.id AS id FROM transactions
-        LEFT JOIN payees payees1 ON payees1.id = transactions.payee
-        WHERE (payees1.name = 'kroger')`));
+        expect(__spreadArray([], result.state.paths.keys(), true)).toEqual(['transactions.payee']);
+        expect(sqlLines(result.sql)).toEqual(sqlLines("\n        SELECT transactions.amount AS amount, transactions.id AS id FROM transactions\n        LEFT JOIN payees payees1 ON payees1.id = transactions.payee\n        WHERE (payees1.name = 'kroger')"));
         // Make sure it works in a `get`
-        result = generateSQLWithState(q('transactions')
+        result = (0, compiler_1.generateSQLWithState)((0, query_1.q)('transactions')
             .filter({ amount: 123 })
             .select(['payee.name'])
             .serialize(), schemaWithRefs);
-        expect([...result.state.paths.keys()]).toEqual(['transactions.payee']);
-        expect(sqlLines(result.sql)).toEqual(sqlLines(`
-        SELECT payees1.name AS "payee.name", transactions.id AS id FROM transactions
-        LEFT JOIN payees payees1 ON payees1.id = transactions.payee
-        WHERE (transactions.amount = 123)
-      `));
+        expect(__spreadArray([], result.state.paths.keys(), true)).toEqual(['transactions.payee']);
+        expect(sqlLines(result.sql)).toEqual(sqlLines("\n        SELECT payees1.name AS \"payee.name\", transactions.id AS id FROM transactions\n        LEFT JOIN payees payees1 ON payees1.id = transactions.payee\n        WHERE (transactions.amount = 123)\n      "));
         // Join tables deeply
-        result = generateSQLWithState(q('transactions')
+        result = (0, compiler_1.generateSQLWithState)((0, query_1.q)('transactions')
             .filter({ 'payee.account.trans1.amount': 234 })
             .select(['amount', 'payee.name'])
             .serialize(), schemaWithRefs);
-        expect([...result.state.paths.keys()]).toEqual([
+        expect(__spreadArray([], result.state.paths.keys(), true)).toEqual([
             'transactions.payee',
             'transactions.payee.account',
             'transactions.payee.account.trans1',
         ]);
-        expect(sqlLines(result.sql)).toEqual(sqlLines(`
-        SELECT transactions.amount AS amount, payees1.name AS "payee.name", transactions.id AS id FROM transactions
-        LEFT JOIN payees payees1 ON payees1.id = transactions.payee
-        LEFT JOIN accounts accounts2 ON accounts2.id = payees1.account
-        LEFT JOIN transactions transactions3 ON transactions3.id = accounts2.trans1
-        WHERE (transactions3.amount = 234)
-      `));
+        expect(sqlLines(result.sql)).toEqual(sqlLines("\n        SELECT transactions.amount AS amount, payees1.name AS \"payee.name\", transactions.id AS id FROM transactions\n        LEFT JOIN payees payees1 ON payees1.id = transactions.payee\n        LEFT JOIN accounts accounts2 ON accounts2.id = payees1.account\n        LEFT JOIN transactions transactions3 ON transactions3.id = accounts2.trans1\n        WHERE (transactions3.amount = 234)\n      "));
     });
-    it('avoids unnecessary joins when deeply joining', () => {
-        const { state, sql } = generateSQLWithState(q('transactions')
+    it('avoids unnecessary joins when deeply joining', function () {
+        var _a = (0, compiler_1.generateSQLWithState)((0, query_1.q)('transactions')
             .filter({
             'payee.account.trans1.amount': 1,
             'payee.account.trans2.amount': 2,
             'payee.account.trans3.amount': 3,
         })
             .select(['payee.account.trans2.payee'])
-            .serialize(), schemaWithRefs);
-        expect([...state.paths.keys()]).toEqual([
+            .serialize(), schemaWithRefs), state = _a.state, sql = _a.sql;
+        expect(__spreadArray([], state.paths.keys(), true)).toEqual([
             'transactions.payee',
             'transactions.payee.account',
             'transactions.payee.account.trans2',
@@ -224,44 +193,23 @@ describe('sheet language', () => {
         ]);
         // It should not join `transactions.payee.account` multiple times,
         // only once
-        expect(sqlLines(sql)).toEqual(sqlLines(`
-      SELECT payees4.id AS "payee.account.trans2.payee", transactions.id AS id FROM transactions
-      LEFT JOIN payees payees1 ON payees1.id = transactions.payee
-      LEFT JOIN accounts accounts2 ON accounts2.id = payees1.account
-      LEFT JOIN transactions transactions3 ON transactions3.id = accounts2.trans2
-      LEFT JOIN payees payees4 ON payees4.id = transactions3.payee
-      LEFT JOIN transactions transactions5 ON transactions5.id = accounts2.trans1
-      LEFT JOIN transactions transactions6 ON transactions6.id = accounts2.trans3
-      WHERE (transactions5.amount = 1
-      AND transactions3.amount = 2
-      AND transactions6.amount = 3)
-    `));
+        expect(sqlLines(sql)).toEqual(sqlLines("\n      SELECT payees4.id AS \"payee.account.trans2.payee\", transactions.id AS id FROM transactions\n      LEFT JOIN payees payees1 ON payees1.id = transactions.payee\n      LEFT JOIN accounts accounts2 ON accounts2.id = payees1.account\n      LEFT JOIN transactions transactions3 ON transactions3.id = accounts2.trans2\n      LEFT JOIN payees payees4 ON payees4.id = transactions3.payee\n      LEFT JOIN transactions transactions5 ON transactions5.id = accounts2.trans1\n      LEFT JOIN transactions transactions6 ON transactions6.id = accounts2.trans3\n      WHERE (transactions5.amount = 1\n      AND transactions3.amount = 2\n      AND transactions6.amount = 3)\n    "));
     });
-    it('groupBy should work', () => {
-        let result = generateSQLWithState(q('transactions').groupBy('payee.name').select('id').serialize(), schemaWithRefs);
-        expect(sqlLines(result.sql)).toEqual(sqlLines(`
-        SELECT transactions.id AS id FROM transactions
-        LEFT JOIN payees payees1 ON payees1.id = transactions.payee
-        WHERE 1
-        GROUP BY payees1.name
-      `));
+    it('groupBy should work', function () {
+        var result = (0, compiler_1.generateSQLWithState)((0, query_1.q)('transactions').groupBy('payee.name').select('id').serialize(), schemaWithRefs);
+        expect(sqlLines(result.sql)).toEqual(sqlLines("\n        SELECT transactions.id AS id FROM transactions\n        LEFT JOIN payees payees1 ON payees1.id = transactions.payee\n        WHERE 1\n        GROUP BY payees1.name\n      "));
         // Allows functions
-        result = generateSQLWithState(q('transactions')
+        result = (0, compiler_1.generateSQLWithState)((0, query_1.q)('transactions')
             .groupBy({ $substr: ['$payee.name', 0, 4] })
             .select('id')
             .serialize(), schemaWithRefs);
         expect(result.sql).toMatch('GROUP BY SUBSTR(payees1.name, 0, 4)');
     });
-    it('orderBy should work', () => {
-        let result = generateSQLWithState(q('transactions').orderBy('payee.name').select('id').serialize(), schemaWithRefs);
-        expect(sqlLines(result.sql)).toEqual(sqlLines(`
-        SELECT transactions.id AS id FROM transactions
-        LEFT JOIN payees payees1 ON payees1.id = transactions.payee
-        WHERE 1
-        ORDER BY payees1.name
-      `));
+    it('orderBy should work', function () {
+        var result = (0, compiler_1.generateSQLWithState)((0, query_1.q)('transactions').orderBy('payee.name').select('id').serialize(), schemaWithRefs);
+        expect(sqlLines(result.sql)).toEqual(sqlLines("\n        SELECT transactions.id AS id FROM transactions\n        LEFT JOIN payees payees1 ON payees1.id = transactions.payee\n        WHERE 1\n        ORDER BY payees1.name\n      "));
         // Allows complex ordering and specifying direction
-        result = generateSQLWithState(q('transactions')
+        result = (0, compiler_1.generateSQLWithState)((0, query_1.q)('transactions')
             .orderBy([
             'payee.id',
             { 'payee.name': 'desc' },
@@ -272,12 +220,12 @@ describe('sheet language', () => {
             .serialize(), schemaWithRefs);
         expect(result.sql).toMatch('ORDER BY payees1.id, payees1.name desc, SUBSTR(payees1.name, 0, 4), SUBSTR(payees1.name, 0, 4) desc');
     });
-    it('allows functions in `select`', () => {
-        let result = generateSQLWithState(q('transactions')
+    it('allows functions in `select`', function () {
+        var result = (0, compiler_1.generateSQLWithState)((0, query_1.q)('transactions')
             .select(['id', { payeeName: { $substr: ['$payee.name', 0, 4] } }])
             .serialize(), schemaWithRefs);
         expect(result.sql).toMatch('SELECT transactions.id AS id, SUBSTR(payees1.name, 0, 4) AS payeeName FROM transactions');
-        result = generateSQLWithState(q('transactions')
+        result = (0, compiler_1.generateSQLWithState)((0, query_1.q)('transactions')
             .select([
             'id',
             { name: { $substr: [{ $substr: ['$payee.name', 1, 5] }, 3, 4] } },
@@ -285,23 +233,17 @@ describe('sheet language', () => {
             .serialize(), schemaWithRefs);
         expect(result.sql).toMatch('SELECT transactions.id AS id, SUBSTR(SUBSTR(payees1.name, 1, 5), 3, 4) AS name FROM');
     });
-    it('allows filtering with `filter`', () => {
-        let result = generateSQLWithState(q('transactions')
+    it('allows filtering with `filter`', function () {
+        var result = (0, compiler_1.generateSQLWithState)((0, query_1.q)('transactions')
             .filter({
             date: [{ $lt: '2020-01-01' }],
             $or: [{ 'payee.name': 'foo' }, { 'payee.name': 'bar' }],
         })
             .select(['id'])
             .serialize(), schemaWithRefs);
-        expect(sqlLines(result.sql)).toEqual(sqlLines(`
-        SELECT transactions.id AS id FROM transactions
-        LEFT JOIN payees payees1 ON payees1.id = transactions.payee
-        WHERE (transactions.date < 20200101
-          AND (payees1.name = 'foo'
-          OR payees1.name = 'bar'))
-      `));
+        expect(sqlLines(result.sql)).toEqual(sqlLines("\n        SELECT transactions.id AS id FROM transactions\n        LEFT JOIN payees payees1 ON payees1.id = transactions.payee\n        WHERE (transactions.date < 20200101\n          AND (payees1.name = 'foo'\n          OR payees1.name = 'bar'))\n      "));
         // Combining `$or` and `$and` works
-        result = generateSQLWithState(q('transactions')
+        result = (0, compiler_1.generateSQLWithState)((0, query_1.q)('transactions')
             .filter({
             $or: [
                 { 'payee.name': 'foo' },
@@ -316,35 +258,22 @@ describe('sheet language', () => {
         })
             .select(['id'])
             .serialize(), schemaWithRefs);
-        expect(sqlLines(result.sql)).toEqual(sqlLines(`
-        SELECT transactions.id AS id FROM transactions
-        LEFT JOIN payees payees1 ON payees1.id = transactions.payee
-        WHERE ((payees1.name = 'foo'
-          OR payees1.name = 'bar'
-          OR (transactions.date > 20191231
-          AND transactions.date < 20200101)))
-      `));
+        expect(sqlLines(result.sql)).toEqual(sqlLines("\n        SELECT transactions.id AS id FROM transactions\n        LEFT JOIN payees payees1 ON payees1.id = transactions.payee\n        WHERE ((payees1.name = 'foo'\n          OR payees1.name = 'bar'\n          OR (transactions.date > 20191231\n          AND transactions.date < 20200101)))\n      "));
         // Giving a field an array implicitly ANDs the filters
-        result = generateSQLWithState(q('transactions')
+        result = (0, compiler_1.generateSQLWithState)((0, query_1.q)('transactions')
             .filter({ date: [{ $lt: '2020-01-01' }, { $gt: '2019-12-01' }] })
             .select(['id'])
             .serialize(), schemaWithRefs);
-        expect(sqlLines(result.sql)).toEqual(sqlLines(`
-        SELECT transactions.id AS id FROM transactions
-        WHERE (transactions.date < 20200101 AND transactions.date > 20191201)
-      `));
+        expect(sqlLines(result.sql)).toEqual(sqlLines("\n        SELECT transactions.id AS id FROM transactions\n        WHERE (transactions.date < 20200101 AND transactions.date > 20191201)\n      "));
         // Allows referencing fields
-        result = generateSQLWithState(q('transactions')
+        result = (0, compiler_1.generateSQLWithState)((0, query_1.q)('transactions')
             .filter({ amount: { $lt: '$amount2' } })
             .select(['id'])
             .serialize(), basicSchema);
-        expect(sqlLines(result.sql)).toEqual(sqlLines(`
-        SELECT transactions.id AS id FROM transactions
-        WHERE (transactions.amount < transactions.amount2)
-      `));
+        expect(sqlLines(result.sql)).toEqual(sqlLines("\n        SELECT transactions.id AS id FROM transactions\n        WHERE (transactions.amount < transactions.amount2)\n      "));
     });
-    it('$and and $or allow the object form', () => {
-        let result = generateSQLWithState(q('transactions')
+    it('$and and $or allow the object form', function () {
+        var result = (0, compiler_1.generateSQLWithState)((0, query_1.q)('transactions')
             .filter({
             $and: { payee: 'payee1', amount: 12 },
         })
@@ -352,7 +281,7 @@ describe('sheet language', () => {
             .withoutValidatedRefs()
             .serialize(), schemaWithRefs);
         expect(result.sql).toMatch(/WHERE \(\(transactions.payee = 'payee1'\s*\n\s*AND transactions.amount = 12\)\)/);
-        result = generateSQLWithState(q('transactions')
+        result = (0, compiler_1.generateSQLWithState)((0, query_1.q)('transactions')
             .filter({
             $or: { payee: 'payee1', amount: 12 },
         })
@@ -361,22 +290,18 @@ describe('sheet language', () => {
             .serialize(), schemaWithRefs);
         expect(result.sql).toMatch(/WHERE \(\(transactions.payee = 'payee1'\s*\n\s*OR transactions.amount = 12\)\)/);
     });
-    it('allows functions in `filter`', () => {
+    it('allows functions in `filter`', function () {
         // Allows transforming the input
-        let result = generateSQLWithState(q('transactions')
+        var result = (0, compiler_1.generateSQLWithState)((0, query_1.q)('transactions')
             .filter({
             'payee.name': { $transform: { $substr: ['$', 0, 4] }, $lt: 'foo' },
         })
             .select(['id'])
             .serialize(), schemaWithRefs);
-        expect(sqlLines(result.sql)).toEqual(sqlLines(`
-        SELECT transactions.id AS id FROM transactions
-        LEFT JOIN payees payees1 ON payees1.id = transactions.payee
-        WHERE (SUBSTR(payees1.name, 0, 4) < 'foo')
-      `));
+        expect(sqlLines(result.sql)).toEqual(sqlLines("\n        SELECT transactions.id AS id FROM transactions\n        LEFT JOIN payees payees1 ON payees1.id = transactions.payee\n        WHERE (SUBSTR(payees1.name, 0, 4) < 'foo')\n      "));
         // Allows transforming left-hand side and calling a function on
         // right-hand side
-        result = generateSQLWithState(q('transactions')
+        result = (0, compiler_1.generateSQLWithState)((0, query_1.q)('transactions')
             .filter({
             date: { $transform: '$month', $lt: { $month: '$date' } },
         })
@@ -384,7 +309,7 @@ describe('sheet language', () => {
             .serialize(), schemaWithRefs);
         expect(result.sql).toMatch('WHERE (CAST(SUBSTR(transactions.date, 1, 6) AS integer) < CAST(SUBSTR(transactions.date, 1, 6) AS integer))');
         // Allows nesting functions
-        result = generateSQLWithState(q('transactions')
+        result = (0, compiler_1.generateSQLWithState)((0, query_1.q)('transactions')
             .filter({
             'payee.name': {
                 $lt: { $substr: [{ $substr: ['$payee.name', 1, 5] }, 3, 4] },
@@ -394,46 +319,47 @@ describe('sheet language', () => {
             .serialize(), schemaWithRefs);
         expect(result.sql).toMatch('WHERE (payees1.name < SUBSTR(SUBSTR(payees1.name, 1, 5), 3, 4))');
     });
-    it('allows limit and offset', () => {
-        let result = generateSQLWithState(q('transactions').select(['id']).limit(10).serialize(), schemaWithRefs);
+    it('allows limit and offset', function () {
+        var result = (0, compiler_1.generateSQLWithState)((0, query_1.q)('transactions').select(['id']).limit(10).serialize(), schemaWithRefs);
         expect(result.sql).toMatch(/\s+LIMIT 10\s*$/);
-        result = generateSQLWithState(q('transactions').select(['id']).offset(11).serialize(), schemaWithRefs);
+        result = (0, compiler_1.generateSQLWithState)((0, query_1.q)('transactions').select(['id']).offset(11).serialize(), schemaWithRefs);
         expect(result.sql).toMatch(/\s+OFFSET 11\s*$/);
-        result = generateSQLWithState(q('transactions').select(['id']).limit(10).offset(11).serialize(), schemaWithRefs);
+        result = (0, compiler_1.generateSQLWithState)((0, query_1.q)('transactions').select(['id']).limit(10).offset(11).serialize(), schemaWithRefs);
         expect(result.sql).toMatch(/\s+LIMIT 10\s*\n\s*OFFSET 11\s*$/);
     });
-    it('allows named parameters', () => {
-        let result = generateSQLWithState(q('transactions')
+    it('allows named parameters', function () {
+        var result = (0, compiler_1.generateSQLWithState)((0, query_1.q)('transactions')
             .filter({ amount: ':amount' })
             .select(['id'])
             .serialize(), schemaWithRefs);
         expect(result.sql).toMatch('transactions.amount = ?');
-        result = generateSQLWithState(q('transactions')
+        result = (0, compiler_1.generateSQLWithState)((0, query_1.q)('transactions')
             .filter({ amount: { $lt: { $neg: ':amount' } } })
             .select(['id'])
             .serialize(), schemaWithRefs);
         expect(result.sql).toMatch('WHERE (transactions.amount < (-?))');
         // Infers the right type
-        result = generateSQLWithState(q('transactions')
+        result = (0, compiler_1.generateSQLWithState)((0, query_1.q)('transactions')
             .filter({ date: { $transform: '$month', $eq: { $month: ':month' } } })
             .select()
             .serialize(), schemaWithRefs);
-        const monthParam = result.state.namedParameters.find(p => p.paramName === 'month');
+        var monthParam = result.state.namedParameters.find(function (p) { return p.paramName === 'month'; });
         expect(monthParam.paramType).toBe('date-month');
     });
-    it('allows customizing generated SQL', () => {
-        let result = generateSQLWithState(q('transactions').select(['amount']).serialize(), schemaWithRefs, {
+    it('allows customizing generated SQL', function () {
+        var result = (0, compiler_1.generateSQLWithState)((0, query_1.q)('transactions').select(['amount']).serialize(), schemaWithRefs, {
             tableViews: { transactions: 'v_transactions' },
-            tableFilters: name => name === 'transactions' ? [{ amount: { $gt: 0 } }] : [],
+            tableFilters: function (name) {
+                return name === 'transactions' ? [{ amount: { $gt: 0 } }] : [];
+            },
         });
-        expect(sqlLines(result.sql)).toEqual(sqlLines(`
-        SELECT v_transactions.amount AS amount, v_transactions.id AS id FROM v_transactions
-        WHERE 1 AND (v_transactions.amount > 0)
-      `));
+        expect(sqlLines(result.sql)).toEqual(sqlLines("\n        SELECT v_transactions.amount AS amount, v_transactions.id AS id FROM v_transactions\n        WHERE 1 AND (v_transactions.amount > 0)\n      "));
         // Make sure the same customizations are applied when joining
-        result = generateSQLWithState(q('accounts').select(['trans1.amount']).serialize(), schemaWithRefs, {
+        result = (0, compiler_1.generateSQLWithState)((0, query_1.q)('accounts').select(['trans1.amount']).serialize(), schemaWithRefs, {
             tableViews: { transactions: 'v_transactions' },
-            tableFilters: name => name === 'transactions' ? [{ amount: { $gt: 0 } }] : [],
+            tableFilters: function (name) {
+                return name === 'transactions' ? [{ amount: { $gt: 0 } }] : [];
+            },
         });
         // The joined table should be customized
         expect(result.sql).toMatch('LEFT JOIN v_transactions');
@@ -441,31 +367,30 @@ describe('sheet language', () => {
         // implicit table (it has a "1" suffix)
         expect(result.sql).toMatch('transactions1.amount > 0');
         // Check the entire sql
-        expect(sqlLines(result.sql)).toEqual(sqlLines(`
-        SELECT transactions1.amount AS "trans1.amount", accounts.id AS id FROM accounts
-        LEFT JOIN v_transactions transactions1 ON transactions1.id = accounts.trans1 AND (transactions1.amount > 0)
-        WHERE 1
-      `));
+        expect(sqlLines(result.sql)).toEqual(sqlLines("\n        SELECT transactions1.amount AS \"trans1.amount\", accounts.id AS id FROM accounts\n        LEFT JOIN v_transactions transactions1 ON transactions1.id = accounts.trans1 AND (transactions1.amount > 0)\n        WHERE 1\n      "));
         // Internal table filters can't use paths
-        expect(() => generateSQLWithState(q('accounts').select(['trans1.amount']).serialize(), schemaWithRefs, {
-            tableViews: { transactions: 'v_transactions' },
-            tableFilters: name => name === 'transactions' ? [{ 'payee.name': 'foo' }] : [],
-        })).toThrow(/cannot contain paths/);
+        expect(function () {
+            return (0, compiler_1.generateSQLWithState)((0, query_1.q)('accounts').select(['trans1.amount']).serialize(), schemaWithRefs, {
+                tableViews: { transactions: 'v_transactions' },
+                tableFilters: function (name) {
+                    return name === 'transactions' ? [{ 'payee.name': 'foo' }] : [];
+                },
+            });
+        }).toThrow(/cannot contain paths/);
     });
-    it('raw mode avoids any internal filters', () => {
-        const result = generateSQLWithState(q('transactions').select(['amount']).raw().serialize(), schemaWithRefs, {
+    it('raw mode avoids any internal filters', function () {
+        var result = (0, compiler_1.generateSQLWithState)((0, query_1.q)('transactions').select(['amount']).raw().serialize(), schemaWithRefs, {
             tableViews: { transactions: 'v_transactions' },
-            tableFilters: name => name === 'transactions' ? [{ amount: { $gt: 0 } }] : [],
+            tableFilters: function (name) {
+                return name === 'transactions' ? [{ amount: { $gt: 0 } }] : [];
+            },
         });
-        expect(sqlLines(result.sql)).toEqual(sqlLines(`
-        SELECT v_transactions.amount AS amount, v_transactions.id AS id FROM v_transactions
-        WHERE 1
-      `));
+        expect(sqlLines(result.sql)).toEqual(sqlLines("\n        SELECT v_transactions.amount AS amount, v_transactions.id AS id FROM v_transactions\n        WHERE 1\n      "));
     });
-    it('tracks compiler state for debugging', () => {
+    it('tracks compiler state for debugging', function () {
         // select
         try {
-            generateSQLWithState(q('transactions')
+            (0, compiler_1.generateSQLWithState)((0, query_1.q)('transactions')
                 .select({ month: { $month: '$payee.name2' } })
                 .serialize(), schemaWithRefs);
             throw new Error('Test should have thrown');
@@ -478,7 +403,7 @@ describe('sheet language', () => {
         }
         // filter
         try {
-            generateSQLWithState(q('transactions')
+            (0, compiler_1.generateSQLWithState)((0, query_1.q)('transactions')
                 .filter({ date: { $transform: '$month', $eq: 10 } })
                 .select(['id'])
                 .serialize(), schemaWithRefs);
@@ -491,7 +416,7 @@ describe('sheet language', () => {
         }
         // group by
         try {
-            generateSQLWithState(q('transactions')
+            (0, compiler_1.generateSQLWithState)((0, query_1.q)('transactions')
                 .groupBy({ $month: '$date2' })
                 .select({ amount: { $sum: '$amount' } })
                 .serialize(), schemaWithRefs);
@@ -505,7 +430,7 @@ describe('sheet language', () => {
         }
         // order by
         try {
-            generateSQLWithState(q('transactions')
+            (0, compiler_1.generateSQLWithState)((0, query_1.q)('transactions')
                 .orderBy({ $month: '$date2' })
                 .select({ amount: { $sum: '$amount' } })
                 .serialize(), schemaWithRefs);
@@ -518,41 +443,41 @@ describe('sheet language', () => {
             expect(e.message).toMatch('orderBy({"$month":"$date2"})');
         }
     });
-    it('$oneof creates template for executor to run', () => {
-        const result = generateSQLWithState(q('transactions')
+    it('$oneof creates template for executor to run', function () {
+        var result = (0, compiler_1.generateSQLWithState)((0, query_1.q)('transactions')
             .filter({ id: { $oneof: ['one', 'two', 'three'] } })
             .select(['amount'])
             .serialize(), schemaWithRefs);
         expect(result.sql).toMatch("id IN ('one','two','three')");
     });
 });
-describe('Type conversions', () => {
-    it('date literals are converted to ints on input', () => {
-        let result = generateSQLWithState(q('transactions')
+describe('Type conversions', function () {
+    it('date literals are converted to ints on input', function () {
+        var result = (0, compiler_1.generateSQLWithState)((0, query_1.q)('transactions')
             .filter({ date: '2020-01-01' })
             .select(['id'])
             .serialize(), basicSchema);
         expect(result.sql).toMatch('WHERE (transactions.date = 20200101)');
-        result = generateSQLWithState(q('transactions')
+        result = (0, compiler_1.generateSQLWithState)((0, query_1.q)('transactions')
             .filter({ date: { $transform: '$month', $eq: '2020-01' } })
             .select(['id'])
             .serialize(), basicSchema);
         expect(result.sql).toMatch('WHERE (CAST(SUBSTR(transactions.date, 1, 6) AS integer) = 202001)');
         // You can also specify a full date that is auto-converted to month
-        result = generateSQLWithState(q('transactions')
+        result = (0, compiler_1.generateSQLWithState)((0, query_1.q)('transactions')
             .filter({ date: { $transform: '$month', $eq: '2020-01-01' } })
             .select(['id'])
             .serialize(), basicSchema);
         expect(result.sql).toMatch('WHERE (CAST(SUBSTR(transactions.date, 1, 6) AS integer) = 202001)');
         // You can also specify a full date that is auto-converted to month
-        result = generateSQLWithState(q('transactions')
+        result = (0, compiler_1.generateSQLWithState)((0, query_1.q)('transactions')
             .filter({ date: { $transform: '$year', $eq: '2020-01-01' } })
             .select(['id'])
             .serialize(), basicSchema);
         expect(result.sql).toMatch('WHERE (CAST(SUBSTR(transactions.date, 1, 4) AS integer) = 2020)');
     });
-    it('date fields are converted to months and years', () => {
-        let result = generateSQLWithState(q('accounts')
+    it('date fields are converted to months and years', function () {
+        var result = (0, compiler_1.generateSQLWithState)((0, query_1.q)('accounts')
             .filter({
             'trans1.date': { $transform: '$month', $eq: '$trans2.date' },
         })
@@ -560,48 +485,48 @@ describe('Type conversions', () => {
             .serialize(), schemaWithRefs);
         expect(result.sql).toMatch('WHERE (CAST(SUBSTR(transactions2.date, 1, 6) AS integer) = CAST(SUBSTR(transactions1.date, 1, 6) AS integer))');
         // You can also specify a full date that is auto-converted to month
-        result = generateSQLWithState(q('accounts')
+        result = (0, compiler_1.generateSQLWithState)((0, query_1.q)('accounts')
             .filter({ 'trans1.date': { $transform: '$year', $eq: '$trans2.date' } })
             .select(['id'])
             .serialize(), schemaWithRefs);
         expect(result.sql).toMatch('WHERE (CAST(SUBSTR(transactions2.date, 1, 4) AS integer) = CAST(SUBSTR(transactions1.date, 1, 4) AS integer))');
     });
-    it('allows conversions from string to id', () => {
-        expect(() => {
-            generateSQLWithState(q('transactions').filter({ id: 'foo' }).select(['id']).serialize(), schemaWithRefs);
+    it('allows conversions from string to id', function () {
+        expect(function () {
+            (0, compiler_1.generateSQLWithState)((0, query_1.q)('transactions').filter({ id: 'foo' }).select(['id']).serialize(), schemaWithRefs);
         }).not.toThrow();
-        expect(() => {
-            generateSQLWithState(q('accounts').filter({ id: '$trans1.id' }).select(['id']).serialize(), schemaWithRefs);
+        expect(function () {
+            (0, compiler_1.generateSQLWithState)((0, query_1.q)('accounts').filter({ id: '$trans1.id' }).select(['id']).serialize(), schemaWithRefs);
         }).not.toThrow();
         // Numbers cannot be converted to ids
-        expect(() => {
-            generateSQLWithState(q('transactions').filter({ id: 5 }).select(['id']).serialize(), schemaWithRefs);
+        expect(function () {
+            (0, compiler_1.generateSQLWithState)((0, query_1.q)('transactions').filter({ id: 5 }).select(['id']).serialize(), schemaWithRefs);
         }).toThrow(/Can’t convert/);
     });
-    it('allows conversions from integers to floats', () => {
-        expect(() => {
-            generateSQLWithState(q('transactions').filter({ amount3: 45 }).select(['id']).serialize(), basicSchema);
+    it('allows conversions from integers to floats', function () {
+        expect(function () {
+            (0, compiler_1.generateSQLWithState)((0, query_1.q)('transactions').filter({ amount3: 45 }).select(['id']).serialize(), basicSchema);
         }).not.toThrow();
         // Floats cannot be converted to ints
-        expect(() => {
-            generateSQLWithState(q('transactions').filter({ amount: 45.5 }).select(['id']).serialize(), basicSchema);
+        expect(function () {
+            (0, compiler_1.generateSQLWithState)((0, query_1.q)('transactions').filter({ amount: 45.5 }).select(['id']).serialize(), basicSchema);
         }).toThrow(/Can’t convert/);
     });
-    it('allows fields to be nullable', () => {
+    it('allows fields to be nullable', function () {
         // With validated refs
-        let result = generateSQLWithState(q('transactions').filter({ payee: null }).select().serialize(), schemaWithRefs);
+        var result = (0, compiler_1.generateSQLWithState)((0, query_1.q)('transactions').filter({ payee: null }).select().serialize(), schemaWithRefs);
         expect(result.sql).toMatch('WHERE (payees1.id IS NULL)');
         // Without validated refs
-        result = generateSQLWithState(q('transactions')
+        result = (0, compiler_1.generateSQLWithState)((0, query_1.q)('transactions')
             .filter({ payee: null })
             .select()
             .withoutValidatedRefs()
             .serialize(), schemaWithRefs);
         expect(result.sql).toMatch('WHERE (transactions.payee IS NULL)');
     });
-    it('allows fields to be not nullable', () => {
+    it('allows fields to be not nullable', function () {
         // With validated refs
-        const result = generateSQLWithState(q('transactions')
+        var result = (0, compiler_1.generateSQLWithState)((0, query_1.q)('transactions')
             .filter({ payee: { $ne: null } })
             .select()
             .serialize(), schemaWithRefs);

@@ -1,7 +1,9 @@
-import path from 'path';
-import peggyLoader from 'vite-plugin-peggy-loader';
-import { defineConfig } from 'vitest/config';
-const resolveExtensions = [
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+var path_1 = require("path");
+var vite_plugin_peggy_loader_1 = require("vite-plugin-peggy-loader");
+var config_1 = require("vitest/config");
+var resolveExtensions = [
     '.testing.ts',
     '.electron.ts',
     '.mjs',
@@ -12,12 +14,12 @@ const resolveExtensions = [
     '.tsx',
     '.json',
 ];
-export default defineConfig({
+exports.default = (0, config_1.defineConfig)({
     test: {
         globals: true,
         setupFiles: ['./src/mocks/setup.ts'],
         exclude: ['src/**/*.web.test.(js|jsx|ts|tsx)', 'node_modules'],
-        onConsoleLog(log, type) {
+        onConsoleLog: function (log, type) {
             // print only console.error
             return type === 'stderr';
         },
@@ -26,10 +28,10 @@ export default defineConfig({
         alias: [
             {
                 find: /^@actual-app\/crdt(\/.*)?$/,
-                replacement: path.resolve('../crdt/src$1'),
+                replacement: path_1.default.resolve('../crdt/src$1'),
             },
         ],
         extensions: resolveExtensions,
     },
-    plugins: [peggyLoader()],
+    plugins: [(0, vite_plugin_peggy_loader_1.default)()],
 });

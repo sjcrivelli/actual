@@ -139,3 +139,22 @@ export default {
   startScheduledSync,
   stopSync,
 };
+// 🩹 Temporary legacy stubs for compatibility during refactor
+export const batchMessages = () => {
+  throw new Error("batchMessages() has been removed or refactored. Check new sync API.");
+};
+export const setSyncingMode = () => {
+  throw new Error("setSyncingMode() removed. Update to new sync scheduler logic.");
+};
+export const sendMessages = () => {
+  throw new Error("sendMessages() removed. Use applyMessages() or compareMessages() instead.");
+};
+export const addSyncListener = () => {
+  throw new Error("addSyncListener() deprecated. See controller.ts for sync orchestration.");
+};
+export const fullSync = () => {
+  throw new Error("fullSync() deprecated. Use runSyncController() entrypoint.");
+};
+export const clearFullSyncTimeout = () => {};
+export const initialFullSync = () => {};
+export const makeTestMessage = () => {};

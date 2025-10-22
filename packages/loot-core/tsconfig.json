@@ -1,30 +1,25 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "composite": true,                    // Required for project references
-    "declaration": true,                  // Emit .d.ts files
-    "emitDeclarationOnly": true,          // Don't emit .js (this is fine for shared libs)
-    "noEmit": false,                      // Must be false for TS build mode
-    "rootDir": "src",                     // Input directory
-    "outDir": "lib-dist",                 // Output directory (fixes overwrite errors)
-    "module": "esnext",
-    "target": "ES2020",
-    "jsx": "react-jsx",
+  "baseUrl": "./",
+    "rootDir": "src",
+    "outDir": "dist-types",
+    "composite": true,
+    "target": "ES2022",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
     "esModuleInterop": true,
-    "moduleResolution": "node",
     "strict": true,
     "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
     "resolveJsonModule": true,
-    "isolatedModules": true,
-    "baseUrl": "../../",
+    "types": [],
     "paths": {
-      "@loot-core/*": ["packages/loot-core/src/*"],
-      "@desktop-client/*": ["packages/desktop-client/src/*"],
-      "@actual-app/types/*": ["packages/types/*"]
+      "loot-core/*": ["packages/loot-core/src/*"]
     }
   },
-  "include": ["src/**/*","src", "src/types", "src/types/declarations", "src/server/sync/**/*"],
-  "exclude": ["node_modules", "lib-dist", "coverage", "**/__tests__/*", "src/desktop", "src/client"],
-  // "references" removed to break circular dependency
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist", "dist-types"]
 }
