@@ -1,4 +1,5 @@
 import express, { Request, Response } from 'express';
+
 import {
   bootstrap,
   needsBootstrap,
@@ -60,7 +61,7 @@ app.get('/needs-bootstrap', (req: Request, res: Response): void => {
       loginMethod:
         availableLoginMethods.length === 1
           ? availableLoginMethods[0].method
-          : getLoginMethod(req),
+          : getLoginMethod(req as unknown as Record<string, unknown>),
       availableLoginMethods,
       multiuser: getActiveLoginMethod() === 'openid',
     },
@@ -84,7 +85,7 @@ app.get('/login-methods', (req: Request, res: Response): void => {
 });
 
 app.post('/login', async (req: Request, res: Response): Promise<void> => {
-  const loginMethod = getLoginMethod(req);
+  const loginMethod = getLoginMethod(req as unknown as Record<string, unknown>);
   console.log('Logging in via ' + loginMethod);
 
   let tokenRes: TokenResponse | null = null;
@@ -101,7 +102,14 @@ app.post('/login', async (req: Request, res: Response): Promise<void> => {
       }
 
       if (validateAuthHeader(req)) {
-        tokenRes = await loginWithPassword(headerVal);
+        const result = await loginWithPassword(headerVal);
+        if ('token' in result && typeof result.token === 'string') {
+          tokenRes = { token: result.token };
+        } else if ('error' in result && typeof result.error === 'string') {
+          tokenRes = { error: result.error };
+        } else {
+          tokenRes = { error: 'Invalid token type' };
+        }
       } else {
         res.status(400).send({ status: 'error', reason: 'proxy-not-trusted' });
         return;
@@ -130,7 +138,14 @@ app.post('/login', async (req: Request, res: Response): Promise<void> => {
     }
 
     default: {
-      tokenRes = await loginWithPassword(req.body.password);
+      {
+        const result = await loginWithPassword(req.body.password);
+        if ('token' in result && typeof result.token !== 'string') {
+          tokenRes = { error: 'Invalid token type' };
+        } else {
+          tokenRes = result as TokenResponse;
+        }
+      }
       break;
     }
   }
@@ -168,6 +183,10 @@ app.get('/validate', (req: Request, res: Response): void => {
   const session = validateSession(req, res);
   if (!session) return;
 
+  if (typeof session.user_id !== 'string') {
+    res.status(400).send({ status: 'error', reason: 'Invalid user id' });
+    return;
+  }
   const user = getUserInfo(session.user_id);
 
   if (!user) {

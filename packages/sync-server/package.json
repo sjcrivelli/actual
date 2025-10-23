@@ -28,7 +28,7 @@
   },
   "dependencies": {
     "@actual-app/crdt": "2.1.0",
-    "@actual-app/web": "workspace:*",
+    "@actual-app/web": "patch:@actual-app/web@workspace%3Apackages/desktop-client#~/.yarn/patches/@actual-app-web-workspace-dc3cf01b5a.patch",
     "bcrypt": "^6.0.0",
     "better-sqlite3": "^12.4.1",
     "convict": "^6.2.4",

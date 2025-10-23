@@ -30,13 +30,11 @@ export interface BootstrapResult {
 }
 
 interface AccountDb {
-  all: (query: string, params?: string[]) => any[];
-  first: (query: string, params?: string[]) => Record<string, any> | null;
+  all: (query: string, params?: string[]) => Array<Record<string, unknown>>;
+  first: (query: string, params?: string[]) => Record<string, unknown> | null;
   mutate: (query: string, params?: string[]) => { changes?: number };
   transaction?: (fn: () => void) => void;
 }
-
-
 
 let _accountDb: AccountDb | undefined;
 
@@ -46,7 +44,11 @@ let _accountDb: AccountDb | undefined;
 
 export function getAccountDb(): AccountDb {
   if (!_accountDb) {
-    const dbPath = join(resolve(config.get('serverFiles')), 'account.sqlite');
+    const serverFilesRaw = config.get('serverFiles');
+    if (typeof serverFilesRaw !== 'string') {
+      throw new Error("config.get('serverFiles') did not return a string");
+    }
+    const dbPath = join(resolve(serverFilesRaw), 'account.sqlite');
     _accountDb = openDatabase(dbPath);
   }
   // TypeScript: _accountDb is always initialized here
@@ -69,18 +71,33 @@ export function listLoginMethods(): Array<{
   displayName: string;
 }> {
   const accountDb = getAccountDb();
+  const rowsRaw = accountDb.all('SELECT method, display_name, active FROM auth');
   const rows: Array<{ method: string; display_name: string; active: number }> =
-    accountDb.all('SELECT method, display_name, active FROM auth');
+    Array.isArray(rowsRaw)
+      ? rowsRaw.filter(
+          (r): r is { method: string; display_name: string; active: number } => {
+            if (typeof r !== 'object' || r === null) return false;
+            const rec = r as Record<string, unknown>;
+            return (
+              typeof rec.method === 'string' &&
+              typeof rec.display_name === 'string' &&
+              typeof rec.active === 'number'
+            );
+          }
+        )
+      : [];
 
+  const enforceOpenIdRaw = config.get('enforceOpenId');
+  const enforceOpenId = typeof enforceOpenIdRaw === 'boolean' ? enforceOpenIdRaw : false;
   return rows
     .filter(
-      (f: { method: string; display_name: string; active: number }) =>
-        rows.length > 1 && config.get('enforceOpenId')
+      (f) =>
+        rows.length > 1 && enforceOpenId
           ? f.method === 'openid'
           : true
     )
     .map(
-      (r: { method: string; display_name: string; active: number }) => ({
+      (r) => ({
         method: r.method,
         active: r.active,
         displayName: r.display_name,
@@ -91,27 +108,45 @@ export function listLoginMethods(): Array<{
 export function getActiveLoginMethod(): string | undefined {
   const accountDb = getAccountDb();
   const result = accountDb.first('SELECT method FROM auth WHERE active = 1');
-  return result?.method;
+  if (result && typeof result === 'object' && 'method' in result && typeof (result as Record<string, unknown>).method === 'string') {
+    return (result as Record<string, unknown>).method as string;
+  }
+  return undefined;
 }
 
-export function getLoginMethod(req: any): string {
+export function getLoginMethod(req: Record<string, unknown>): string {
+  const body = typeof req.body === 'object' && req.body !== null ? req.body : {};
+  const loginMethod = typeof (body as Record<string, unknown>).loginMethod === 'string' ? (body as Record<string, unknown>).loginMethod : undefined;
+  const allowedLoginMethodsRaw = config.get('allowedLoginMethods');
+  let allowedLoginMethods: string[] = [];
+  if (Array.isArray(allowedLoginMethodsRaw) && allowedLoginMethodsRaw.every(m => typeof m === 'string')) {
+    allowedLoginMethods = allowedLoginMethodsRaw as string[];
+  }
   if (
-    req?.body?.loginMethod &&
-    config.get('allowedLoginMethods').includes(req.body.loginMethod)
+    typeof loginMethod === 'string' &&
+    allowedLoginMethods.includes(loginMethod)
   ) {
-    return req.body.loginMethod;
+    return loginMethod;
   }
 
   // Force header-based auth if configured
+  const loginMethodConfigRaw = config.get('loginMethod');
   if (
-    config.get('loginMethod') === 'header' &&
-    config.get('allowedLoginMethods').includes('header')
+    typeof loginMethodConfigRaw === 'string' &&
+    loginMethodConfigRaw === 'header' &&
+    allowedLoginMethods.includes('header')
   ) {
-    return config.get('loginMethod');
+    return loginMethodConfigRaw;
   }
 
   const activeMethod = getActiveLoginMethod();
-  return activeMethod || config.get('loginMethod');
+  if (activeMethod) {
+    return activeMethod;
+  }
+  if (typeof loginMethodConfigRaw === 'string') {
+    return loginMethodConfigRaw;
+  }
+  throw new Error("config.get('loginMethod') did not return a string");
 }
 
 // ==============================
@@ -131,12 +166,20 @@ export async function bootstrap(
   accountDb.mutate('BEGIN TRANSACTION');
 
   try {
-    const { countOfOwner = 0 } =
-      accountDb.first(
-        `SELECT count(*) as countOfOwner
-         FROM users
-         WHERE users.user_name <> '' and users.owner = 1`
-      ) || {};
+    const firstResult = accountDb.first(
+      `SELECT count(*) as countOfOwner
+       FROM users
+       WHERE users.user_name <> '' and users.owner = 1`
+    );
+    let countOfOwner = 0;
+    if (
+      firstResult &&
+      typeof firstResult === 'object' &&
+      'countOfOwner' in firstResult &&
+      typeof (firstResult as Record<string, unknown>).countOfOwner === 'number'
+    ) {
+      countOfOwner = (firstResult as Record<string, unknown>).countOfOwner as number;
+    }
 
     if (!forced && (!openIdEnabled || countOfOwner > 0)) {
       if (!needsBootstrap()) {
@@ -172,9 +215,19 @@ export async function bootstrap(
     }
 
     accountDb.mutate('COMMIT');
-    return passEnabled
-      ? loginWithPassword(loginSettings.password!)
-      : {};
+    if (passEnabled) {
+      const loginResult = await loginWithPassword(loginSettings.password!);
+      if (
+        loginResult &&
+        typeof loginResult === 'object' &&
+        'token' in loginResult &&
+        (typeof (loginResult as Record<string, unknown>).token === 'string' || typeof (loginResult as Record<string, unknown>).token === 'undefined')
+      ) {
+        return loginResult as BootstrapResult;
+      }
+      return { error: 'invalid-login-result' };
+    }
+    return {};
   } catch (error) {
     accountDb.mutate('ROLLBACK');
     throw error;
@@ -215,10 +268,13 @@ export async function disableOpenID(
   if (!loginSettings?.password) return { error: 'invalid-login-settings' };
 
   const accountDb = getAccountDb();
-  const { extra_data: passwordHash } =
-    accountDb.first('SELECT extra_data FROM auth WHERE method = ?', [
-      'password'
-    ]) || {};
+  const firstResult = accountDb.first('SELECT extra_data FROM auth WHERE method = ?', [
+    'password'
+  ]);
+  const passwordHash =
+    firstResult && typeof firstResult === 'object' && 'extra_data' in firstResult && typeof (firstResult as Record<string, unknown>).extra_data === 'string'
+      ? (firstResult as Record<string, unknown>).extra_data as string
+      : undefined;
 
   if (!passwordHash) return { error: 'invalid-password' };
 
@@ -252,7 +308,7 @@ export async function disableOpenID(
 // 👤 User Data & Sessions
 // ==============================
 
-export function getSession(token: string): Record<string, any> | null {
+export function getSession(token: string): Record<string, unknown> | null {
   const accountDb = getAccountDb();
   return accountDb.first('SELECT * FROM sessions WHERE token = ?', [token]);
 }
@@ -261,20 +317,36 @@ export function getUserInfo(userId: string): UserInfo | null {
   const accountDb = getAccountDb();
   const row = accountDb.first('SELECT * FROM users WHERE id = ?', [userId]);
   if (!row) return null;
-  return {
-    id: row.id,
-    user_name: row.user_name,
-    display_name: row.display_name,
-    role: row.role,
-    owner: row.owner,
-  } satisfies UserInfo;
+  if (
+    typeof row.id === 'string' &&
+    typeof row.user_name === 'string' &&
+    typeof row.display_name === 'string' &&
+    typeof row.role === 'string' &&
+    (typeof row.owner === 'number' || typeof row.owner === 'undefined')
+  ) {
+    return {
+      id: row.id as string,
+      user_name: row.user_name as string,
+      display_name: row.display_name as string,
+      role: row.role as string,
+      owner: row.owner as number | undefined,
+    } satisfies UserInfo;
+  }
+  return null;
 }
 
 export function getUserPermission(userId: string): string {
   const accountDb = getAccountDb();
-  const { role = '' } =
-    accountDb.first('SELECT role FROM users WHERE users.id = ?', [userId]) ||
-    {};
+  const firstResult = accountDb.first('SELECT role FROM users WHERE users.id = ?', [userId]);
+  let role = '';
+  if (
+    firstResult &&
+    typeof firstResult === 'object' &&
+    'role' in firstResult &&
+    typeof (firstResult as Record<string, unknown>).role === 'string'
+  ) {
+    role = (firstResult as Record<string, unknown>).role as string;
+  }
   return role;
 }
 

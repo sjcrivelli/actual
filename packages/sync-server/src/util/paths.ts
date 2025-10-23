@@ -3,9 +3,17 @@ import { join, resolve } from 'node:path';
 import { config } from '../load-config.js';
 
 export function getPathForUserFile(fileId: string): string {
-  return join(resolve(config.get('userFiles')), `file-${fileId}.blob`);
+  const userFiles = config.get('userFiles');
+  if (typeof userFiles !== 'string') {
+    throw new Error("config.get('userFiles') did not return a string");
+  }
+  return join(resolve(userFiles), `file-${fileId}.blob`);
 }
 
 export function getPathForGroupFile(groupId: string): string {
-  return join(resolve(config.get('userFiles')), `group-${groupId}.sqlite`);
+  const userFiles = config.get('userFiles');
+  if (typeof userFiles !== 'string') {
+    throw new Error("config.get('userFiles') did not return a string");
+  }
+  return join(resolve(userFiles), `group-${groupId}.sqlite`);
 }

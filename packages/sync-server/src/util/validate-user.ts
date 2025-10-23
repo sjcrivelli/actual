@@ -30,6 +30,7 @@ export function validateSession(
   }
 
   if (
+    typeof session.expires_at === 'number' &&
     session.expires_at !== TOKEN_EXPIRATION_NEVER &&
     session.expires_at * MS_PER_SECOND <= Date.now()
   ) {
@@ -46,8 +47,10 @@ export function validateSession(
 
 export function validateAuthHeader(req: Request): boolean {
   // fallback to trustedProxies when trustedAuthProxies not set
-  const trustedAuthProxies =
-    config.get('trustedAuthProxies') ?? config.get('trustedProxies');
+  const trustedAuthProxiesRaw = config.get('trustedAuthProxies') ?? config.get('trustedProxies');
+  const trustedAuthProxies = Array.isArray(trustedAuthProxiesRaw) && trustedAuthProxiesRaw.every(q => typeof q === 'string')
+    ? trustedAuthProxiesRaw as string[]
+    : [];
   // ensure the first hop from our server is trusted
   const peer = req.socket.remoteAddress;
   if (!peer) {
