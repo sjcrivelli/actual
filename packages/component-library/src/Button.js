@@ -1,36 +1,47 @@
 "use strict";
-var __assign = (this && this.__assign) || function () {
-    __assign = Object.assign || function(t) {
-        for (var s, i = 1, n = arguments.length; i < n; i++) {
-            s = arguments[i];
-            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
-                t[p] = s[p];
-        }
-        return t;
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
     };
-    return __assign.apply(this, arguments);
-};
-var __rest = (this && this.__rest) || function (s, e) {
-    var t = {};
-    for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0)
-        t[p] = s[p];
-    if (s != null && typeof Object.getOwnPropertySymbols === "function")
-        for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
-            if (e.indexOf(p[i]) < 0 && Object.prototype.propertyIsEnumerable.call(s, p[i]))
-                t[p[i]] = s[p[i]];
-        }
-    return t;
-};
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ButtonWithLoading = exports.Button = void 0;
-var react_1 = require("react");
-var react_aria_components_1 = require("react-aria-components");
-var css_1 = require("@emotion/css");
-var AnimatedLoading_1 = require("./icons/AnimatedLoading");
-var styles_1 = require("./styles");
-var theme_1 = require("./theme");
-var View_1 = require("./View");
-var backgroundColor = {
+const react_1 = __importStar(require("react"));
+const react_aria_components_1 = require("react-aria-components");
+const css_1 = require("@emotion/css");
+const AnimatedLoading_1 = require("./icons/AnimatedLoading");
+const styles_1 = require("./styles");
+const theme_1 = require("./theme");
+const View_1 = require("./View");
+const backgroundColor = {
     normal: theme_1.theme.buttonNormalBackground,
     normalDisabled: theme_1.theme.buttonNormalDisabledBackground,
     primary: theme_1.theme.buttonPrimaryBackground,
@@ -40,7 +51,7 @@ var backgroundColor = {
     menu: theme_1.theme.buttonMenuBackground,
     menuSelected: theme_1.theme.buttonMenuSelectedBackground,
 };
-var backgroundColorHover = {
+const backgroundColorHover = {
     normal: theme_1.theme.buttonNormalBackgroundHover,
     primary: theme_1.theme.buttonPrimaryBackgroundHover,
     bare: theme_1.theme.buttonBareBackgroundHover,
@@ -52,7 +63,7 @@ var backgroundColorHover = {
     menuDisabled: 'transparent',
     menuSelectedDisabled: 'transparent',
 };
-var borderColor = {
+const borderColor = {
     normal: theme_1.theme.buttonNormalBorder,
     normalDisabled: theme_1.theme.buttonNormalDisabledBorder,
     primary: theme_1.theme.buttonPrimaryBorder,
@@ -60,7 +71,7 @@ var borderColor = {
     menu: theme_1.theme.buttonMenuBorder,
     menuSelected: theme_1.theme.buttonMenuSelectedBorder,
 };
-var textColor = {
+const textColor = {
     normal: theme_1.theme.buttonNormalText,
     normalDisabled: theme_1.theme.buttonNormalDisabledText,
     primary: theme_1.theme.buttonPrimaryText,
@@ -70,14 +81,14 @@ var textColor = {
     menu: theme_1.theme.buttonMenuText,
     menuSelected: theme_1.theme.buttonMenuSelectedText,
 };
-var textColorHover = {
+const textColorHover = {
     normal: theme_1.theme.buttonNormalTextHover,
     primary: theme_1.theme.buttonPrimaryTextHover,
     bare: theme_1.theme.buttonBareTextHover,
     menu: theme_1.theme.buttonMenuTextHover,
     menuSelected: theme_1.theme.buttonMenuSelectedTextHover,
 };
-var _getBorder = function (variant, variantWithDisabled) {
+const _getBorder = (variant, variantWithDisabled) => {
     switch (variant) {
         case 'bare':
             return 'none';
@@ -85,7 +96,7 @@ var _getBorder = function (variant, variantWithDisabled) {
             return '1px solid ' + borderColor[variantWithDisabled];
     }
 };
-var _getPadding = function (variant) {
+const _getPadding = (variant) => {
     switch (variant) {
         case 'bare':
             return '5px';
@@ -93,38 +104,61 @@ var _getPadding = function (variant) {
             return '5px 10px';
     }
 };
-var _getHoveredStyles = function (variant) { return (__assign(__assign({}, (variant !== 'bare' && styles_1.styles.shadow)), { backgroundColor: backgroundColorHover[variant], color: textColorHover[variant], cursor: 'pointer' })); };
-var _getActiveStyles = function (variant, bounce) {
+const _getHoveredStyles = (variant) => ({
+    ...(variant !== 'bare' && styles_1.styles.shadow),
+    backgroundColor: backgroundColorHover[variant],
+    color: textColorHover[variant],
+    cursor: 'pointer',
+});
+const _getActiveStyles = (variant, bounce) => {
     switch (variant) {
         case 'bare':
             return { backgroundColor: theme_1.theme.buttonBareBackgroundActive };
         default:
             return {
                 transform: bounce ? 'translateY(1px)' : undefined,
-                boxShadow: "0 1px 4px 0 ".concat(variant === 'primary'
+                boxShadow: `0 1px 4px 0 ${variant === 'primary'
                     ? theme_1.theme.buttonPrimaryShadow
-                    : theme_1.theme.buttonNormalShadow),
+                    : theme_1.theme.buttonNormalShadow}`,
                 transition: 'none',
             };
     }
 };
-exports.Button = (0, react_1.forwardRef)(function (props, ref) {
-    var children = props.children, _a = props.variant, variant = _a === void 0 ? 'normal' : _a, _b = props.bounce, bounce = _b === void 0 ? true : _b, restProps = __rest(props, ["children", "variant", "bounce"]);
-    var variantWithDisabled = props.isDisabled ? "".concat(variant, "Disabled") : variant;
-    var defaultButtonClassName = (0, react_1.useMemo)(function () {
-        return (0, css_1.css)(__assign(__assign({ alignItems: 'center', justifyContent: 'center', flexShrink: 0, padding: _getPadding(variant), margin: 0, overflow: 'hidden', display: 'flex', borderRadius: 4, backgroundColor: backgroundColor[variantWithDisabled], border: _getBorder(variant, variantWithDisabled), color: textColor[variantWithDisabled], transition: 'box-shadow .25s', WebkitAppRegion: 'no-drag' }, styles_1.styles.smallText), { '&[data-hovered]': _getHoveredStyles(variant), '&[data-pressed]': _getActiveStyles(variant, bounce) }));
-    }, [bounce, variant, variantWithDisabled]);
-    var className = restProps.className;
+exports.Button = (0, react_1.forwardRef)((props, ref) => {
+    const { children, variant = 'normal', bounce = true, ...restProps } = props;
+    const variantWithDisabled = props.isDisabled ? `${variant}Disabled` : variant;
+    const defaultButtonClassName = (0, react_1.useMemo)(() => (0, css_1.css)({
+        alignItems: 'center',
+        justifyContent: 'center',
+        flexShrink: 0,
+        padding: _getPadding(variant),
+        margin: 0,
+        overflow: 'hidden',
+        display: 'flex',
+        borderRadius: 4,
+        backgroundColor: backgroundColor[variantWithDisabled],
+        border: _getBorder(variant, variantWithDisabled),
+        color: textColor[variantWithDisabled],
+        transition: 'box-shadow .25s',
+        WebkitAppRegion: 'no-drag',
+        ...styles_1.styles.smallText,
+        '&[data-hovered]': _getHoveredStyles(variant),
+        '&[data-pressed]': _getActiveStyles(variant, bounce),
+    }), [bounce, variant, variantWithDisabled]);
+    const className = restProps.className;
     return (<react_aria_components_1.Button ref={ref} {...restProps} className={typeof className === 'function'
-            ? function (renderProps) { return (0, css_1.cx)(defaultButtonClassName, className(renderProps)); }
+            ? renderProps => (0, css_1.cx)(defaultButtonClassName, className(renderProps))
             : (0, css_1.cx)(defaultButtonClassName, className)}>
         {children}
       </react_aria_components_1.Button>);
 });
 exports.Button.displayName = 'Button';
-exports.ButtonWithLoading = (0, react_1.forwardRef)(function (props, ref) {
-    var isLoading = props.isLoading, children = props.children, style = props.style, buttonProps = __rest(props, ["isLoading", "children", "style"]);
-    return (<exports.Button {...buttonProps} ref={ref} style={function (buttonRenderProps) { return (__assign({ position: 'relative' }, (typeof style === 'function' ? style(buttonRenderProps) : style))); }}>
+exports.ButtonWithLoading = (0, react_1.forwardRef)((props, ref) => {
+    const { isLoading, children, style, ...buttonProps } = props;
+    return (<exports.Button {...buttonProps} ref={ref} style={buttonRenderProps => ({
+            position: 'relative',
+            ...(typeof style === 'function' ? style(buttonRenderProps) : style),
+        })}>
       {isLoading && (<View_1.View style={{
                 position: 'absolute',
                 top: 0,

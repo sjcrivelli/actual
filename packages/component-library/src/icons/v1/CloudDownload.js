@@ -1,20 +1,45 @@
 "use strict";
-var __assign = (this && this.__assign) || function () {
-    __assign = Object.assign || function(t) {
-        for (var s, i = 1, n = arguments.length; i < n; i++) {
-            s = arguments[i];
-            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
-                t[p] = s[p];
-        }
-        return t;
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
     };
-    return __assign.apply(this, arguments);
-};
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.SvgCloudDownload = void 0;
-var React = require("react");
-var SvgCloudDownload = function (props) { return (<svg {...props} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" style={__assign({ color: 'inherit' }, props.style)}>
+const React = __importStar(require("react"));
+const SvgCloudDownload = (props) => (<svg {...props} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" style={{
+        color: 'inherit',
+        ...props.style,
+    }}>
     <path d="M24 10.663A5.817 5.817 0 0 0 22.228 6.5a5.711 5.711 0 0 0-3.447-1.585.249.249 0 0 1-.191-.12 7.684 7.684 0 0 0-14.1 2.294.251.251 0 0 1-.227.2A4.59 4.59 0 0 0 0 11.859a4.324 4.324 0 0 0 1.236 3.21 5.529 5.529 0 0 0 3.605 1.377 1 1 0 0 0 .985-1.015 1.023 1.023 0 0 0-1.015-.985 3.3 3.3 0 0 1-2.172-.8A2.374 2.374 0 0 1 2 11.859a2.576 2.576 0 0 1 .954-2.007 2.6 2.6 0 0 1 2.167-.527 1 1 0 0 0 1.2-.919 5.686 5.686 0 0 1 10.82-2.088.959.959 0 0 0 .941.57 3.687 3.687 0 0 1 2.758 1.049A3.752 3.752 0 0 1 22 10.663a3.835 3.835 0 0 1-3.438 3.791 1 1 0 0 0 .132 1.992.961.961 0 0 0 .131-.009A5.807 5.807 0 0 0 24 10.663Z" fill="currentColor"/>
     <path d="M15.5 17.446h-1.75a.25.25 0 0 1-.25-.25v-7.25a1.5 1.5 0 1 0-3 0V17.2a.25.25 0 0 1-.25.25H8.5a1 1 0 0 0-.707 1.707l3.5 3.5a1 1 0 0 0 1.414 0l3.5-3.5a1 1 0 0 0-.707-1.707Z" fill="currentColor"/>
-  </svg>); };
+  </svg>);
 exports.SvgCloudDownload = SvgCloudDownload;

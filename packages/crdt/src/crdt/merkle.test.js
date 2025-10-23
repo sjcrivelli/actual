@@ -1,28 +1,61 @@
 "use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
 Object.defineProperty(exports, "__esModule", { value: true });
-var merkle = require("./merkle");
-var timestamp_1 = require("./timestamp");
+const merkle = __importStar(require("./merkle"));
+const timestamp_1 = require("./timestamp");
 function message(timestampStr, hash) {
-    var timestamp = timestamp_1.Timestamp.parse(timestampStr);
-    timestamp.hash = function () { return hash; };
-    return { timestamp: timestamp };
+    const timestamp = timestamp_1.Timestamp.parse(timestampStr);
+    timestamp.hash = () => hash;
+    return { timestamp };
 }
 function insertMessages(trie, messages) {
-    messages.forEach(function (msg) {
+    messages.forEach(msg => {
         trie = merkle.insert(trie, msg.timestamp);
     });
     return trie;
 }
-describe('merkle trie', function () {
-    test('adding an item works', function () {
-        var trie = merkle.insert(merkle.emptyTrie(), timestamp_1.Timestamp.parse('2018-11-12T13:21:40.122Z-0000-0123456789ABCDEF'));
+describe('merkle trie', () => {
+    test('adding an item works', () => {
+        let trie = merkle.insert(merkle.emptyTrie(), timestamp_1.Timestamp.parse('2018-11-12T13:21:40.122Z-0000-0123456789ABCDEF'));
         trie = merkle.insert(trie, timestamp_1.Timestamp.parse('2018-11-13T13:21:40.122Z-0000-0123456789ABCDEF'));
         expect(trie).toMatchSnapshot();
     });
-    test('diff returns the correct time difference', function () {
-        var trie1 = merkle.emptyTrie();
-        var trie2 = merkle.emptyTrie();
-        var messages = [
+    test('diff returns the correct time difference', () => {
+        let trie1 = merkle.emptyTrie();
+        let trie2 = merkle.emptyTrie();
+        const messages = [
             // First client messages
             message('2018-11-13T13:20:40.122Z-0000-0123456789ABCDEF', 1000),
             message('2018-11-14T13:05:35.122Z-0000-0123456789ABCDEF', 1100),
@@ -47,13 +80,13 @@ describe('merkle trie', function () {
         expect(trie1.hash).toBe(888);
         expect(trie1.hash).toBe(trie2.hash);
     });
-    test('diffing works with empty tries', function () {
-        var trie1 = merkle.emptyTrie();
-        var trie2 = merkle.insert(merkle.emptyTrie(), timestamp_1.Timestamp.parse('2009-01-02T10:17:37.789Z-0000-0000testinguuid1'));
+    test('diffing works with empty tries', () => {
+        const trie1 = merkle.emptyTrie();
+        const trie2 = merkle.insert(merkle.emptyTrie(), timestamp_1.Timestamp.parse('2009-01-02T10:17:37.789Z-0000-0000testinguuid1'));
         expect(merkle.diff(trie1, trie2)).toBe(0);
     });
-    test('pruning works and keeps correct hashes', function () {
-        var messages = [
+    test('pruning works and keeps correct hashes', () => {
+        const messages = [
             message('2018-11-01T01:00:00.000Z-0000-0123456789ABCDEF', 1000),
             message('2018-11-01T01:09:00.000Z-0000-0123456789ABCDEF', 1100),
             message('2018-11-01T01:18:00.000Z-0000-0123456789ABCDEF', 1200),
@@ -67,18 +100,18 @@ describe('merkle trie', function () {
             message('2018-11-01T02:28:00.000Z-0000-0123456789ABCDEF', 2000),
             message('2018-11-01T02:37:00.000Z-0000-0123456789ABCDEF', 2100),
         ];
-        var trie = merkle.emptyTrie();
-        messages.forEach(function (msg) {
+        let trie = merkle.emptyTrie();
+        messages.forEach(msg => {
             trie = merkle.insert(trie, msg.timestamp);
         });
         expect(trie.hash).toBe(2496);
         expect(trie).toMatchSnapshot();
-        var pruned = merkle.prune(trie);
+        const pruned = merkle.prune(trie);
         expect(pruned.hash).toBe(2496);
         expect(pruned).toMatchSnapshot();
     });
-    test('diffing differently shaped tries returns correct time', function () {
-        var messages = [
+    test('diffing differently shaped tries returns correct time', () => {
+        const messages = [
             message('2018-11-01T01:00:00.000Z-0000-0123456789ABCDEF', 1000),
             message('2018-11-01T01:09:00.000Z-0000-0123456789ABCDEF', 1100),
             message('2018-11-01T01:18:00.000Z-0000-0123456789ABCDEF', 1200),
@@ -92,7 +125,7 @@ describe('merkle trie', function () {
             message('2018-11-01T02:28:00.000Z-0000-0123456789ABCDEF', 2000),
             message('2018-11-01T02:37:00.000Z-0000-0123456789ABCDEF', 2100),
         ];
-        var trie = insertMessages({}, messages);
+        const trie = insertMessages({}, messages);
         // Case 0: It always returns a base time when comparing with an
         // empty trie
         expect(new Date(merkle.diff(merkle.emptyTrie(), trie)).toISOString()).toBe('1970-01-01T00:00:00.000Z');
@@ -100,7 +133,7 @@ describe('merkle trie', function () {
         // Case 1: Add an older message that modifies the trie in such a
         // way that it modifies the 1st out of 3 branches (so it will be
         // pruned away)
-        var trie1 = insertMessages(trie, [
+        const trie1 = insertMessages(trie, [
             message('2018-11-01T00:59:00.000Z-0000-0123456789ABCDEF', 900),
         ]);
         // Normal comparison works
@@ -116,7 +149,7 @@ describe('merkle trie', function () {
         // Case 2: Add two messages similar to the above case, but the
         // second message modifies the 2nd key at the same level as the
         // first message modifying the 1st key
-        var trie2 = insertMessages(trie, [
+        const trie2 = insertMessages(trie, [
             message('2018-11-01T00:59:00.000Z-0000-0123456789ABCDEF', 900),
             message('2018-11-01T01:15:00.000Z-0000-0123456789ABCDEF', 1422),
         ]);

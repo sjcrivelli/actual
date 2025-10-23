@@ -1,0 +1,1 @@
+{"version":3,"file":"user-access.d.ts","sourceRoot":"","sources":["../../../src/types/models/user-access.ts"],"names":[],"mappings":"AAAA,MAAM,WAAW,mBAAmB;IAClC,MAAM,EAAE,MAAM,CAAC;IACf,MAAM,EAAE,MAAM,CAAC;CAChB;AAED,MAAM,WAAW,gBAAiB,SAAQ,mBAAmB;IAC3D,WAAW,EAAE,MAAM,CAAC;IACpB,QAAQ,EAAE,MAAM,CAAC;IACjB,QAAQ,EAAE,MAAM,CAAC;CAClB"}

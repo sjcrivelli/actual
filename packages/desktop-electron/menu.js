@@ -1,17 +1,17 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getMenu = getMenu;
-var electron_1 = require("electron");
+const electron_1 = require("electron");
 function getMenu() {
-    var template = [
+    const template = [
         {
             label: 'File', // Kept purely for the keyboard shortcuts in Electron. Some shortcuts only work if they are in a menu (toggle devtools cannot be triggered in pure js).
             submenu: [
                 {
                     label: 'Exit',
-                    click: function (_item, focusedWindow) {
+                    click(_item, focusedWindow) {
                         if (focusedWindow) {
-                            var browserWindow = focusedWindow;
+                            const browserWindow = focusedWindow;
                             browserWindow.close();
                         }
                     },
@@ -24,9 +24,9 @@ function getMenu() {
                 {
                     label: 'Reload',
                     accelerator: 'CmdOrCtrl+R',
-                    click: function (_item, focusedWindow) {
+                    click(_item, focusedWindow) {
                         if (focusedWindow) {
-                            var browserWindow = focusedWindow;
+                            const browserWindow = focusedWindow;
                             browserWindow.reload();
                         }
                     },
@@ -34,9 +34,9 @@ function getMenu() {
                 {
                     label: 'Toggle Developer Tools',
                     accelerator: process.platform === 'darwin' ? 'Alt+Command+I' : 'Ctrl+Shift+I',
-                    click: function (_item, focusedWindow) {
+                    click(_item, focusedWindow) {
                         if (focusedWindow) {
-                            var browserWindow = focusedWindow;
+                            const browserWindow = focusedWindow;
                             browserWindow.webContents.toggleDevTools();
                         }
                     },

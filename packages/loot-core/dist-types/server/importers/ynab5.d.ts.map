@@ -1,0 +1,1 @@
+{"version":3,"file":"ynab5.d.ts","sourceRoot":"","sources":["../../../src/server/importers/ynab5.ts"],"names":[],"mappings":"AAaA,OAAO,KAAK,KAAK,MAAM,eAAe,CAAC;AAsevC,wBAAsB,QAAQ,CAAC,IAAI,EAAE,KAAK,CAAC,MAAM,iBAmBhD;AAED,wBAAgB,SAAS,CAAC,MAAM,EAAE,MAAM,GAAG,KAAK,CAAC,MAAM,CAUtD;AAED,wBAAgB,aAAa,CAAC,SAAS,EAAE,MAAM,EAAE,IAAI,EAAE,KAAK,CAAC,MAAM,sBAElE"}

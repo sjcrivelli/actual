@@ -1,21 +1,46 @@
 "use strict";
-var __assign = (this && this.__assign) || function () {
-    __assign = Object.assign || function(t) {
-        for (var s, i = 1, n = arguments.length; i < n; i++) {
-            s = arguments[i];
-            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
-                t[p] = s[p];
-        }
-        return t;
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
     };
-    return __assign.apply(this, arguments);
-};
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.SvgHyperlink2 = void 0;
-var React = require("react");
-var SvgHyperlink2 = function (props) { return (<svg {...props} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" style={__assign({ color: 'inherit' }, props.style)}>
+const React = __importStar(require("react"));
+const SvgHyperlink2 = (props) => (<svg {...props} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" style={{
+        color: 'inherit',
+        ...props.style,
+    }}>
     <path d="M12.406 14.905a1 1 0 0 0-.543 1.307 1 1 0 0 1-.217 1.09l-2.828 2.829a2 2 0 0 1-2.828 0L3.868 18.01a2 2 0 0 1 0-2.829L6.7 12.353a1.013 1.013 0 0 1 1.091-.217 1 1 0 0 0 .763-1.849 3.034 3.034 0 0 0-3.268.652l-2.832 2.828a4.006 4.006 0 0 0 0 5.657l2.122 2.121a4 4 0 0 0 5.656 0l2.829-2.828a3.008 3.008 0 0 0 .651-3.27 1 1 0 0 0-1.306-.542Z" fill="currentColor"/>
     <path d="M7.757 16.241a1.011 1.011 0 0 0 1.414 0l7.779-7.778a1 1 0 0 0-1.414-1.414l-7.779 7.778a1 1 0 0 0 0 1.414Z" fill="currentColor"/>
     <path d="m21.546 4.574-2.121-2.121a4.006 4.006 0 0 0-5.657 0l-2.829 2.828a3.006 3.006 0 0 0-.651 3.269 1 1 0 1 0 1.849-.764 1 1 0 0 1 .217-1.086l2.828-2.828a2 2 0 0 1 2.829 0l2.121 2.121a2 2 0 0 1 0 2.829L17.3 11.645a1.015 1.015 0 0 1-1.091.217 1 1 0 0 0-.765 1.849 3.026 3.026 0 0 0 3.27-.651l2.828-2.828a4.007 4.007 0 0 0 .004-5.658Z" fill="currentColor"/>
-  </svg>); };
+  </svg>);
 exports.SvgHyperlink2 = SvgHyperlink2;

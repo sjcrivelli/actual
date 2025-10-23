@@ -2,7 +2,7 @@ import { title } from './title/index.js';
 function formatPayeeIban(iban) {
     return '(' + iban.slice(0, 4) + ' XXX ' + iban.slice(-4) + ')';
 }
-export const formatPayeeName = trans => {
+export const formatPayeeName = (trans) => {
     const amount = trans.transactionAmount.amount;
     const nameParts = [];
     // get the correct name and account fields for the transaction amount

@@ -4,17 +4,18 @@ import { isValidRedirectUrl, loginWithOpenIdSetup } from './accounts/openid.js';
 import { changePassword, loginWithPassword } from './accounts/password.js';
 import { errorMiddleware, requestLoggerMiddleware, } from './util/middlewares.js';
 import { validateAuthHeader, validateSession } from './util/validate-user.js';
+// ==============================
+// ✅ Express App Setup
+// ==============================
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(errorMiddleware);
 app.use(requestLoggerMiddleware);
 export { app as handlers };
-// Non-authenticated endpoints:
-//
-// /needs-bootstrap
-// /boostrap (special endpoint for setting up the instance, cant call again)
-// /login
+// ==============================
+// 🌱 Non-authenticated Endpoints
+// ==============================
 app.get('/needs-bootstrap', (req, res) => {
     const availableLoginMethods = listLoginMethods();
     res.send({
@@ -23,7 +24,7 @@ app.get('/needs-bootstrap', (req, res) => {
             bootstrapped: !needsBootstrap(),
             loginMethod: availableLoginMethods.length === 1
                 ? availableLoginMethods[0].method
-                : getLoginMethod(),
+                : getLoginMethod(req),
             availableLoginMethods,
             multiuser: getActiveLoginMethod() === 'openid',
         },
@@ -32,7 +33,7 @@ app.get('/needs-bootstrap', (req, res) => {
 app.post('/bootstrap', async (req, res) => {
     const boot = await bootstrap(req.body);
     if (boot?.error) {
-        res.status(400).send({ status: 'error', reason: boot?.error });
+        res.status(400).send({ status: 'error', reason: boot.error });
         return;
     }
     res.send({ status: 'ok', data: boot });
@@ -47,29 +48,25 @@ app.post('/login', async (req, res) => {
     let tokenRes = null;
     switch (loginMethod) {
         case 'header': {
-            const headerVal = req.get('x-actual-password') || '';
-            const obfuscated = '*'.repeat(headerVal.length) || 'No password provided.';
+            const headerVal = req.get('x-actual-password') ?? '';
+            const obfuscated = headerVal ? '*'.repeat(headerVal.length) : 'No password provided.';
             console.debug('HEADER VALUE: ' + obfuscated);
-            if (headerVal === '') {
-                res.send({ status: 'error', reason: 'invalid-header' });
+            if (!headerVal) {
+                res.status(400).send({ status: 'error', reason: 'invalid-header' });
                 return;
             }
+            if (validateAuthHeader(req)) {
+                tokenRes = await loginWithPassword(headerVal);
+            }
             else {
-                if (validateAuthHeader(req)) {
-                    tokenRes = loginWithPassword(headerVal);
-                }
-                else {
-                    res.send({ status: 'error', reason: 'proxy-not-trusted' });
-                    return;
-                }
+                res.status(400).send({ status: 'error', reason: 'proxy-not-trusted' });
+                return;
             }
             break;
         }
         case 'openid': {
             if (!isValidRedirectUrl(req.body.returnUrl)) {
-                res
-                    .status(400)
-                    .send({ status: 'error', reason: 'Invalid redirect URL' });
+                res.status(400).send({ status: 'error', reason: 'Invalid redirect URL' });
                 return;
             }
             const { error, url } = await loginWithOpenIdSetup(req.body.returnUrl, req.body.password);
@@ -80,13 +77,18 @@ app.post('/login', async (req, res) => {
             res.send({ status: 'ok', data: { returnUrl: url } });
             return;
         }
-        default:
-            tokenRes = loginWithPassword(req.body.password);
+        default: {
+            tokenRes = await loginWithPassword(req.body.password);
             break;
+        }
+    }
+    if (!tokenRes) {
+        res.status(400).send({ status: 'error', reason: 'Missing token response' });
+        return;
     }
     const { error, token } = tokenRes;
-    if (error) {
-        res.status(400).send({ status: 'error', reason: error });
+    if (error || !token) {
+        res.status(400).send({ status: 'error', reason: error ?? 'Missing token' });
         return;
     }
     res.send({ status: 'ok', data: { token } });
@@ -104,22 +106,22 @@ app.post('/change-password', (req, res) => {
 });
 app.get('/validate', (req, res) => {
     const session = validateSession(req, res);
-    if (session) {
-        const user = getUserInfo(session.user_id);
-        if (!user) {
-            res.status(400).send({ status: 'error', reason: 'User not found' });
-            return;
-        }
-        res.send({
-            status: 'ok',
-            data: {
-                validated: true,
-                userName: user?.user_name,
-                permission: user?.role,
-                userId: session?.user_id,
-                displayName: user?.display_name,
-                loginMethod: session?.auth_method,
-            },
-        });
+    if (!session)
+        return;
+    const user = getUserInfo(session.user_id);
+    if (!user) {
+        res.status(400).send({ status: 'error', reason: 'User not found' });
+        return;
     }
+    res.send({
+        status: 'ok',
+        data: {
+            validated: true,
+            userName: user.user_name,
+            permission: user.role,
+            userId: session.user_id,
+            displayName: user.display_name,
+            loginMethod: session.auth_method,
+        },
+    });
 });

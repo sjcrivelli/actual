@@ -1,21 +1,46 @@
 "use strict";
-var __assign = (this && this.__assign) || function () {
-    __assign = Object.assign || function(t) {
-        for (var s, i = 1, n = arguments.length; i < n; i++) {
-            s = arguments[i];
-            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
-                t[p] = s[p];
-        }
-        return t;
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
     };
-    return __assign.apply(this, arguments);
-};
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.SvgSum = void 0;
-var React = require("react");
-var SvgSum = function (props) { return (<svg {...props} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28.3 28.3" style={__assign({ color: 'inherit' }, props.style)}>
+const React = __importStar(require("react"));
+const SvgSum = (props) => (<svg {...props} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28.3 28.3" style={{
+        color: 'inherit',
+        ...props.style,
+    }}>
     <path d="M23.2,10.1c1.1,0,2-0.9,2-2V2.2c0-1.1-0.9-2-2-2h-18c-1.1,0-2,0.9-2,2c0,0.4,0.1,0.9,0.4,1.2l8.1,10.8L3.6,25
 		c-0.7,0.9-0.5,2.1,0.4,2.8c0.3,0.3,0.8,0.4,1.2,0.4h18c1.1,0,2-0.9,2-2v-5.8c0-1.1-0.9-2-2-2s-2,0.9-2,2v3.8h-12l6.6-8.8
 		c0.5-0.7,0.5-1.7,0-2.4L9.2,4.2h12v3.9C21.2,9.2,22.1,10.1,23.2,10.1z" fill="currentColor"/>
-  </svg>); };
+  </svg>);
 exports.SvgSum = SvgSum;

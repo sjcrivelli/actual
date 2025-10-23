@@ -1,10 +1,13 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AnimatedLoading = AnimatedLoading;
-var react_1 = require("react");
-var css_1 = require("@emotion/css");
-var Loading_1 = require("./Loading");
-var rotation = (0, css_1.keyframes)({
+const react_1 = __importDefault(require("react"));
+const css_1 = require("@emotion/css");
+const Loading_1 = require("./Loading");
+const rotation = (0, css_1.keyframes)({
     '0%': { transform: 'rotate(-90deg)' },
     '100%': { transform: 'rotate(666deg)' },
 });

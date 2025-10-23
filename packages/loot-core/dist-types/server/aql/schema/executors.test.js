@@ -1,0 +1,358 @@
+"use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+// @ts-strict-ignore
+const crdt_1 = require("@actual-app/crdt");
+const fast_check_1 = __importDefault(require("fast-check"));
+const __1 = require("..");
+const arbs = __importStar(require("../../../mocks/arbitrary-schema"));
+const query_1 = require("../../../shared/query");
+const util_1 = require("../../../shared/util");
+const db = __importStar(require("../../db"));
+const index_1 = require("../../sync/index");
+const executors_1 = require("./executors");
+beforeEach(global.emptyDatabase());
+function repeat(arr, times) {
+    let result = [];
+    for (let i = 0; i < times; i++) {
+        result = result.concat(arr);
+    }
+    return result;
+}
+function isAlive(trans, allById) {
+    if (trans.parent_id) {
+        const parent = allById[trans.parent_id];
+        return !trans.tombstone && parent && !parent.tombstone;
+    }
+    return !trans.tombstone;
+}
+function aliveTransactions(arr) {
+    const all = (0, util_1.groupById)(arr);
+    return arr.filter(t => isAlive(t, all));
+}
+async function insertTransactions(transactions, payeeIds) {
+    return (0, index_1.batchMessages)(async () => {
+        for (const trans of transactions) {
+            db.insertTransaction(trans);
+        }
+        if (payeeIds) {
+            for (let i = 0; i < payeeIds.length; i++) {
+                await db.insertPayee({
+                    id: payeeIds[i],
+                    name: 'payee' + (i + 1),
+                });
+            }
+        }
+    });
+}
+function expectTransactionOrder(data, fields) {
+    const expectedFields = fields || [
+        { date: 'desc' },
+        'starting_balance_flag',
+        { sort_order: 'desc' },
+        'id',
+    ];
+    const sorted = [...data].sort((i1, i2) => {
+        for (let field of expectedFields) {
+            let order = 'asc';
+            if (!(typeof field === 'string')) {
+                const entries = Object.entries(field)[0];
+                field = entries[0];
+                order = entries[1];
+            }
+            const f1 = i1[field];
+            const f2 = i2[field];
+            const before = order === 'asc' ? -1 : 1;
+            const after = order === 'asc' ? 1 : -1;
+            expect(f1).not.toBeUndefined();
+            expect(f2).not.toBeUndefined();
+            if (f1 == null && f2 != null) {
+                return before;
+            }
+            else if (f1 != null && f2 == null) {
+                return after;
+            }
+            else if (f1 < f2) {
+                return before;
+            }
+            else if (f1 > f2) {
+                return after;
+            }
+        }
+        return 0;
+    });
+    expect(data.map(t => t.id)).toEqual(sorted.map(t => t.id));
+}
+async function expectPagedData(query, numTransactions, allData) {
+    const pageCount = Math.max(Math.floor(numTransactions / 3), 3);
+    let pagedData = [];
+    let done = false;
+    let i = 0;
+    do {
+        // No more than 100 loops, c'mon!
+        expect(i).toBeLessThanOrEqual(100);
+        // Pull in all the data via pages
+        const { data } = await (0, __1.aqlQuery)(query.limit(pageCount).offset(pagedData.length).serialize());
+        expect(data.length).toBeLessThanOrEqual(pageCount);
+        if (data.length === 0) {
+            done = true;
+        }
+        else {
+            pagedData = pagedData.concat(data);
+        }
+        i++;
+    } while (!done);
+    // All of the paged data together should be exactly the
+    // same as the full data
+    expect(pagedData).toEqual(allData);
+}
+describe('transaction executors', () => {
+    it('queries with `splits: inline` returns only non-parents', async () => {
+        await fast_check_1.default.assert(fast_check_1.default.asyncProperty(arbs.makeTransactionArray({
+            splitFreq: 2,
+            minLength: 2,
+            maxLength: 20,
+        }), async (arr) => {
+            await insertTransactions(arr);
+            const { data } = await (0, __1.aqlQuery)((0, query_1.q)('transactions')
+                .filter({ amount: { $lt: 0 } })
+                .select('*')
+                .options({ splits: 'inline' })
+                .serialize());
+            expect(data.filter(t => t.is_parent).length).toBe(0);
+            expect(data.filter(t => t.tombstone).length).toBe(0);
+            const { data: defaultData } = await (0, __1.aqlQuery)((0, query_1.q)('transactions')
+                .filter({ amount: { $lt: 0 } })
+                .select('*')
+                .serialize());
+            // inline should be the default
+            expect(defaultData).toEqual(data);
+        }), { numRuns: 50 });
+    });
+    it('queries with `splits: none` returns only parents', async () => {
+        await fast_check_1.default.assert(fast_check_1.default.asyncProperty(arbs.makeTransactionArray({
+            splitFreq: 2,
+            minLength: 2,
+            maxLength: 8,
+        }), async (arr) => {
+            await insertTransactions(arr);
+            const { data } = await (0, __1.aqlQuery)((0, query_1.q)('transactions')
+                .filter({ amount: { $lt: 0 } })
+                .select('*')
+                .options({ splits: 'none' })
+                .serialize());
+            expect(data.filter(t => t.is_child).length).toBe(0);
+        }), { numRuns: 50 });
+    });
+    it('aggregate queries work with `splits: grouped`', async () => {
+        const payeeIds = ['payee1', 'payee2', 'payee3', 'payee4', 'payee5'];
+        await fast_check_1.default.assert(fast_check_1.default
+            .asyncProperty(arbs.makeTransactionArray({ splitFreq: 2, payeeIds, maxLength: 100 }), async (arr) => {
+            await insertTransactions(arr, payeeIds);
+            const aggQuery = (0, query_1.q)('transactions')
+                .filter({
+                $or: [{ amount: { $lt: -5 } }, { amount: { $gt: -2 } }],
+                'payee.name': { $gt: '' },
+            })
+                .options({ splits: 'grouped' })
+                .calculate({ $sum: '$amount' });
+            const { data } = await (0, __1.aqlQuery)(aggQuery.serialize());
+            const sum = aliveTransactions(arr).reduce((sum, trans) => {
+                const amount = trans.amount || 0;
+                const matched = (amount < -5 || amount > -2) && trans.payee != null;
+                if (!trans.tombstone && !trans.is_parent && matched) {
+                    return sum + amount;
+                }
+                return sum;
+            }, 0);
+            expect(data).toBe(sum);
+        })
+            .beforeEach(() => {
+            (0, crdt_1.setClock)(null);
+            (0, index_1.setSyncingMode)('import');
+            return db.execQuery(`
+            DELETE FROM transactions;
+            DELETE FROM payees;
+            DELETE FROM payee_mapping;
+          `);
+        }));
+    }, 20_000);
+    function runTest(makeQuery) {
+        const payeeIds = ['payee1', 'payee2', 'payee3', 'payee4', 'payee5'];
+        async function check(arr) {
+            const orderFields = ['payee.name', 'amount', 'id'];
+            // Insert transactions and get a list of all the alive
+            // ones to make it easier to check the data later (don't
+            // have to always be filtering out dead ones)
+            await insertTransactions(arr, payeeIds);
+            const allTransactions = aliveTransactions(arr);
+            // Query time
+            const { query, expectedIds, expectedMatchedIds } = makeQuery(arr);
+            // First to a query without order to make sure the default
+            // order works
+            const { data: defaultOrderData } = await (0, __1.aqlQuery)(query.serialize());
+            expectTransactionOrder(defaultOrderData);
+            expect(new Set(defaultOrderData.map(t => t.id))).toEqual(expectedIds);
+            // Now do the full test, and add a custom order to make
+            // sure that doesn't effect anything
+            const orderedQuery = query.orderBy(orderFields);
+            const { data } = await (0, __1.aqlQuery)(orderedQuery.serialize());
+            expect(new Set(data.map(t => t.id))).toEqual(expectedIds);
+            // Validate paging and ordering
+            await expectPagedData(orderedQuery, arr.length, data);
+            expectTransactionOrder(data, orderFields);
+            const matchedIds = new Set();
+            // Check that all the subtransactions were returned
+            for (const trans of data) {
+                expect(trans.tombstone).toBe(false);
+                if (expectedMatchedIds) {
+                    if (!trans._unmatched) {
+                        expect(expectedMatchedIds.has(trans.id)).toBe(true);
+                        matchedIds.add(trans.id);
+                    }
+                    else {
+                        expect(expectedMatchedIds.has(trans.id)).not.toBe(true);
+                    }
+                }
+                if (trans.is_parent) {
+                    // Parent transactions should never have a category
+                    expect(trans.category).toBe(null);
+                    expect(trans.subtransactions.length).toBe(allTransactions.filter(t => t.parent_id === trans.id).length);
+                    // Subtransactions should be ordered as well
+                    expectTransactionOrder(trans.subtransactions, orderFields);
+                    trans.subtransactions.forEach(subtrans => {
+                        expect(subtrans.tombstone).toBe(false);
+                        if (expectedMatchedIds) {
+                            if (!subtrans._unmatched) {
+                                expect(expectedMatchedIds.has(subtrans.id)).toBe(true);
+                                matchedIds.add(subtrans.id);
+                            }
+                            else {
+                                expect(expectedMatchedIds.has(subtrans.id)).not.toBe(true);
+                            }
+                        }
+                    });
+                }
+            }
+            if (expectedMatchedIds) {
+                // Check that transactions that should be matched are
+                // marked as such
+                expect(matchedIds).toEqual(expectedMatchedIds);
+            }
+        }
+        return fast_check_1.default.assert(fast_check_1.default
+            .asyncProperty(arbs.makeTransactionArray({
+            splitFreq: 0.1,
+            payeeIds,
+            maxLength: 100,
+        }), check)
+            .beforeEach(() => {
+            (0, crdt_1.setClock)(null);
+            (0, index_1.setSyncingMode)('import');
+            return db.execQuery(`
+            DELETE FROM transactions;
+            DELETE FROM payees;
+            DELETE FROM payee_mapping;
+          `);
+        }), { numRuns: 300 });
+    }
+    it('queries the correct transactions without filters', async () => {
+        return runTest(arr => {
+            const expectedIds = new Set(arr.filter(t => !t.tombstone && !t.is_child).map(t => t.id));
+            // Even though we're applying some filters, these are always
+            // guaranteed to return the full split transaction so they
+            // should take the optimized path
+            const happyQuery = (0, query_1.q)('transactions')
+                .filter({
+                date: { $gt: '2017-01-01' },
+            })
+                .options({ splits: 'grouped' })
+                .select(['*', 'payee.name']);
+            // Make sure it's actually taking the happy path
+            expect((0, executors_1.isHappyPathQuery)(happyQuery.serialize())).toBe(true);
+            return {
+                expectedIds,
+                query: happyQuery,
+            };
+        });
+    }, 20_000);
+    it(`queries the correct transactions with a filter`, async () => {
+        return runTest(arr => {
+            const expectedIds = new Set();
+            // let parents = toGroup(
+            //   arr.filter(t => t.is_parent),
+            //   new Map(Object.entries(groupById(arr.filter(t => t.parent_id))))
+            // );
+            const parents = (0, util_1.groupById)(arr.filter(t => t.is_parent && !t.tombstone));
+            const matched = new Set();
+            // Pick out some ids to query
+            let ids = arr.reduce((ids, trans, idx) => {
+                if (idx % 2 === 0) {
+                    const amount = trans.amount == null ? 0 : trans.amount;
+                    const matches = (amount < -2 || amount > -1) && trans.payee > '';
+                    if (matches && isAlive(trans, parents)) {
+                        expectedIds.add(trans.parent_id || trans.id);
+                        matched.add(trans.id);
+                    }
+                    ids.push(trans.id);
+                }
+                return ids;
+            }, []);
+            // Because why not? It should deduplicate them
+            ids = repeat(ids, 100);
+            const unhappyQuery = (0, query_1.q)('transactions')
+                .filter({
+                id: [{ $oneof: ids }],
+                payee: { $gt: '' },
+                $or: [{ amount: { $lt: -2 } }, { amount: { $gt: -1 } }],
+            })
+                .options({ splits: 'grouped' })
+                .select(['*', 'payee.name'])
+                // Using this because we want `payee` to have ids for the above
+                // filter regardless if it points to a dead one or not
+                .withoutValidatedRefs();
+            expect((0, executors_1.isHappyPathQuery)(unhappyQuery.serialize())).toBe(false);
+            return {
+                expectedIds,
+                expectedMatchedIds: matched,
+                query: unhappyQuery,
+            };
+        });
+    }, 20_000);
+});
+//# sourceMappingURL=executors.test.js.map

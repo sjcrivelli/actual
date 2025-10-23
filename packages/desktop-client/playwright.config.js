@@ -1,9 +1,6 @@
-"use strict";
-var _a;
-Object.defineProperty(exports, "__esModule", { value: true });
-var test_1 = require("@playwright/test");
+import { defineConfig } from '@playwright/test';
 // eslint-disable-next-line import/no-default-export
-exports.default = (0, test_1.defineConfig)({
+export default defineConfig({
     timeout: 60000, // 60 seconds
     retries: 1,
     testDir: 'e2e/',
@@ -12,7 +9,7 @@ exports.default = (0, test_1.defineConfig)({
         userAgent: 'playwright',
         screenshot: 'on',
         browserName: 'chromium',
-        baseURL: (_a = process.env.E2E_START_URL) !== null && _a !== void 0 ? _a : 'http://localhost:3001',
+        baseURL: process.env.E2E_START_URL ?? 'http://localhost:3001',
         trace: 'on-first-retry',
         ignoreHTTPSErrors: true,
     },

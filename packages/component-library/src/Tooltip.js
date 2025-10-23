@@ -1,48 +1,67 @@
 "use strict";
-var __rest = (this && this.__rest) || function (s, e) {
-    var t = {};
-    for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0)
-        t[p] = s[p];
-    if (s != null && typeof Object.getOwnPropertySymbols === "function")
-        for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
-            if (e.indexOf(p[i]) < 0 && Object.prototype.propertyIsEnumerable.call(s, p[i]))
-                t[p[i]] = s[p[i]];
-        }
-    return t;
-};
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Tooltip = void 0;
-var react_1 = require("react");
-var react_aria_components_1 = require("react-aria-components");
-var styles_1 = require("./styles");
-var View_1 = require("./View");
-var Tooltip = function (_a) {
-    var children = _a.children, content = _a.content, _b = _a.triggerProps, triggerProps = _b === void 0 ? {} : _b, props = __rest(_a, ["children", "content", "triggerProps"]);
-    var triggerRef = (0, react_1.useRef)(null);
-    var _c = (0, react_1.useState)(false), isHovered = _c[0], setIsHover = _c[1];
-    var hoverTimeoutRef = (0, react_1.useRef)(null);
-    var closeTimeoutRef = (0, react_1.useRef)(null);
-    var handlePointerEnter = (0, react_1.useCallback)(function () {
-        var _a;
+const react_1 = __importStar(require("react"));
+const react_aria_components_1 = require("react-aria-components");
+const styles_1 = require("./styles");
+const View_1 = require("./View");
+const Tooltip = ({ children, content, triggerProps = {}, ...props }) => {
+    const triggerRef = (0, react_1.useRef)(null);
+    const [isHovered, setIsHover] = (0, react_1.useState)(false);
+    const hoverTimeoutRef = (0, react_1.useRef)(null);
+    const closeTimeoutRef = (0, react_1.useRef)(null);
+    const handlePointerEnter = (0, react_1.useCallback)(() => {
         if (closeTimeoutRef.current) {
             clearTimeout(closeTimeoutRef.current);
         }
-        var timeout = setTimeout(function () {
+        const timeout = setTimeout(() => {
             setIsHover(true);
-        }, (_a = triggerProps.delay) !== null && _a !== void 0 ? _a : 300);
+        }, triggerProps.delay ?? 300);
         hoverTimeoutRef.current = timeout;
     }, [triggerProps.delay]);
-    var handlePointerLeave = (0, react_1.useCallback)(function () {
-        var _a;
+    const handlePointerLeave = (0, react_1.useCallback)(() => {
         if (hoverTimeoutRef.current) {
             clearTimeout(hoverTimeoutRef.current);
         }
-        closeTimeoutRef.current = setTimeout(function () {
+        closeTimeoutRef.current = setTimeout(() => {
             setIsHover(false);
-        }, (_a = triggerProps.closeDelay) !== null && _a !== void 0 ? _a : 0);
+        }, triggerProps.closeDelay ?? 0);
     }, [triggerProps.closeDelay]);
     // Force closing the tooltip whenever the disablement state changes
-    (0, react_1.useEffect)(function () {
+    (0, react_1.useEffect)(() => {
         setIsHover(false);
     }, [triggerProps.isDisabled]);
     return (<View_1.View style={{ minHeight: 'auto', flexShrink: 0, maxWidth: '100%' }} ref={triggerRef} onMouseEnter={handlePointerEnter} onMouseLeave={handlePointerLeave}>

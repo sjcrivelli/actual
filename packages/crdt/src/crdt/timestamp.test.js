@@ -1,20 +1,20 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var timestamp_1 = require("./timestamp");
+const timestamp_1 = require("./timestamp");
 describe('Timestamp', function () {
-    var now = 0;
-    var prevNow;
+    let now = 0;
+    let prevNow;
     beforeEach(function () {
         prevNow = Date.now;
-        Date.now = function () { return now; };
+        Date.now = () => now;
         timestamp_1.Timestamp.init({ node: '1' });
     });
-    afterEach(function () {
+    afterEach(() => {
         Date.now = prevNow;
     });
     describe('comparison', function () {
         it('should be in order', function () {
-            var sendTimestamp = timestamp_1.Timestamp.send();
+            const sendTimestamp = timestamp_1.Timestamp.send();
             expect(timestamp_1.Timestamp.zero).toBe(timestamp_1.Timestamp.zero);
             expect(timestamp_1.Timestamp.max > timestamp_1.Timestamp.zero).toBeTruthy();
             expect(sendTimestamp && sendTimestamp > timestamp_1.Timestamp.zero).toBeTruthy();
@@ -23,7 +23,7 @@ describe('Timestamp', function () {
     });
     describe('parsing', function () {
         it('should not parse', function () {
-            var invalidInputs = [
+            const invalidInputs = [
                 null,
                 undefined,
                 {},
@@ -39,20 +39,18 @@ describe('Timestamp', function () {
                 '9999-12-31T23:59:59.999Z-10000-FFFFFFFFFFFFFFFF',
                 '9999-12-31T23:59:59.999Z-FFFF-10000000000000000',
             ];
-            for (var _i = 0, invalidInputs_1 = invalidInputs; _i < invalidInputs_1.length; _i++) {
-                var invalidInput = invalidInputs_1[_i];
+            for (const invalidInput of invalidInputs) {
                 expect(timestamp_1.Timestamp.parse(invalidInput)).toBe(null);
             }
         });
         it('should parse', function () {
-            var validInputs = [
+            const validInputs = [
                 '1970-01-01T00:00:00.000Z-0000-0000000000000000',
                 '2015-04-24T22:23:42.123Z-1000-0123456789ABCDEF',
                 '9999-12-31T23:59:59.999Z-FFFF-FFFFFFFFFFFFFFFF',
             ];
-            for (var _i = 0, validInputs_1 = validInputs; _i < validInputs_1.length; _i++) {
-                var validInput = validInputs_1[_i];
-                var parsed = timestamp_1.Timestamp.parse(validInput);
+            for (const validInput of validInputs) {
+                const parsed = timestamp_1.Timestamp.parse(validInput);
                 expect(typeof parsed).toBe('object');
                 expect(parsed.millis() >= 0).toBeTruthy();
                 expect(parsed.millis() < 253402300800000).toBeTruthy();
@@ -91,7 +89,7 @@ describe('Timestamp', function () {
         });
         it('should fail with counter overflow', function () {
             now = 40;
-            for (var i = 0; i < 65536; i++)
+            for (let i = 0; i < 65536; i++)
                 timestamp_1.Timestamp.send();
             expect(timestamp_1.Timestamp.send).toThrow(timestamp_1.Timestamp.OverflowError);
         });
