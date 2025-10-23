@@ -1,14 +1,14 @@
 // Canonical sync-server bootstrap (ESM, Node16 modules)
 
 // Core
-import express from "express";
 import cors from "cors";
+import express from "express";
 
 // Sub-apps (these export { handlers } in your build output)
 import { handlers as accountApp }   from "./app-account.js";
 import { handlers as adminApp }     from "./app-admin.js";
-import { handlers as openIdApp }    from "./app-openid.js";
 import { handlers as corsProxyApp } from "./app-cors-proxy.js";
+import { handlers as openIdApp }    from "./app-openid.js";
 
 // Create server
 const app  = express();

@@ -1,5 +1,5 @@
-"use strict";
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+
+const __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
@@ -8,13 +8,13 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __generator = (this && this.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g = Object.create((typeof Iterator === "function" ? Iterator : Object).prototype);
+const __generator = (this && this.__generator) || function (thisArg, body) {
+    let _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g = Object.create((typeof Iterator === "function" ? Iterator : Object).prototype);
     return g.next = verb(0), g["throw"] = verb(1), g["return"] = verb(2), typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
     function verb(n) { return function (v) { return step([n, v]); }; }
     function step(op) {
         if (f) throw new TypeError("Generator is already executing.");
-        while (g && (g = 0, op[0] && (_ = 0)), _) try {
+        while (g && (g = 0, op[0] && (_ = 0)), _) {try {
             if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
             if (y = 0, t) op = [op[0] & 2, t.value];
             switch (op[0]) {
@@ -31,19 +31,20 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
                     _.trys.pop(); continue;
             }
             op = body.call(thisArg, _);
-        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }}
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.handlers = void 0;
-var express_1 = require("express");
-var account_db_js_1 = require("./account-db.js");
-var openid_js_1 = require("./accounts/openid.js");
-var password_js_1 = require("./accounts/password.js");
-var middlewares_js_1 = require("./util/middlewares.js");
-var validate_user_js_1 = require("./util/validate-user.js");
-var app = (0, express_1.default)();
+const express_1 = require("express");
+
+const account_db_js_1 = require("./account-db.js");
+const openid_js_1 = require("./accounts/openid.js");
+const password_js_1 = require("./accounts/password.js");
+const middlewares_js_1 = require("./util/middlewares.js");
+const validate_user_js_1 = require("./util/validate-user.js");
+const app = (0, express_1.default)();
 exports.handlers = app;
 app.use(express_1.default.json());
 app.use(express_1.default.urlencoded({ extended: true }));
@@ -55,7 +56,7 @@ app.use(middlewares_js_1.requestLoggerMiddleware);
 // /boostrap (special endpoint for setting up the instance, cant call again)
 // /login
 app.get('/needs-bootstrap', function (req, res) {
-    var availableLoginMethods = (0, account_db_js_1.listLoginMethods)();
+    const availableLoginMethods = (0, account_db_js_1.listLoginMethods)();
     res.send({
         status: 'ok',
         data: {
@@ -63,13 +64,13 @@ app.get('/needs-bootstrap', function (req, res) {
             loginMethod: availableLoginMethods.length === 1
                 ? availableLoginMethods[0].method
                 : (0, account_db_js_1.getLoginMethod)(),
-            availableLoginMethods: availableLoginMethods,
+            availableLoginMethods,
             multiuser: (0, account_db_js_1.getActiveLoginMethod)() === 'openid',
         },
     });
 });
 app.post('/bootstrap', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var boot;
+    let boot;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0: return [4 /*yield*/, (0, account_db_js_1.bootstrap)(req.body)];
@@ -85,11 +86,11 @@ app.post('/bootstrap', function (req, res) { return __awaiter(void 0, void 0, vo
     });
 }); });
 app.get('/login-methods', function (req, res) {
-    var methods = (0, account_db_js_1.listLoginMethods)();
-    res.send({ status: 'ok', methods: methods });
+    const methods = (0, account_db_js_1.listLoginMethods)();
+    res.send({ status: 'ok', methods });
 });
 app.post('/login', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var loginMethod, tokenRes, _a, headerVal, obfuscated, _b, error_1, url, error, token;
+    let loginMethod, tokenRes, _a, headerVal, obfuscated, _b, error_1, url, error, token;
     return __generator(this, function (_c) {
         switch (_c.label) {
             case 0:
@@ -148,16 +149,16 @@ app.post('/login', function (req, res) { return __awaiter(void 0, void 0, void 0
                     res.status(400).send({ status: 'error', reason: error });
                     return [2 /*return*/];
                 }
-                res.send({ status: 'ok', data: { token: token } });
+                res.send({ status: 'ok', data: { token } });
                 return [2 /*return*/];
         }
     });
 }); });
 app.post('/change-password', function (req, res) {
-    var session = (0, validate_user_js_1.validateSession)(req, res);
+    const session = (0, validate_user_js_1.validateSession)(req, res);
     if (!session)
-        return;
-    var error = (0, password_js_1.changePassword)(req.body.password).error;
+        {return;}
+    const error = (0, password_js_1.changePassword)(req.body.password).error;
     if (error) {
         res.status(400).send({ status: 'error', reason: error });
         return;
@@ -165,9 +166,9 @@ app.post('/change-password', function (req, res) {
     res.send({ status: 'ok', data: {} });
 });
 app.get('/validate', function (req, res) {
-    var session = (0, validate_user_js_1.validateSession)(req, res);
+    const session = (0, validate_user_js_1.validateSession)(req, res);
     if (session) {
-        var user = (0, account_db_js_1.getUserInfo)(session.user_id);
+        const user = (0, account_db_js_1.getUserInfo)(session.user_id);
         if (!user) {
             res.status(400).send({ status: 'error', reason: 'User not found' });
             return;

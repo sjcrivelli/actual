@@ -1,14 +1,23 @@
-"use strict";
+
 // Canonical sync-server bootstrap (ESM, Node16 modules)
+import cors from "cors";
+import express from "express";
+
+import { handlers as accountHandlers } from "./app-account.js";
+import { handlers as adminHandlers } from "./app-admin.js";
+import { handlers as corsProxyHandlers } from "./app-cors-proxy.js";
+import { handlers as openidHandlers } from "./app-openid.js";
+
 Object.defineProperty(exports, "__esModule", { value: true });
 // Core
-var express_1 = require("express");
-var cors_1 = require("cors");
+const cors_1 = require("cors");
+const express_1 = require("express");
+
 // Sub-apps (these export { handlers } in your build output)
-var app_account_js_1 = require("./app-account.js");
-var app_admin_js_1 = require("./app-admin.js");
-var app_openid_js_1 = require("./app-openid.js");
-var app_cors_proxy_js_1 = require("./app-cors-proxy.js");
+const app_account_js_1 = require("./app-account.js");
+const app_admin_js_1 = require("./app-admin.js");
+const app_cors_proxy_js_1 = require("./app-cors-proxy.js");
+const app_openid_js_1 = require("./app-openid.js");
 // Create server
 var app = (0, express_1.default)();
 var PORT = Number(process.env.PORT) || 3003;
@@ -25,13 +34,6 @@ app.use(app_openid_js_1.handlers);
 app.use("/cors-proxy", app_cors_proxy_js_1.handlers);
 // Simple health root
 app.get("/", function (_req, res) { return res.send("Actual Sync Server is running"); });
-
-import express from "express";
-import cors from "cors";
-import { handlers as accountHandlers } from "./app-account.js";
-import { handlers as adminHandlers } from "./app-admin.js";
-import { handlers as openidHandlers } from "./app-openid.js";
-import { handlers as corsProxyHandlers } from "./app-cors-proxy.js";
 
 const app = express();
 const PORT = Number(process.env.PORT) || 3003;

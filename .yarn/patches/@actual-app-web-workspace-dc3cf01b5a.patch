@@ -1,0 +1,12 @@
+diff --git a/package.json b/package.json
+index b700e9441d39df15cbf2c71117d0a6e8c1b439fd..b5d09887d8ae24b8b22c1575a171a394e740ac84 100755
+--- a/package.json
++++ b/package.json
+@@ -10,7 +10,6 @@
+     "start": "cross-env PORT=3001 vite",
+     "start:browser": "cross-env ./bin/watch-browser",
+     "watch": "cross-env BROWSER=none yarn start",
+-    "build:browser": "cross-env ./bin/build-browser",
+     "generate:i18n": "i18next",
+     "test": "vitest",
+     "e2e": "npx playwright test --browser=chromium",
