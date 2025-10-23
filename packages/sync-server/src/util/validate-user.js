@@ -49,13 +49,13 @@ export function validateAuthHeader(req) {
     const rangeList = {
         allowed_ips: trustedAuthProxies.map(q => ipaddr.parseCIDR(q)),
     };
-    // @ts-ignore : there is an error in the ts definition for the function, but this is valid
     const matched = ipaddr.subnetMatch(peerIp, rangeList, "fail");
-    if (matched === "allowed_ips") {
-        console.info(`Header Auth Login permitted from ${peer}`);
-        return true;
-    } else {
-        console.warn(`Header Auth Login attempted from ${peer}`);
-        return false;
-    }
+if (matched === "allowed_ips") {
+  console.info(`Header Auth Login permitted from ${peer}`);
+  return true;
+} else {
+  console.warn(`Header Auth Login attempted from ${peer}`);
+  return false;
+}
+
 }

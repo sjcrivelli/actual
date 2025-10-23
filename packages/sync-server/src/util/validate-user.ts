@@ -62,7 +62,7 @@ export function validateAuthHeader(req: Request): boolean {
     allowed_ips: trustedAuthProxies.map((q: string) => ipaddr.parseCIDR(q)),
   };
 
-  // @ts-ignore : there is an error in the ts definition for the function, but this is valid
+  
   const matched = ipaddr.subnetMatch(peerIp, rangeList, 'fail');
 
   if (matched === 'allowed_ips') {
