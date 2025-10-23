@@ -1,14 +1,16 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Toggle = void 0;
-var react_1 = require("react");
-var css_1 = require("@emotion/css");
-var theme_1 = require("./theme");
-var View_1 = require("./View");
-var Toggle = function (_a) {
-    var id = _a.id, isOn = _a.isOn, _b = _a.isDisabled, isDisabled = _b === void 0 ? false : _b, onToggle = _a.onToggle, className = _a.className, style = _a.style;
+const react_1 = __importDefault(require("react"));
+const css_1 = require("@emotion/css");
+const theme_1 = require("./theme");
+const View_1 = require("./View");
+const Toggle = ({ id, isOn, isDisabled = false, onToggle, className, style, }) => {
     return (<View_1.View style={style} className={className}>
-      <input id={id} checked={isOn} disabled={isDisabled} onChange={function (e) { return onToggle === null || onToggle === void 0 ? void 0 : onToggle(e.target.checked); }} className={(0, css_1.css)({
+      <input id={id} checked={isOn} disabled={isDisabled} onChange={e => onToggle?.(e.target.checked)} className={(0, css_1.css)({
             height: 0,
             width: 0,
             visibility: 'hidden',

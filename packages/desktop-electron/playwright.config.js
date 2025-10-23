@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var test_1 = require("@playwright/test");
+const test_1 = require("@playwright/test");
 // eslint-disable-next-line import/no-default-export
 exports.default = (0, test_1.defineConfig)({
     timeout: 60000, // 60 seconds

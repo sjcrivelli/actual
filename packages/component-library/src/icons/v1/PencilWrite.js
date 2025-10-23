@@ -1,20 +1,45 @@
 "use strict";
-var __assign = (this && this.__assign) || function () {
-    __assign = Object.assign || function(t) {
-        for (var s, i = 1, n = arguments.length; i < n; i++) {
-            s = arguments[i];
-            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
-                t[p] = s[p];
-        }
-        return t;
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
     };
-    return __assign.apply(this, arguments);
-};
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.SvgPencilWrite = void 0;
-var React = require("react");
-var SvgPencilWrite = function (props) { return (<svg {...props} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" style={__assign({ color: 'inherit' }, props.style)}>
+const React = __importStar(require("react"));
+const SvgPencilWrite = (props) => (<svg {...props} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" style={{
+        color: 'inherit',
+        ...props.style,
+    }}>
     <path d="M13.937 15a1.977 1.977 0 0 1-.672.443L9.73 16.86a2.026 2.026 0 0 1-2.157-.442 2 2 0 0 1-.443-2.157l1.413-3.533a2.008 2.008 0 0 1 .444-.673l5.887-5.888a.251.251 0 0 0-.174-.427H3.368A3.118 3.118 0 0 0 .25 6.858v13.765a3.117 3.117 0 0 0 3.118 3.117h13.765a3.116 3.116 0 0 0 3.117-3.117V9.294a.25.25 0 0 0-.426-.177Z" fill="currentColor"/>
     <path d="M18.568 3.3a.514.514 0 0 0-.707 0l-7.813 7.814a.507.507 0 0 0-.111.168l-1.414 3.536a.5.5 0 0 0 .111.54.519.519 0 0 0 .539.11l3.535-1.414a.5.5 0 0 0 .168-.111L20.69 6.13a.5.5 0 0 0 0-.707ZM23.165 3.654a2 2 0 0 0 0-2.828 2.048 2.048 0 0 0-2.828 0l-1.061 1.061a.531.531 0 0 0-.042.063.49.49 0 0 0-.105.29.5.5 0 0 0 .147.354L21.4 4.715a.483.483 0 0 0 .649.039.452.452 0 0 0 .058-.039Z" fill="currentColor"/>
-  </svg>); };
+  </svg>);
 exports.SvgPencilWrite = SvgPencilWrite;

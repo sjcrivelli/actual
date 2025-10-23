@@ -1,19 +1,7 @@
 "use strict";
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        if (typeof b !== "function" && b !== null)
-            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Timestamp = void 0;
 exports.setClock = setClock;
@@ -22,19 +10,18 @@ exports.makeClock = makeClock;
 exports.serializeClock = serializeClock;
 exports.deserializeClock = deserializeClock;
 exports.makeClientId = makeClientId;
-var murmurhash_1 = require("murmurhash");
-var uuid_1 = require("uuid");
+const murmurhash_1 = __importDefault(require("murmurhash"));
+const uuid_1 = require("uuid");
 // A mutable global clock
-var clock;
+let clock;
 function setClock(clock_) {
     clock = clock_;
 }
 function getClock() {
     return clock;
 }
-function makeClock(timestamp, merkle) {
-    if (merkle === void 0) { merkle = {}; }
-    return { timestamp: MutableTimestamp.from(timestamp), merkle: merkle };
+function makeClock(timestamp, merkle = {}) {
+    return { timestamp: MutableTimestamp.from(timestamp), merkle };
 }
 function serializeClock(clock) {
     return JSON.stringify({
@@ -43,7 +30,7 @@ function serializeClock(clock) {
     });
 }
 function deserializeClock(clock) {
-    var data;
+    let data;
     try {
         data = JSON.parse(clock);
     }
@@ -53,7 +40,7 @@ function deserializeClock(clock) {
             merkle: {},
         };
     }
-    var ts = Timestamp.parse(data.timestamp);
+    const ts = Timestamp.parse(data.timestamp);
     if (!ts) {
         throw new Timestamp.InvalidError(data.timestamp);
     }
@@ -65,71 +52,75 @@ function deserializeClock(clock) {
 function makeClientId() {
     return (0, uuid_1.v4)().replace(/-/g, '').slice(-16);
 }
-var config = {
+const config = {
     // Allow 5 minutes of clock drift
     maxDrift: 5 * 60 * 1000,
 };
-var MAX_COUNTER = parseInt('0xFFFF');
-var MAX_NODE_LENGTH = 16;
+const MAX_COUNTER = parseInt('0xFFFF');
+const MAX_NODE_LENGTH = 16;
 /**
  * timestamp instance class
  */
-var Timestamp = /** @class */ (function () {
-    function Timestamp(millis, counter, node) {
+class Timestamp {
+    _state;
+    constructor(millis, counter, node) {
         this._state = {
-            millis: millis,
-            counter: counter,
-            node: node,
+            millis,
+            counter,
+            node,
         };
     }
-    Timestamp.prototype.valueOf = function () {
+    valueOf() {
         return this.toString();
-    };
-    Timestamp.prototype.toString = function () {
+    }
+    toString() {
         return [
             new Date(this.millis()).toISOString(),
             ('0000' + this.counter().toString(16).toUpperCase()).slice(-4),
             ('0000000000000000' + this.node()).slice(-16),
         ].join('-');
-    };
-    Timestamp.prototype.millis = function () {
+    }
+    millis() {
         return this._state.millis;
-    };
-    Timestamp.prototype.counter = function () {
+    }
+    counter() {
         return this._state.counter;
-    };
-    Timestamp.prototype.node = function () {
+    }
+    node() {
         return this._state.node;
-    };
-    Timestamp.prototype.hash = function () {
+    }
+    hash() {
         return murmurhash_1.default.v3(this.toString());
-    };
+    }
     // Timestamp generator initialization
     // * sets the node ID to an arbitrary value
     // * useful for mocking/unit testing
-    Timestamp.init = function (options) {
-        if (options === void 0) { options = {}; }
+    static init(options = {}) {
         if (options.maxDrift) {
             config.maxDrift = options.maxDrift;
         }
         setClock(makeClock(new Timestamp(0, 0, options.node
             ? ('0000000000000000' + options.node).toString().slice(-16)
             : '')));
-    };
+    }
+    /**
+     * maximum timestamp
+     */
+    static max = Timestamp.parse('9999-12-31T23:59:59.999Z-FFFF-FFFFFFFFFFFFFFFF');
     /**
      * timestamp parsing
      * converts a fixed-length string timestamp to the structured value
      */
-    Timestamp.parse = function (timestamp) {
+    static parse(timestamp) {
         if (timestamp instanceof Timestamp) {
             return timestamp;
         }
         if (typeof timestamp === 'string') {
-            var parts = timestamp.split('-');
+            const parts = timestamp.split('-');
             if (parts && parts.length === 5) {
-                var millis = Date.parse(parts.slice(0, 3).join('-')).valueOf();
-                var counter = parseInt(parts[3], 16);
-                var node = parts[4];
+                const millis = Date.parse(parts.slice(0, 3).join('-')).valueOf();
+                const counter = parseInt(parts[3], 16);
+                const node = parts[4];
                 if (!isNaN(millis) &&
                     millis >= 0 &&
                     !isNaN(counter) &&
@@ -141,25 +132,25 @@ var Timestamp = /** @class */ (function () {
             }
         }
         return null;
-    };
+    }
     /**
      * Timestamp send. Generates a unique, monotonic timestamp suitable
      * for transmission to another system in string format
      */
-    Timestamp.send = function () {
+    static send() {
         if (!clock) {
             return null;
         }
         // retrieve the local wall time
-        var phys = Date.now();
+        const phys = Date.now();
         // unpack the clock.timestamp logical time and counter
-        var lOld = clock.timestamp.millis();
-        var cOld = clock.timestamp.counter();
+        const lOld = clock.timestamp.millis();
+        const cOld = clock.timestamp.counter();
         // calculate the next logical time and counter
         // * ensure that the logical time never goes backward
         // * increment the counter if phys time does not advance
-        var lNew = Math.max(lOld, phys);
-        var cNew = lOld === lNew ? cOld + 1 : 0;
+        const lNew = Math.max(lOld, phys);
+        const cNew = lOld === lNew ? cOld + 1 : 0;
         // check the result for drift and counter overflow
         if (lNew - phys > config.maxDrift) {
             throw new Timestamp.ClockDriftError(lNew, phys, config.maxDrift);
@@ -171,19 +162,19 @@ var Timestamp = /** @class */ (function () {
         clock.timestamp.setMillis(lNew);
         clock.timestamp.setCounter(cNew);
         return new Timestamp(clock.timestamp.millis(), clock.timestamp.counter(), clock.timestamp.node());
-    };
+    }
     // Timestamp receive. Parses and merges a timestamp from a remote
     // system with the local timeglobal uniqueness and monotonicity are
     // preserved
-    Timestamp.recv = function (msg) {
+    static recv(msg) {
         if (!clock) {
             return null;
         }
         // retrieve the local wall time
-        var phys = Date.now();
+        const phys = Date.now();
         // unpack the message wall time/counter
-        var lMsg = msg.millis();
-        var cMsg = msg.counter();
+        const lMsg = msg.millis();
+        const cMsg = msg.counter();
         // assert the node id and remote clock drift
         // if (msg.node() === clock.timestamp.node()) {
         //   throw new Timestamp.DuplicateNodeError(clock.timestamp.node());
@@ -192,16 +183,16 @@ var Timestamp = /** @class */ (function () {
             throw new Timestamp.ClockDriftError();
         }
         // unpack the clock.timestamp logical time and counter
-        var lOld = clock.timestamp.millis();
-        var cOld = clock.timestamp.counter();
+        const lOld = clock.timestamp.millis();
+        const cOld = clock.timestamp.counter();
         // calculate the next logical time and counter
         // . ensure that the logical time never goes backward
         // . if all logical clocks are equal, increment the max counter
         // . if max = old > message, increment local counter
         // . if max = messsage > old, increment message counter
         // . otherwise, clocks are monotonic, reset counter
-        var lNew = Math.max(Math.max(lOld, phys), lMsg);
-        var cNew = lNew === lOld && lNew === lMsg
+        const lNew = Math.max(Math.max(lOld, phys), lMsg);
+        const cNew = lNew === lOld && lNew === lMsg
             ? Math.max(cOld, cMsg) + 1
             : lNew === lOld
                 ? cOld + 1
@@ -219,82 +210,52 @@ var Timestamp = /** @class */ (function () {
         clock.timestamp.setMillis(lNew);
         clock.timestamp.setCounter(cNew);
         return new Timestamp(clock.timestamp.millis(), clock.timestamp.counter(), clock.timestamp.node());
-    };
-    /**
-     * maximum timestamp
-     */
-    Timestamp.max = Timestamp.parse('9999-12-31T23:59:59.999Z-FFFF-FFFFFFFFFFFFFFFF');
+    }
     /**
      * zero/minimum timestamp
      */
-    Timestamp.zero = Timestamp.parse('1970-01-01T00:00:00.000Z-0000-0000000000000000');
-    Timestamp.since = function (isoString) { return isoString + '-0000-0000000000000000'; };
+    static zero = Timestamp.parse('1970-01-01T00:00:00.000Z-0000-0000000000000000');
+    static since = (isoString) => isoString + '-0000-0000000000000000';
     /**
      * error classes
      */
-    Timestamp.DuplicateNodeError = /** @class */ (function (_super) {
-        __extends(DuplicateNodeError, _super);
-        function DuplicateNodeError(node) {
-            var _this = _super.call(this, 'duplicate node identifier ' + node) || this;
-            _this.name = 'DuplicateNodeError';
-            return _this;
+    static DuplicateNodeError = class DuplicateNodeError extends Error {
+        constructor(node) {
+            super('duplicate node identifier ' + node);
+            this.name = 'DuplicateNodeError';
         }
-        return DuplicateNodeError;
-    }(Error));
-    Timestamp.ClockDriftError = /** @class */ (function (_super) {
-        __extends(ClockDriftError, _super);
-        function ClockDriftError() {
-            var args = [];
-            for (var _i = 0; _i < arguments.length; _i++) {
-                args[_i] = arguments[_i];
-            }
-            var _this = _super.call(this, ['maximum clock drift exceeded'].concat(args).join(' ')) || this;
-            _this.name = 'ClockDriftError';
-            return _this;
+    };
+    static ClockDriftError = class ClockDriftError extends Error {
+        constructor(...args) {
+            super(['maximum clock drift exceeded'].concat(args).join(' '));
+            this.name = 'ClockDriftError';
         }
-        return ClockDriftError;
-    }(Error));
-    Timestamp.OverflowError = /** @class */ (function (_super) {
-        __extends(OverflowError, _super);
-        function OverflowError() {
-            var _this = _super.call(this, 'timestamp counter overflow') || this;
-            _this.name = 'OverflowError';
-            return _this;
+    };
+    static OverflowError = class OverflowError extends Error {
+        constructor() {
+            super('timestamp counter overflow');
+            this.name = 'OverflowError';
         }
-        return OverflowError;
-    }(Error));
-    Timestamp.InvalidError = /** @class */ (function (_super) {
-        __extends(InvalidError, _super);
-        function InvalidError() {
-            var args = [];
-            for (var _i = 0; _i < arguments.length; _i++) {
-                args[_i] = arguments[_i];
-            }
-            var _this = _super.call(this, ['timestamp is not valid'].concat(args.map(String)).join(' ')) || this;
-            _this.name = 'InvalidError';
-            return _this;
+    };
+    static InvalidError = class InvalidError extends Error {
+        constructor(...args) {
+            super(['timestamp is not valid'].concat(args.map(String)).join(' '));
+            this.name = 'InvalidError';
         }
-        return InvalidError;
-    }(Error));
-    return Timestamp;
-}());
+    };
+}
 exports.Timestamp = Timestamp;
-var MutableTimestamp = /** @class */ (function (_super) {
-    __extends(MutableTimestamp, _super);
-    function MutableTimestamp() {
-        return _super !== null && _super.apply(this, arguments) || this;
-    }
-    MutableTimestamp.from = function (timestamp) {
+class MutableTimestamp extends Timestamp {
+    static from(timestamp) {
         return new MutableTimestamp(timestamp.millis(), timestamp.counter(), timestamp.node());
-    };
-    MutableTimestamp.prototype.setMillis = function (n) {
+    }
+    setMillis(n) {
         this._state.millis = n;
-    };
-    MutableTimestamp.prototype.setCounter = function (n) {
+    }
+    setCounter(n) {
         this._state.counter = n;
-    };
-    MutableTimestamp.prototype.setNode = function (n) {
+    }
+    setNode(n) {
         this._state.node = n;
-    };
-    return MutableTimestamp;
-}(Timestamp));
+    }
+}

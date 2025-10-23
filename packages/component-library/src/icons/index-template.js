@@ -1,13 +1,15 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 // @ts-strict-ignore
-var path_1 = require("path");
+const path_1 = __importDefault(require("path"));
 function indexTemplate(filePaths) {
-    var exportEntries = filePaths.map(function (_a) {
-        var filePath = _a.path;
-        var basename = path_1.default.basename(filePath, path_1.default.extname(filePath));
-        var exportName = "Svg".concat(basename);
-        return "export { ".concat(exportName, " } from './").concat(basename, "'");
+    const exportEntries = filePaths.map(({ path: filePath }) => {
+        const basename = path_1.default.basename(filePath, path_1.default.extname(filePath));
+        const exportName = `Svg${basename}`;
+        return `export { ${exportName} } from './${basename}'`;
     });
     return exportEntries.join('\n');
 }

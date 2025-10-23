@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = {
     test: {
         globals: true,
-        onConsoleLog: function (log, type) {
+        onConsoleLog(log, type) {
             // print only console.error
             return type === 'stderr';
         },

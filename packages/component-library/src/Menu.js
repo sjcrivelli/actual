@@ -1,29 +1,17 @@
 "use strict";
-var __assign = (this && this.__assign) || function () {
-    __assign = Object.assign || function(t) {
-        for (var s, i = 1, n = arguments.length; i < n; i++) {
-            s = arguments[i];
-            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
-                t[p] = s[p];
-        }
-        return t;
-    };
-    return __assign.apply(this, arguments);
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Menu = Menu;
-var react_1 = require("react");
-var Button_1 = require("./Button");
-var Text_1 = require("./Text");
-var theme_1 = require("./theme");
-var Toggle_1 = require("./Toggle");
-var View_1 = require("./View");
-var MenuLine = Symbol('menu-line');
-var MenuLabel = Symbol('menu-label');
+const react_1 = require("react");
+const Button_1 = require("./Button");
+const Text_1 = require("./Text");
+const theme_1 = require("./theme");
+const Toggle_1 = require("./Toggle");
+const View_1 = require("./View");
+const MenuLine = Symbol('menu-line');
+const MenuLabel = Symbol('menu-label');
 Menu.line = MenuLine;
 Menu.label = MenuLabel;
-function Keybinding(_a) {
-    var keyName = _a.keyName;
+function Keybinding({ keyName }) {
     return (<Text_1.Text style={{ fontSize: 10, color: theme_1.theme.menuKeybindingText }}>
       {keyName}
     </Text_1.Text>);
@@ -31,18 +19,17 @@ function Keybinding(_a) {
 function isLabel(item) {
     return item.type === Menu.label;
 }
-function Menu(_a) {
-    var header = _a.header, footer = _a.footer, allItems = _a.items, onMenuSelect = _a.onMenuSelect, style = _a.style, className = _a.className, getItemStyle = _a.getItemStyle, slot = _a.slot;
-    var elRef = (0, react_1.useRef)(null);
-    var items = allItems.filter(function (x) { return x; });
-    var _b = (0, react_1.useState)(null), hoveredIndex = _b[0], setHoveredIndex = _b[1];
-    (0, react_1.useEffect)(function () {
-        var el = elRef.current;
-        el === null || el === void 0 ? void 0 : el.focus();
-        var onKeyDown = function (e) {
-            var filteredItems = items.filter(function (item) { return item && item !== Menu.line && item.type !== Menu.label; });
-            var currentIndex = filteredItems.indexOf(items[hoveredIndex || 0]);
-            var transformIndex = function (idx) { return items.indexOf(filteredItems[idx]); };
+function Menu({ header, footer, items: allItems, onMenuSelect, style, className, getItemStyle, slot, }) {
+    const elRef = (0, react_1.useRef)(null);
+    const items = allItems.filter(x => x);
+    const [hoveredIndex, setHoveredIndex] = (0, react_1.useState)(null);
+    (0, react_1.useEffect)(() => {
+        const el = elRef.current;
+        el?.focus();
+        const onKeyDown = (e) => {
+            const filteredItems = items.filter(item => item && item !== Menu.line && item.type !== Menu.label);
+            const currentIndex = filteredItems.indexOf(items[hoveredIndex || 0]);
+            const transformIndex = (idx) => items.indexOf(filteredItems[idx]);
             switch (e.key) {
                 case 'ArrowUp':
                     e.preventDefault();
@@ -58,22 +45,22 @@ function Menu(_a) {
                     break;
                 case 'Enter':
                     e.preventDefault();
-                    var item = items[hoveredIndex || 0];
+                    const item = items[hoveredIndex || 0];
                     if (hoveredIndex !== null && item !== Menu.line && !isLabel(item)) {
-                        onMenuSelect === null || onMenuSelect === void 0 ? void 0 : onMenuSelect(item.name);
+                        onMenuSelect?.(item.name);
                     }
                     break;
                 default:
             }
         };
-        el === null || el === void 0 ? void 0 : el.addEventListener('keydown', onKeyDown);
-        return function () {
-            el === null || el === void 0 ? void 0 : el.removeEventListener('keydown', onKeyDown);
+        el?.addEventListener('keydown', onKeyDown);
+        return () => {
+            el?.removeEventListener('keydown', onKeyDown);
         };
     }, [hoveredIndex]);
-    return (<View_1.View className={className} style={__assign({ outline: 'none', borderRadius: 4, overflow: 'hidden' }, style)} tabIndex={1} innerRef={elRef}>
+    return (<View_1.View className={className} style={{ outline: 'none', borderRadius: 4, overflow: 'hidden', ...style }} tabIndex={1} innerRef={elRef}>
       {header}
-      {items.map(function (item, idx) {
+      {items.map((item, idx) => {
             if (item === Menu.line) {
                 return (<View_1.View key={idx} style={{ margin: '3px 0px' }}>
               <View_1.View style={{ borderTop: '1px solid ' + theme_1.theme.menuBorder }}/>
@@ -91,16 +78,26 @@ function Menu(_a) {
               {item.name}
             </Text_1.Text>);
             }
-            var Icon = item.icon;
-            return (<Button_1.Button key={String(item.name)} variant="bare" slot={slot} style={__assign(__assign(__assign({ cursor: 'default', padding: 10, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', color: theme_1.theme.menuItemText }, (item.disabled && { color: theme_1.theme.buttonBareDisabledText })), (!item.disabled &&
-                    hoveredIndex === idx && {
-                    backgroundColor: theme_1.theme.menuItemBackgroundHover,
-                    color: theme_1.theme.menuItemTextHover,
-                })), (!isLabel(item) && (getItemStyle === null || getItemStyle === void 0 ? void 0 : getItemStyle(item))))} onHoverStart={function () { return setHoveredIndex(idx); }} onHoverEnd={function () { return setHoveredIndex(null); }} onPress={function () {
+            const Icon = item.icon;
+            return (<Button_1.Button key={String(item.name)} variant="bare" slot={slot} style={{
+                    cursor: 'default',
+                    padding: 10,
+                    flexDirection: 'row',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    color: theme_1.theme.menuItemText,
+                    ...(item.disabled && { color: theme_1.theme.buttonBareDisabledText }),
+                    ...(!item.disabled &&
+                        hoveredIndex === idx && {
+                        backgroundColor: theme_1.theme.menuItemBackgroundHover,
+                        color: theme_1.theme.menuItemTextHover,
+                    }),
+                    ...(!isLabel(item) && getItemStyle?.(item)),
+                }} onHoverStart={() => setHoveredIndex(idx)} onHoverEnd={() => setHoveredIndex(null)} onPress={() => {
                     if (!item.disabled &&
                         item.toggle === undefined &&
                         !isLabel(item)) {
-                        onMenuSelect === null || onMenuSelect === void 0 ? void 0 : onMenuSelect(item.name);
+                        onMenuSelect?.(item.name);
                     }
                 }}>
             {/* Force it to line up evenly */}
@@ -117,12 +114,10 @@ function Menu(_a) {
                 <label htmlFor={String(item.name)} title={item.tooltip}>
                   {item.text}
                 </label>
-                <Toggle_1.Toggle id={String(item.name)} isOn={item.toggle} style={{ marginLeft: 5 }} onToggle={function () {
-                        return !item.disabled &&
-                            !isLabel(item) &&
-                            item.toggle !== undefined &&
-                            (onMenuSelect === null || onMenuSelect === void 0 ? void 0 : onMenuSelect(item.name));
-                    }}/>
+                <Toggle_1.Toggle id={String(item.name)} isOn={item.toggle} style={{ marginLeft: 5 }} onToggle={() => !item.disabled &&
+                        !isLabel(item) &&
+                        item.toggle !== undefined &&
+                        onMenuSelect?.(item.name)}/>
               </View_1.View>)}
             {item.key && <Keybinding keyName={item.key}/>}
           </Button_1.Button>);

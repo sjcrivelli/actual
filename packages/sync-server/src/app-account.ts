@@ -1,5 +1,4 @@
 import express, { Request, Response } from 'express';
-
 import {
   bootstrap,
   needsBootstrap,
@@ -16,21 +15,44 @@ import {
 } from './util/middlewares.js';
 import { validateAuthHeader, validateSession } from './util/validate-user.js';
 
+// ==============================
+// ✅ Types
+// ==============================
+
+interface TokenResponse {
+  error?: string;
+  token?: string;
+}
+
+interface OpenIdResponse {
+  error?: string;
+  url?: string;
+}
+
+interface BootstrapResponse {
+  error?: string;
+  [key: string]: unknown;
+}
+
+// ==============================
+// ✅ Express App Setup
+// ==============================
+
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(errorMiddleware);
 app.use(requestLoggerMiddleware);
+
 export { app as handlers };
 
-// Non-authenticated endpoints:
-//
-// /needs-bootstrap
-// /boostrap (special endpoint for setting up the instance, cant call again)
-// /login
+// ==============================
+// 🌱 Non-authenticated Endpoints
+// ==============================
 
-app.get('/needs-bootstrap', (req: Request, res: Response) => {
+app.get('/needs-bootstrap', (req: Request, res: Response): void => {
   const availableLoginMethods = listLoginMethods();
+
   res.send({
     status: 'ok',
     data: {
@@ -38,86 +60,97 @@ app.get('/needs-bootstrap', (req: Request, res: Response) => {
       loginMethod:
         availableLoginMethods.length === 1
           ? availableLoginMethods[0].method
-          : getLoginMethod(),
+          : getLoginMethod(req),
       availableLoginMethods,
       multiuser: getActiveLoginMethod() === 'openid',
     },
   });
 });
 
-app.post('/bootstrap', async (req: Request, res: Response) => {
-  const boot = await bootstrap(req.body);
+app.post('/bootstrap', async (req: Request, res: Response): Promise<void> => {
+  const boot: BootstrapResponse = await bootstrap(req.body);
 
   if (boot?.error) {
-    res.status(400).send({ status: 'error', reason: boot?.error });
+    res.status(400).send({ status: 'error', reason: boot.error });
     return;
   }
+
   res.send({ status: 'ok', data: boot });
 });
 
-app.get('/login-methods', (req: Request, res: Response) => {
+app.get('/login-methods', (req: Request, res: Response): void => {
   const methods = listLoginMethods();
   res.send({ status: 'ok', methods });
 });
 
-app.post('/login', async (req: Request, res: Response) => {
+app.post('/login', async (req: Request, res: Response): Promise<void> => {
   const loginMethod = getLoginMethod(req);
   console.log('Logging in via ' + loginMethod);
-  let tokenRes: any = null;
+
+  let tokenRes: TokenResponse | null = null;
+
   switch (loginMethod) {
     case 'header': {
-      const headerVal: string = req.get('x-actual-password') || '';
-      const obfuscated: string =
-        '*'.repeat(headerVal.length) || 'No password provided.';
+      const headerVal: string = req.get('x-actual-password') ?? '';
+      const obfuscated = headerVal ? '*'.repeat(headerVal.length) : 'No password provided.';
       console.debug('HEADER VALUE: ' + obfuscated);
-      if (headerVal === '') {
-        res.send({ status: 'error', reason: 'invalid-header' });
-        return;
-      } else {
-        if (validateAuthHeader(req)) {
-          tokenRes = loginWithPassword(headerVal);
-        } else {
-          res.send({ status: 'error', reason: 'proxy-not-trusted' });
-          return;
-        }
-      }
-      break;
-    }
-    case 'openid': {
-      if (!isValidRedirectUrl(req.body.returnUrl)) {
-        res
-          .status(400)
-          .send({ status: 'error', reason: 'Invalid redirect URL' });
+
+      if (!headerVal) {
+        res.status(400).send({ status: 'error', reason: 'invalid-header' });
         return;
       }
 
-      const { error, url } = await loginWithOpenIdSetup(
+      if (validateAuthHeader(req)) {
+        tokenRes = await loginWithPassword(headerVal);
+      } else {
+        res.status(400).send({ status: 'error', reason: 'proxy-not-trusted' });
+        return;
+      }
+      break;
+    }
+
+    case 'openid': {
+      if (!isValidRedirectUrl(req.body.returnUrl)) {
+        res.status(400).send({ status: 'error', reason: 'Invalid redirect URL' });
+        return;
+      }
+
+      const { error, url }: OpenIdResponse = await loginWithOpenIdSetup(
         req.body.returnUrl,
-        req.body.password,
+        req.body.password
       );
+
       if (error) {
         res.status(400).send({ status: 'error', reason: error });
         return;
       }
+
       res.send({ status: 'ok', data: { returnUrl: url } });
       return;
     }
 
-    default:
-      tokenRes = loginWithPassword(req.body.password);
+    default: {
+      tokenRes = await loginWithPassword(req.body.password);
       break;
+    }
   }
+
+  if (!tokenRes) {
+    res.status(400).send({ status: 'error', reason: 'Missing token response' });
+    return;
+  }
+
   const { error, token } = tokenRes;
 
-  if (error) {
-    res.status(400).send({ status: 'error', reason: error });
+  if (error || !token) {
+    res.status(400).send({ status: 'error', reason: error ?? 'Missing token' });
     return;
   }
 
   res.send({ status: 'ok', data: { token } });
 });
 
-app.post('/change-password', (req: Request, res: Response) => {
+app.post('/change-password', (req: Request, res: Response): void => {
   const session = validateSession(req, res);
   if (!session) return;
 
@@ -131,25 +164,26 @@ app.post('/change-password', (req: Request, res: Response) => {
   res.send({ status: 'ok', data: {} });
 });
 
-app.get('/validate', (req: Request, res: Response) => {
+app.get('/validate', (req: Request, res: Response): void => {
   const session = validateSession(req, res);
-  if (session) {
-    const user = getUserInfo(session.user_id);
-    if (!user) {
-      res.status(400).send({ status: 'error', reason: 'User not found' });
-      return;
-    }
+  if (!session) return;
 
-    res.send({
-      status: 'ok',
-      data: {
-        validated: true,
-        userName: user?.user_name,
-        permission: user?.role,
-        userId: session?.user_id,
-        displayName: user?.display_name,
-        loginMethod: session?.auth_method,
-      },
-    });
+  const user = getUserInfo(session.user_id);
+
+  if (!user) {
+    res.status(400).send({ status: 'error', reason: 'User not found' });
+    return;
   }
+
+  res.send({
+    status: 'ok',
+    data: {
+      validated: true,
+      userName: user.user_name,
+      permission: user.role,
+      userId: session.user_id,
+      displayName: user.display_name,
+      loginMethod: session.auth_method,
+    },
+  });
 });

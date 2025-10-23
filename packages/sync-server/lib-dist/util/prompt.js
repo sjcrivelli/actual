@@ -5,7 +5,7 @@ export async function prompt(message) {
         output: process.stdout,
     });
     const promise = new Promise(resolve => {
-        rl.question(message, answer => {
+        rl.question(message, (answer) => {
             resolve(answer);
             rl.close();
         });
@@ -27,13 +27,15 @@ export async function promptPassword() {
     return password;
 }
 async function askForPassword(prompt) {
-    let dataListener, endListener;
+    let dataListener = () => { };
+    let endListener = () => { };
     const promise = new Promise(resolve => {
         let result = '';
         process.stdout.write(prompt);
         process.stdin.setRawMode(true);
         process.stdin.resume();
-        dataListener = key => {
+        dataListener = (key) => {
+            const char = typeof key === 'string' ? key : key.toString();
             switch (key[0]) {
                 case 0x03: // ^C
                     process.exit();
@@ -53,7 +55,7 @@ async function askForPassword(prompt) {
                     }
                     break;
                 default:
-                    result += key;
+                    result += char;
                     process.stdout.write('*');
                     break;
             }
