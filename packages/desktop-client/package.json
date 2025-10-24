@@ -6,15 +6,12 @@
   "main": "src/index.ts",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
     "start": "cross-env PORT=3001 vite",
     "start:browser": "cross-env ./bin/watch-browser",
     "watch": "cross-env BROWSER=none yarn start",
-    "build:browser": "cross-env ./bin/build-browser",
     "generate:i18n": "i18next",
-    "test": "vitest",
-    "e2e": "npx playwright test --browser=chromium",
-    "vrt": "cross-env VRT=true npx playwright test --browser=chromium"
+    "e2e": "npx playwright test --browser=chromium"
+    
   },
   "files": [
     "build"
@@ -45,7 +42,7 @@
     "auto-text-size": "^0.2.3",
     "babel-plugin-react-compiler": "19.1.0-rc.3",
     "build": "vite build",
-    "build:browser": "cross-env ./bin/build-browser",
+    "build:browser": "cross-env -- ./bin/build-browser",
     "cmdk": "^1.1.1",
     "cross-env": "^10.1.0",
     "date-fns": "^4.1.0",

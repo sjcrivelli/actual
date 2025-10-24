@@ -13,7 +13,7 @@
     "@types"
   ],
   "scripts": {
-    "build:app": "yarn workspace loot-core build:api",
+    "build:app": "yarn workspace loot-core run build:api",
     "build:crdt": "yarn workspace @actual-app/crdt build",
     "build:node": "tsc --p tsconfig.dist.json && tsc-alias -p tsconfig.dist.json",
     "build:migrations": "cp migrations/*.sql dist/migrations",
