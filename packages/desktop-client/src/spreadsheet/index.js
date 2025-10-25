@@ -1,11 +1,11 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.parametrizedField = void 0;
-var parametrizedField = function () {
+
+export function parametrizedField() {
     return function (field) {
         return function (id) {
-            return "".concat(field, "-").concat(id);
+            return `${field}-${id}`;
         };
     };
-};
-exports.parametrizedField = parametrizedField;
+}
+
+const defaultExport = { parametrizedField };
+export default defaultExport;
