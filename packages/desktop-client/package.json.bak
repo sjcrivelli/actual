@@ -1,5 +1,5 @@
 {
-  "name": "@actual-app/web",
+  "name": "@actual-app/desktop-client",
   "version": "25.10.0",
   "type": "module",
   "license": "MIT",
@@ -10,11 +10,8 @@
     "start:browser": "cross-env ./bin/watch-browser",
     "watch": "cross-env BROWSER=none yarn start",
     "generate:i18n": "i18next",
-    "e2e": "npx playwright test --browser=chromium",
-    "build": "vite build",
-    "build:browser": "cross-env -- ./bin/build-browser",
-    "test": "vitest",
-    "vrt": "cross-env VRT=true npx playwright test --browser=chromium"
+    "e2e": "npx playwright test --browser=chromium"
+    
   },
   "files": [
     "build"
@@ -44,10 +41,14 @@
     "@vitejs/plugin-react": "^5.0.4",
     "auto-text-size": "^0.2.3",
     "babel-plugin-react-compiler": "19.1.0-rc.3",
+    "build": "vite build",
+    "build:browser": "cross-env -- ./bin/build-browser",
     "cmdk": "^1.1.1",
     "cross-env": "^10.1.0",
     "date-fns": "^4.1.0",
     "downshift": "9.0.10",
+    "e2e": "npx playwright test --browser=chromium",
+    "generate:i18n": "i18next",
     "i18next": "^25.5.3",
     "i18next-parser": "^9.3.0",
     "i18next-resources-to-backend": "^1.2.1",
@@ -83,7 +84,9 @@
     "remark-gfm": "^4.0.1",
     "rollup-plugin-visualizer": "^6.0.4",
     "sass": "^1.93.2",
-    "vite": "7.1.12"
+    "test": "vitest",
+    "vrt": "cross-env VRT=true npx playwright test --browser=chromium",
+    "watch": "cross-env BROWSER=none yarn start"
   },
   "dependencies": {
     "@react-spring/web": "^10.0.3",
