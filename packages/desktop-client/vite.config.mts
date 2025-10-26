@@ -1,13 +1,15 @@
 // packages/desktop-client/vite.config.mts
 import { defineConfig, loadEnv } from 'vite'
+import type { PluginOption, ViteDevServer } from 'vite'
 import react from '@vitejs/plugin-react'
 import viteTsconfigPaths from 'vite-tsconfig-paths'
 import type { Plugin, ViteDevServer } from 'vite'
+import type { PluginOption, ViteDevServer } from 'vite'
 
 // If you hot-reload built files from a sibling package, keep this tiny helper.
 // Otherwise, you can remove the addWatchers() plugin entirely.
 import * as path from 'path'
-function addWatchers() {
+function addWatchers(): PluginOption {
   return {
     name: 'add-watchers',
     configureServer(server: ViteDevServer) {
