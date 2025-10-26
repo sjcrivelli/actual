@@ -2,8 +2,8 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "baseUrl": ".",
-    "rootDir": "src",
-    "outDir": "dist",
+    "rootDir": "./src",
+    "outDir": "./lib-dist",
     "target": "ES2022",
     "module": "ESNext",
     "moduleResolution": "Bundler",
@@ -15,15 +15,35 @@
     "strict": true,
     "skipLibCheck": true,
     "noEmit": true,
-    "types": ["vite/client", "vitest/globals"],
+    "types": [
+      "vite/client",
+      "vitest/globals"
+    ],
     "paths": {
-      "@desktop-client/*": ["src/*"],
-      "@loot-core/*": ["../loot-core/src/*"],
-      "@/*": ["src/*"],
-      "loot-core/*": ["../loot-core/src/*"],
-      "@actual-app/types/*": ["../types/*"]
+      "@desktop-client/*": [
+        "src/*"
+      ],
+      "@loot-core/*": [
+        "../loot-core/src/*"
+      ],
+      "@/*": [
+        "src/*"
+      ],
+      "loot-core/*": [
+        "../loot-core/lib-dist/browser/*"
+      ],
+      "@actual-app/types/*": [
+        "../types/*"
+      ]
     }
   },
-  "include": ["src", "src/**/*.ts", "src/**/*.tsx"],
-  "exclude": ["node_modules", "dist", "dist-types"]
+  "include": [
+    "src"
+  ],
+  "exclude": [
+    "../loot-core/**",
+    "../sync-server/**",
+    "../crdt/**",
+    "**/node_modules/**"
+  ]
 }
