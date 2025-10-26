@@ -478,7 +478,7 @@ type PayeeCellProps = {
   payees: PayeeEntity[];
   accounts: AccountEntity[];
   transferAccountsByTransaction: {
-    [id: TransactionEntity['id']]: AccountEntity | null;
+    [id: string]: AccountEntity | null;
   };
   valueStyle: CSSProperties | null;
   transaction: SerializedTransaction;
@@ -820,7 +820,7 @@ type TransactionProps = {
   transaction: TransactionEntity;
   subtransactions: TransactionEntity[] | null;
   transferAccountsByTransaction: {
-    [id: TransactionEntity['id']]: AccountEntity | null;
+    [id: string]: AccountEntity | null;
   };
   editing: boolean;
   showAccount?: boolean;
@@ -1792,7 +1792,7 @@ type NewTransactionProps = {
   showCleared?: boolean;
   transactions: TransactionEntity[];
   transferAccountsByTransaction: {
-    [id: TransactionEntity['id']]: AccountEntity | null;
+    [id: string]: AccountEntity | null;
   };
   showHiddenCategories?: boolean;
 };
@@ -1830,9 +1830,9 @@ function NewTransaction({
   const isDeposit = transactions[0].amount > 0;
 
   const childTransactions = transactions.filter(
-    t => t.parent_id === transactions[0].id,
+    t: TransactionEntity => t.parent_id === transactions[0].id,
   );
-  const emptyChildTransactions = childTransactions.filter(t => t.amount === 0);
+  const emptyChildTransactions = childTransactions.filter(t: TransactionEntity => t.amount === 0);
 
   const addButtonRef = useRef(null);
   useProperFocus(addButtonRef, focusedField === 'add');
@@ -1942,10 +1942,10 @@ type TransactionTableInnerProps = {
   isExpanded: (id: string) => boolean;
   transactionMap: Map<TransactionEntity['id'], TransactionEntity>;
   transactionsByParent: {
-    [parentId: TransactionEntity['id']]: TransactionEntity[];
+    [parentId: string]: TransactionEntity[];
   };
   transferAccountsByTransaction: {
-    [id: TransactionEntity['id']]: AccountEntity | null;
+    [id: string]: AccountEntity | null;
   };
   newTransactions: TransactionEntity[];
 
@@ -2071,7 +2071,7 @@ function TransactionTableInner({
     () =>
       props.showReconciled
         ? props.transactions
-        : props.transactions.filter(t => !t.reconciled),
+        : props.transactions.filter(t: TransactionEntity => !t.reconciled),
     [props.transactions, props.showReconciled],
   );
 
@@ -2119,11 +2119,11 @@ function TransactionTableInner({
       error.type === 'SplitTransactionError';
 
     const childTransactions = trans.is_parent
-      ? props.transactionsByParent[trans.id]
+      ? (props.transactionsByParent as Record<string, TransactionEntity[]>)[trans.id]
       : null;
-    const emptyChildTransactions = props.transactionsByParent[
+    const emptyChildTransactions = (props.transactionsByParent as Record<string, TransactionEntity[]>)[
       (trans.is_parent ? trans.id : trans.parent_id) || ''
-    ]?.filter(t => t.amount === 0);
+    ]?.filter(t: TransactionEntity => t.amount === 0);
 
     return (
       <Transaction
@@ -2397,7 +2397,7 @@ export const TransactionTable = forwardRef(
         }
         prevSplitsExpanded.current = splitsExpanded;
 
-        result = props.transactions.filter(t => {
+        result = props.transactions.filter(t: TransactionEntity => {
           if (t.parent_id) {
             return splitsExpanded.isExpanded(t.parent_id);
           }
@@ -2703,7 +2703,7 @@ export const TransactionTable = forwardRef(
           if (onApplyRulesProp) {
             groupedTransaction = await onApplyRulesProp(
               groupedTransaction,
-              updatedFieldName,
+              (updatedFieldName as unknown as string | null),
             );
           }
 
@@ -2874,7 +2874,7 @@ export const TransactionTable = forwardRef(
           : targetTransactions.find(t => t.id === transaction?.parent_id);
 
         const siblingTransactions = targetTransactions.filter(
-          t =>
+          t: TransactionEntity =>
             t.parent_id &&
             t.parent_id ===
               (transaction?.is_parent
@@ -2883,7 +2883,7 @@ export const TransactionTable = forwardRef(
         );
 
         const emptyTransactions = siblingTransactions.filter(
-          t => t.amount === 0,
+          t: TransactionEntity => t.amount === 0,
         );
         if (!parentTransaction) {
           console.error(
