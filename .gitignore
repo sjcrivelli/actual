@@ -73,3 +73,13 @@ build/
 
 # Large archives (keep local/cloud, not in git)
 Notes/*.tar.gz
+
+# Local backups / stubs (do not commit)
+*.bak*
+*.named.js
+*.mjs.bak*
+*.js.bak*
+*.ts.bak*
+*.tsx.bak*
+# Large archives kept outside git
+Notes/*.tar.gz
