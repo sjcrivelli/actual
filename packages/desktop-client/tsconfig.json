@@ -34,6 +34,15 @@
       ],
       "@actual-app/types/*": [
         "../types/*"
+      ],
+      "loot-core/types/models": [
+        "src/type-shims/loot-core/types/models.d.ts"
+      ],
+      "loot-core/types/prefs": [
+        "src/type-shims/loot-core/types/prefs.d.ts"
+      ],
+      "loot-core/types/api-handlers": [
+        "src/type-shims/loot-core/types/api-handlers.d.ts"
       ]
     }
   },
@@ -44,6 +53,9 @@
     "../loot-core/**",
     "../sync-server/**",
     "../crdt/**",
-    "**/node_modules/**"
+    "**/node_modules/**",
+    "src/**/*.test.*",
+    "src/**/*.spec.*",
+    "../loot-core/src/**/*"
   ]
 }
