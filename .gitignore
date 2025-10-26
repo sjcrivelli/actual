@@ -70,3 +70,6 @@ build/
 # Local backup/stub files (do not commit)
 *.bak*
 *.named.js
+
+# Large archives (keep local/cloud, not in git)
+Notes/*.tar.gz
