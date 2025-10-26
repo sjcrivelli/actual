@@ -8,7 +8,7 @@ import {
   getNumberFormat,
   type IntegerAmount,
   integerToAmount,
-  integerToCurrency,
+  amountToCurrency,
   parseNumberFormat,
   setNumberFormat,
 } from 'loot-core/shared/util';
@@ -94,7 +94,7 @@ function format(
 
       return {
         numericValue: localValue,
-        formattedString: integerToCurrency(
+        formattedString: amountToCurrency(
           localValue,
           formatter,
           decimalPlaces,

@@ -1,12 +1,12 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "baseUrl": "./",
-    "rootDir": "src",
-    "outDir": "dist",
-    "module": "NodeNext",
-    "moduleResolution": "NodeNext",
-    "target": "ES2022",
+    "baseUrl": ".",
+    "rootDir": "./src",
+    "outDir": "./dist",
+    "target": "es2022",
+    "module": "esnext",
+    "moduleResolution": "Bundler",
     "jsx": "react-jsx",
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
@@ -17,11 +17,13 @@
     "noEmit": false,
     "types": ["vite/client", "vitest/globals"],
     "paths": {
-      "@desktop-client/*": ["packages/desktop-client/src/*"],
-      "@loot-core/*": ["packages/loot-core/src/*"],
-      "@actual-app/types/*": ["packages/types/*"]
+      "@desktop-client/*": ["src/*"],
+      "@loot-core/*": ["../loot-core/src/*"],
+      "@/*": ["src/*"],
+      "loot-core/*": ["../loot-core/src/*"],
+      "@actual-app/types/*": ["../types/*"]
     }
   },
-  "include": ["src/**/*"],
+  "include": ["src/**/*", "src/**/*.ts", "src/**/*.tsx"],
   "exclude": ["node_modules", "dist", "dist-types"]
 }

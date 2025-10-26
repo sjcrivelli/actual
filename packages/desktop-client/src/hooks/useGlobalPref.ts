@@ -15,7 +15,6 @@ export function useGlobalPref<K extends keyof GlobalPrefs>(
 ): [GlobalPrefs[K], SetGlobalPrefAction<K>] {
   const dispatch = useDispatch();
   const setGlobalPref = useCallback<SetGlobalPrefAction<K>>(
-    value => {
       dispatch(
         saveGlobalPrefs({
           prefs: {
