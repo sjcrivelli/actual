@@ -4,12 +4,14 @@ import * as d from 'date-fns';
 import { Locale } from 'date-fns';
 import { t } from 'i18next';
 
-import { type PayeeEntity, type ScheduleEntity } from 'loot-core/types/models';
+// Remove invalid imports (PayeeEntity, ScheduleEntity are not exported)
 
 import { Condition } from '../server/rules';
 
 import * as monthUtils from './months';
 import { q } from './query';
+import type { ScheduleEntity } from '../types/models/schedule';
+import type { PayeeEntity } from '../types/models/payee';
 
 export function getStatus(
   nextDate: string,
@@ -54,9 +56,9 @@ export function getStatusLabel(status: string) {
   }
 }
 
-export function getHasTransactionsQuery(schedules) {
-  const filters = schedules.map(schedule => {
-    const dateCond = schedule._conditions.find(c => c.field === 'date');
+export function getHasTransactionsQuery(schedules: any[]) {
+  const filters = schedules.map((schedule: any) => {
+    const dateCond = schedule._conditions.find((c: any) => c.field === 'date');
     return {
       $and: {
         schedule: schedule.id,
@@ -83,8 +85,8 @@ function makeNumberSuffix(num: number, locale: Locale) {
   return monthUtils.format(new Date(2020, 0, num, 12), 'do', locale);
 }
 
-function prettyDayName(day) {
-  const days = {
+function prettyDayName(day: 'SU' | 'MO' | 'TU' | 'WE' | 'TH' | 'FR' | 'SA'): string {
+  const days: Record<'SU' | 'MO' | 'TU' | 'WE' | 'TH' | 'FR' | 'SA', string> = {
     SU: t('Sunday'),
     MO: t('Monday'),
     TU: t('Tuesday'),
@@ -96,7 +98,7 @@ function prettyDayName(day) {
   return days[day];
 }
 
-export function getRecurringDescription(config, dateFormat, locale: Locale) {
+export function getRecurringDescription(config: any, dateFormat: any, locale: Locale) {
   const interval = config.interval || 1;
 
   let endModeSuffix = '';
@@ -155,7 +157,7 @@ export function getRecurringDescription(config, dateFormat, locale: Locale) {
         // represents "last days" and should always be last, but this
         // sort would put them first
         let patterns = [...config.patterns]
-          .sort((p1, p2) => {
+          .sort((p1: any, p2: any) => {
             const typeOrder =
               (p1.type === 'day' ? 1 : 0) - (p2.type === 'day' ? 1 : 0);
             const valOrder = p1.value - p2.value;
@@ -165,16 +167,16 @@ export function getRecurringDescription(config, dateFormat, locale: Locale) {
             }
             return typeOrder;
           })
-          .filter(p => p.value !== -1);
+          .filter((p: any) => p.value !== -1);
 
         // Add on all -1 values to the end
-        patterns = patterns.concat(config.patterns.filter(p => p.value === -1));
+        patterns = patterns.concat(config.patterns.filter((p: any) => p.value === -1));
 
         const strs: string[] = [];
 
-        const uniqueDays = new Set(patterns.map(p => p.type));
+  const uniqueDays = new Set(patterns.map((p: any) => p.type));
         const isSameDay = uniqueDays.size === 1 && !uniqueDays.has('day');
-        for (const pattern of patterns) {
+  for (const pattern of patterns as any[]) {
           if (pattern.type === 'day') {
             if (pattern.value === -1) {
               strs.push(t('last day'));
@@ -183,7 +185,7 @@ export function getRecurringDescription(config, dateFormat, locale: Locale) {
               strs.push(makeNumberSuffix(pattern.value, locale));
             }
           } else {
-            const dayName = isSameDay ? '' : ' ' + prettyDayName(pattern.type);
+            const dayName = isSameDay ? '' : ' ' + prettyDayName(pattern.type as 'SU' | 'MO' | 'TU' | 'WE' | 'TH' | 'FR' | 'SA');
 
             if (pattern.value === -1) {
               // Example: last Monday
@@ -247,7 +249,7 @@ export function getRecurringDescription(config, dateFormat, locale: Locale) {
   return `${desc}${suffix}`.trim();
 }
 
-export function recurConfigToRSchedule(config) {
+export function recurConfigToRSchedule(config: any) {
   const base: IRuleOptions = {
     start: monthUtils.parseDate(config.start),
     // @ts-ignore: issues with https://gitlab.com/john.carroll.p/rschedule/-/issues/86
@@ -270,7 +272,7 @@ export function recurConfigToRSchedule(config) {
     default:
   }
 
-  const abbrevDay = name => name.slice(0, 2).toUpperCase();
+  const abbrevDay = (name: string) => name.slice(0, 2).toUpperCase();
 
   switch (config.frequency) {
     case 'daily':
@@ -281,14 +283,14 @@ export function recurConfigToRSchedule(config) {
       return [base];
     case 'monthly':
       if (config.patterns && config.patterns.length > 0) {
-        const days = config.patterns.filter(p => p.type === 'day');
-        const dayNames = config.patterns.filter(p => p.type !== 'day');
+        const days = config.patterns.filter((p: any) => p.type === 'day');
+        const dayNames = config.patterns.filter((p: any) => p.type !== 'day');
 
         return [
-          days.length > 0 && { ...base, byDayOfMonth: days.map(p => p.value) },
+          days.length > 0 && { ...base, byDayOfMonth: days.map((p: any) => p.value) },
           dayNames.length > 0 && {
             ...base,
-            byDayOfWeek: dayNames.map(p => [abbrevDay(p.type), p.value]),
+            byDayOfWeek: dayNames.map((p: any) => [abbrevDay(p.type), p.value]),
           },
         ].filter(Boolean);
       } else {
@@ -302,36 +304,32 @@ export function recurConfigToRSchedule(config) {
   }
 }
 
-export function extractScheduleConds(conditions) {
+export function extractScheduleConds(conditions: any[]) {
   return {
     payee:
-      conditions.find(cond => cond.op === 'is' && cond.field === 'payee') ||
-      conditions.find(
-        cond => cond.op === 'is' && cond.field === 'description',
-      ) ||
+      conditions.find((cond: any) => cond.op === 'is' && cond.field === 'payee') ||
+      conditions.find((cond: any) => cond.op === 'is' && cond.field === 'description') ||
       null,
     account:
-      conditions.find(cond => cond.op === 'is' && cond.field === 'account') ||
-      conditions.find(cond => cond.op === 'is' && cond.field === 'acct') ||
+      conditions.find((cond: any) => cond.op === 'is' && cond.field === 'account') ||
+      conditions.find((cond: any) => cond.op === 'is' && cond.field === 'acct') ||
       null,
     amount:
-      conditions.find(
-        cond =>
-          (cond.op === 'is' ||
-            cond.op === 'isapprox' ||
-            cond.op === 'isbetween') &&
-          cond.field === 'amount',
+      conditions.find((cond: any) =>
+        (cond.op === 'is' ||
+          cond.op === 'isapprox' ||
+          cond.op === 'isbetween') &&
+        cond.field === 'amount',
       ) || null,
     date:
-      conditions.find(
-        cond =>
-          (cond.op === 'is' || cond.op === 'isapprox') && cond.field === 'date',
+      conditions.find((cond: any) =>
+        (cond.op === 'is' || cond.op === 'isapprox') && cond.field === 'date',
       ) || null,
   };
 }
 
 export function getNextDate(
-  dateCond,
+  dateCond: any,
   start = new Date(monthUtils.currentDay()),
   noSkipWeekend = false,
 ) {

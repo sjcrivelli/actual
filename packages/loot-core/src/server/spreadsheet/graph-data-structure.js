@@ -1,24 +1,21 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.Graph = Graph;
 // @ts-strict-ignore
-function Graph() {
-    var graph = {
-        addNode: addNode,
-        removeNode: removeNode,
-        adjacent: adjacent,
-        adjacentIncoming: adjacentIncoming,
-        addEdge: addEdge,
-        removeEdge: removeEdge,
-        removeIncomingEdges: removeIncomingEdges,
-        topologicalSort: topologicalSort,
-        generateDOT: generateDOT,
-        getEdges: getEdges,
+export function Graph() {
+    const graph = {
+        addNode,
+        removeNode,
+        adjacent,
+        adjacentIncoming,
+        addEdge,
+        removeEdge,
+        removeIncomingEdges,
+        topologicalSort,
+        generateDOT,
+        getEdges,
     };
-    var edges = new Map();
-    var incomingEdges = new Map();
+    const edges = new Map();
+    const incomingEdges = new Map();
     function getEdges() {
-        return { edges: edges, incomingEdges: incomingEdges };
+        return { edges, incomingEdges };
     }
     function addNode(node) {
         edges.set(node, adjacent(node));
@@ -26,10 +23,10 @@ function Graph() {
         return graph;
     }
     function removeIncomingEdges(node) {
-        var incoming = adjacentIncoming(node);
+        const incoming = adjacentIncoming(node);
         incomingEdges.set(node, new Set());
-        var iter = incoming.values();
-        var cur = iter.next();
+        const iter = incoming.values();
+        let cur = iter.next();
         while (!cur.done) {
             removeEdge(cur.value, node);
             cur = iter.next();
@@ -69,9 +66,9 @@ function Graph() {
         return graph;
     }
     function topologicalSort(sourceNodes) {
-        var visited = new Set();
-        var sorted = [];
-        sourceNodes.forEach(function (name) {
+        const visited = new Set();
+        const sorted = [];
+        sourceNodes.forEach(name => {
             if (!visited.has(name)) {
                 topologicalSortIterable(name, visited, sorted);
             }
@@ -79,7 +76,7 @@ function Graph() {
         return sorted;
     }
     function topologicalSortIterable(name, visited, sorted) {
-        var stackTrace = [];
+        const stackTrace = [];
         stackTrace.push({
             count: -1,
             value: name,
@@ -87,14 +84,14 @@ function Graph() {
             level: 0,
         });
         while (stackTrace.length > 0) {
-            var current = stackTrace.slice(-1)[0];
-            var adjacents = adjacent(current.value);
+            const current = stackTrace.slice(-1)[0];
+            const adjacents = adjacent(current.value);
             if (current.count === -1) {
                 current.count = adjacents.size;
             }
             if (current.count > 0) {
-                var iter = adjacents.values();
-                var cur = iter.next();
+                const iter = adjacents.values();
+                let cur = iter.next();
                 while (!cur.done) {
                     if (!visited.has(cur.value)) {
                         stackTrace.push({
@@ -115,8 +112,8 @@ function Graph() {
                     visited.add(current.value);
                     sorted.unshift(current.value);
                 }
-                var removed = stackTrace.pop();
-                for (var i = 0; i < stackTrace.length; i++) {
+                const removed = stackTrace.pop();
+                for (let i = 0; i < stackTrace.length; i++) {
                     if (stackTrace[i].value === removed.parent) {
                         stackTrace[i].count--;
                     }
@@ -125,13 +122,17 @@ function Graph() {
         }
     }
     function generateDOT() {
-        var edgeStrings = [];
+        const edgeStrings = [];
         edges.forEach(function (adj, edge) {
             if (adj.length !== 0) {
-                edgeStrings.push("".concat(edge, " -> {").concat(adj.join(','), "}"));
+                edgeStrings.push(`${edge} -> {${adj.join(',')}}`);
             }
         });
-        return "\n    digraph G {\n      ".concat(edgeStrings.join('\n').replace(/!/g, '_'), "\n    }\n    ");
+        return `
+    digraph G {
+      ${edgeStrings.join('\n').replace(/!/g, '_')}
+    }
+    `;
     }
     return graph;
 }

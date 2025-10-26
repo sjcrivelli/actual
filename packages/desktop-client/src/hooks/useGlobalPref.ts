@@ -15,16 +15,17 @@ export function useGlobalPref<K extends keyof GlobalPrefs>(
 ): [GlobalPrefs[K], SetGlobalPrefAction<K>] {
   const dispatch = useDispatch();
   const setGlobalPref = useCallback<SetGlobalPrefAction<K>>(
+    (value) => {
       dispatch(
         saveGlobalPrefs({
           prefs: {
             [prefName]: value,
           },
           onSaveGlobalPrefs,
-        }),
+        })
       );
     },
-    [prefName, dispatch, onSaveGlobalPrefs],
+    [prefName, dispatch, onSaveGlobalPrefs]
   );
   const globalPref = useSelector(
     state => state.prefs.global?.[prefName] as GlobalPrefs[K],

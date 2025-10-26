@@ -15,16 +15,17 @@ export function useSyncedPref<K extends keyof SyncedPrefs>(
 ): [SyncedPrefs[K], SetSyncedPrefAction<K>] {
   const dispatch = useDispatch();
   const setPref = useCallback<SetSyncedPrefAction<K>>(
+    (value) => {
       dispatch(
         saveSyncedPrefs({
           prefs: { [prefName]: value },
           isGlobal: options?.isGlobal,
-        }),
+        })
       );
     },
-    [prefName, dispatch, options?.isGlobal],
+    [prefName, dispatch, options?.isGlobal]
   );
-  const pref = useSelector(state => state.prefs.synced[prefName]);
+  const pref = useSelector((state: any) => state.prefs.synced[prefName]);
 
   return [pref, setPref];
 }

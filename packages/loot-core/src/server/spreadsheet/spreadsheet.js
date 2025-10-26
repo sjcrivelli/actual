@@ -1,170 +1,160 @@
-"use strict";
-var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
-    if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
-        if (ar || !(i in from)) {
-            if (!ar) ar = Array.prototype.slice.call(from, 0, i);
-            ar[i] = from[i];
-        }
-    }
-    return to.concat(ar || Array.prototype.slice.call(from));
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.Spreadsheet = void 0;
 // @ts-strict-ignore
-var mitt_1 = require("mitt");
-var log_1 = require("../../platform/server/log");
-var aql_1 = require("../aql");
-var graph_data_structure_1 = require("./graph-data-structure");
-var util_1 = require("./util");
-var Spreadsheet = /** @class */ (function () {
-    function Spreadsheet(saveCache, setCacheStatus) {
+import mitt from 'mitt';
+import { logger } from '../../platform/server/log';
+import { compileQuery, aqlCompiledQuery, schema, schemaConfig } from '../aql';
+import { Graph } from './graph-data-structure';
+import { unresolveName, resolveName } from './util';
+export class Spreadsheet {
+    _meta;
+    cacheBarrier;
+    computeQueue;
+    dirtyCells;
+    events;
+    graph;
+    nodes;
+    running;
+    saveCache;
+    setCacheStatus;
+    transactionDepth;
+    constructor(saveCache, setCacheStatus) {
         // @ts-expect-error Graph should be converted to class
-        this.graph = new graph_data_structure_1.Graph();
+        this.graph = new Graph();
         this.nodes = new Map();
         this.transactionDepth = 0;
         this.saveCache = saveCache;
         this.setCacheStatus = setCacheStatus;
         this.dirtyCells = [];
         this.computeQueue = [];
-        this.events = (0, mitt_1.default)();
+        this.events = mitt();
         this._meta = {
             createdMonths: new Set(),
             budgetType: 'envelope',
         };
     }
-    Spreadsheet.prototype.meta = function () {
+    meta() {
         return this._meta;
-    };
-    Spreadsheet.prototype.setMeta = function (meta) {
+    }
+    setMeta(meta) {
         this._meta = meta;
-    };
+    }
     // Spreadsheet interface
-    Spreadsheet.prototype._getNode = function (name) {
-        var sheet = (0, util_1.unresolveName)(name).sheet;
+    _getNode(name) {
+        const { sheet } = unresolveName(name);
         if (!this.nodes.has(name)) {
             this.nodes.set(name, {
-                name: name,
+                name,
                 expr: null,
                 value: null,
-                sheet: sheet,
+                sheet,
             });
         }
         return this.nodes.get(name);
-    };
-    Spreadsheet.prototype.getNode = function (name) {
+    }
+    getNode(name) {
         return this._getNode(name);
-    };
-    Spreadsheet.prototype.hasCell = function (name) {
+    }
+    hasCell(name) {
         return this.nodes.has(name);
-    };
-    Spreadsheet.prototype.add = function (name, expr) {
+    }
+    add(name, expr) {
         this.set(name, expr);
-    };
-    Spreadsheet.prototype.getNodes = function () {
+    }
+    getNodes() {
         return this.nodes;
-    };
-    Spreadsheet.prototype.serialize = function () {
+    }
+    serialize() {
         return {
             graph: this.graph.getEdges(),
-            nodes: __spreadArray([], this.nodes.entries(), true),
+            nodes: [...this.nodes.entries()],
         };
-    };
-    Spreadsheet.prototype.transaction = function (func) {
+    }
+    transaction(func) {
         this.startTransaction();
         try {
             func();
         }
         catch (e) {
-            log_1.logger.log(e);
+            logger.log(e);
         }
         return this.endTransaction();
-    };
-    Spreadsheet.prototype.startTransaction = function () {
+    }
+    startTransaction() {
         this.transactionDepth++;
-    };
-    Spreadsheet.prototype.endTransaction = function () {
+    }
+    endTransaction() {
         this.transactionDepth--;
         if (this.transactionDepth === 0) {
-            var cells = this.dirtyCells;
+            const cells = this.dirtyCells;
             this.dirtyCells = [];
             this.queueComputation(this.graph.topologicalSort(cells));
         }
         return [];
-    };
-    Spreadsheet.prototype.queueComputation = function (cellNames) {
+    }
+    queueComputation(cellNames) {
         // TODO: Formally write out the different cases when the existing
         // queue is not empty. There should be cases where we can easily
         // optimize this by skipping computations if we know they are
         // going to be computed again. The hard thing is to ensure that
         // the order of computations stays correct
-        var _this = this;
         this.computeQueue = this.computeQueue.concat(cellNames);
         // Begin running on the next tick so we guarantee that it doesn't finish
         // within the same tick. Since some computations are async, this makes it
         // consistent (otherwise it would only sometimes finish sync)
-        Promise.resolve().then(function () {
-            if (!_this.running) {
-                _this.runComputations();
+        Promise.resolve().then(() => {
+            if (!this.running) {
+                this.runComputations();
             }
         });
-    };
-    Spreadsheet.prototype.runComputations = function (idx) {
-        var _this = this;
-        if (idx === void 0) { idx = 0; }
+    }
+    runComputations(idx = 0) {
         this.running = true;
-        var _loop_1 = function () {
-            var name_1 = this_1.computeQueue[idx];
-            var node;
-            var result = void 0;
+        while (idx < this.computeQueue.length) {
+            const name = this.computeQueue[idx];
+            let node;
+            let result;
             try {
-                node = this_1.getNode(name_1);
+                node = this.getNode(name);
                 if (node._run) {
-                    var args = node._dependencies.map(function (dep) {
-                        return _this.getNode(dep).value;
+                    const args = node._dependencies.map(dep => {
+                        return this.getNode(dep).value;
                     });
-                    result = node._run.apply(node, args);
+                    result = node._run(...args);
                     if (result instanceof Promise) {
-                        log_1.logger.warn("dynamic cell ".concat(name_1, " returned a promise! this is discouraged because errors are not handled properly"));
+                        logger.warn(`dynamic cell ${name} returned a promise! this is discouraged because errors are not handled properly`);
                     }
                 }
                 else if (node.sql) {
-                    result = (0, aql_1.aqlCompiledQuery)(node.query, node.sql.sqlPieces, node.sql.state);
+                    result = aqlCompiledQuery(node.query, node.sql.sqlPieces, node.sql.state);
                 }
                 else {
                     idx++;
-                    return "continue";
+                    continue;
                 }
             }
             catch (e) {
-                log_1.logger.log('Error while evaluating ' + name_1 + ':', e);
+                logger.log('Error while evaluating ' + name + ':', e);
                 // If an error happens, bail on the rest of the computations
-                this_1.running = false;
-                this_1.computeQueue = [];
-                return { value: void 0 };
+                this.running = false;
+                this.computeQueue = [];
+                return;
             }
             if (result instanceof Promise) {
                 // When the cell is finished computing, finish computing the
                 // rest
-                result.then(function (value) {
+                result.then(value => {
                     node.value = value;
-                    _this.runComputations(idx + 1);
-                }, function (err) {
+                    this.runComputations(idx + 1);
+                }, err => {
                     // TODO: use captureException here
-                    log_1.logger.warn("Failed running ".concat(node.name, "!"), err);
-                    _this.runComputations(idx + 1);
+                    logger.warn(`Failed running ${node.name}!`, err);
+                    this.runComputations(idx + 1);
                 });
-                return { value: void 0 };
+                return;
             }
             else {
                 node.value = result;
             }
             idx++;
-        };
-        var this_1 = this;
-        while (idx < this.computeQueue.length) {
-            var state_1 = _loop_1();
-            if (typeof state_1 === "object")
-                return state_1.value;
         }
         // If everything computed in one loop (no async operations) notify
         // the user and empty the queue
@@ -178,146 +168,135 @@ var Spreadsheet = /** @class */ (function () {
             this.running = false;
             this.computeQueue = [];
         }
-    };
-    Spreadsheet.prototype.markCacheSafe = function () {
+    }
+    markCacheSafe() {
         if (!this.cacheBarrier) {
             if (this.setCacheStatus) {
                 this.setCacheStatus({ clean: true });
             }
         }
-    };
-    Spreadsheet.prototype.markCacheDirty = function () {
+    }
+    markCacheDirty() {
         if (this.setCacheStatus) {
             this.setCacheStatus({ clean: false });
         }
-    };
-    Spreadsheet.prototype.startCacheBarrier = function () {
+    }
+    startCacheBarrier() {
         this.cacheBarrier = true;
         this.markCacheDirty();
-    };
-    Spreadsheet.prototype.endCacheBarrier = function () {
+    }
+    endCacheBarrier() {
         this.cacheBarrier = false;
-        var pendingChange = this.running || this.computeQueue.length > 0;
+        const pendingChange = this.running || this.computeQueue.length > 0;
         if (!pendingChange) {
             this.markCacheSafe();
         }
-    };
-    Spreadsheet.prototype.addEventListener = function (name, func) {
-        var _this = this;
+    }
+    addEventListener(name, func) {
         this.events.on(name, func);
-        return function () { return _this.events.off(name, func); };
-    };
-    Spreadsheet.prototype.onFinish = function (func) {
+        return () => this.events.off(name, func);
+    }
+    onFinish(func) {
         if (this.transactionDepth !== 0) {
             throw new Error('onFinish called while inside a spreadsheet transaction. This is not allowed as it will lead to race conditions');
         }
         if (!this.running && this.computeQueue.length === 0) {
             func([]);
             // The remove function does nothing
-            return function () { };
+            return () => { };
         }
-        var remove = this.addEventListener('change', function () {
-            var args = [];
-            for (var _i = 0; _i < arguments.length; _i++) {
-                args[_i] = arguments[_i];
-            }
+        const remove = this.addEventListener('change', (...args) => {
             remove();
-            return func.apply(void 0, args);
+            return func(...args);
         });
         return remove;
-    };
-    Spreadsheet.prototype.unload = function () {
+    }
+    unload() {
         this.events.all.clear();
-    };
-    Spreadsheet.prototype.getValue = function (name) {
+    }
+    getValue(name) {
         return this.getNode(name).value;
-    };
-    Spreadsheet.prototype.getExpr = function (name) {
+    }
+    getExpr(name) {
         return this.getNode(name).expr;
-    };
-    Spreadsheet.prototype.getCellValue = function (sheet, name) {
-        return this.getNode((0, util_1.resolveName)(sheet, name)).value;
-    };
-    Spreadsheet.prototype.getCellExpr = function (sheet, name) {
-        return this.getNode((0, util_1.resolveName)(sheet, name)).expr;
-    };
-    Spreadsheet.prototype.getCellValueLoose = function (sheetName, cellName) {
-        var name = (0, util_1.resolveName)(sheetName, cellName);
+    }
+    getCellValue(sheet, name) {
+        return this.getNode(resolveName(sheet, name)).value;
+    }
+    getCellExpr(sheet, name) {
+        return this.getNode(resolveName(sheet, name)).expr;
+    }
+    getCellValueLoose(sheetName, cellName) {
+        const name = resolveName(sheetName, cellName);
         if (this.nodes.has(name)) {
             return this.getNode(name).value;
         }
         return null;
-    };
-    Spreadsheet.prototype.bootup = function (onReady) {
-        this.onFinish(function () {
+    }
+    bootup(onReady) {
+        this.onFinish(() => {
             onReady();
         });
-    };
-    Spreadsheet.prototype.load = function (name, value) {
-        var node = this._getNode(name);
+    }
+    load(name, value) {
+        const node = this._getNode(name);
         node.expr = value;
         node.value = value;
-    };
-    Spreadsheet.prototype.create = function (name, value) {
-        var _this = this;
-        return this.transaction(function () {
-            var node = _this._getNode(name);
+    }
+    create(name, value) {
+        return this.transaction(() => {
+            const node = this._getNode(name);
             node.expr = value;
             node.value = value;
-            _this._markDirty(name);
+            this._markDirty(name);
         });
-    };
-    Spreadsheet.prototype.set = function (name, value) {
+    }
+    set(name, value) {
         this.create(name, value);
-    };
-    Spreadsheet.prototype.recompute = function (name) {
-        var _this = this;
-        this.transaction(function () {
-            _this.dirtyCells.push(name);
+    }
+    recompute(name) {
+        this.transaction(() => {
+            this.dirtyCells.push(name);
         });
-    };
-    Spreadsheet.prototype.recomputeAll = function () {
-        var _this = this;
+    }
+    recomputeAll() {
         // Recompute everything!
-        this.transaction(function () {
-            _this.dirtyCells = __spreadArray([], _this.nodes.keys(), true);
+        this.transaction(() => {
+            this.dirtyCells = [...this.nodes.keys()];
         });
-    };
-    Spreadsheet.prototype.createQuery = function (sheetName, cellName, query) {
-        var _this = this;
-        var name = (0, util_1.resolveName)(sheetName, cellName);
-        var node = this._getNode(name);
+    }
+    createQuery(sheetName, cellName, query) {
+        const name = resolveName(sheetName, cellName);
+        const node = this._getNode(name);
         if (node.query !== query) {
             node.query = query;
-            var _a = (0, aql_1.compileQuery)(node.query, aql_1.schema, aql_1.schemaConfig), sqlPieces = _a.sqlPieces, state = _a.state;
-            node.sql = { sqlPieces: sqlPieces, state: state };
-            this.transaction(function () {
-                _this._markDirty(name);
+            const { sqlPieces, state } = compileQuery(node.query, schema, schemaConfig);
+            node.sql = { sqlPieces, state };
+            this.transaction(() => {
+                this._markDirty(name);
             });
         }
-    };
-    Spreadsheet.prototype.createStatic = function (sheetName, cellName, initialValue) {
-        var name = (0, util_1.resolveName)(sheetName, cellName);
-        var exists = this.nodes.has(name);
+    }
+    createStatic(sheetName, cellName, initialValue) {
+        const name = resolveName(sheetName, cellName);
+        const exists = this.nodes.has(name);
         if (!exists) {
             this.create(name, initialValue);
         }
-    };
-    Spreadsheet.prototype.createDynamic = function (sheetName, cellName, _a) {
-        var _this = this;
-        var _b = _a.dependencies, dependencies = _b === void 0 ? [] : _b, run = _a.run, initialValue = _a.initialValue, _c = _a.refresh, refresh = _c === void 0 ? false : _c;
-        var name = (0, util_1.resolveName)(sheetName, cellName);
-        var node = this._getNode(name);
+    }
+    createDynamic(sheetName, cellName, { dependencies = [], run, initialValue, refresh = false, }) {
+        const name = resolveName(sheetName, cellName);
+        const node = this._getNode(name);
         if (node.dynamic) {
             // If it already exists, do nothing
             return;
         }
         node.dynamic = true;
         node._run = run;
-        dependencies = dependencies.map(function (dep) {
-            var resolved;
-            if (!(0, util_1.unresolveName)(dep).sheet) {
-                resolved = (0, util_1.resolveName)(sheetName, dep);
+        dependencies = dependencies.map(dep => {
+            let resolved;
+            if (!unresolveName(dep).sheet) {
+                resolved = resolveName(sheetName, dep);
             }
             else {
                 resolved = dep;
@@ -327,87 +306,80 @@ var Spreadsheet = /** @class */ (function () {
         node._dependencies = dependencies;
         // TODO: diff these
         this.graph.removeIncomingEdges(name);
-        dependencies.forEach(function (dep) {
-            _this.graph.addEdge(dep, name);
+        dependencies.forEach(dep => {
+            this.graph.addEdge(dep, name);
         });
         if (node.value == null || refresh) {
-            this.transaction(function () {
+            this.transaction(() => {
                 node.value = initialValue;
-                _this._markDirty(name);
+                this._markDirty(name);
             });
         }
-    };
-    Spreadsheet.prototype.clearSheet = function (sheetName) {
-        for (var _i = 0, _a = this.nodes.entries(); _i < _a.length; _i++) {
-            var _b = _a[_i], name_2 = _b[0], node = _b[1];
+    }
+    clearSheet(sheetName) {
+        for (const [name, node] of this.nodes.entries()) {
             if (node.sheet === sheetName) {
-                this.nodes.delete(name_2);
+                this.nodes.delete(name);
             }
         }
-    };
-    Spreadsheet.prototype.voidCell = function (sheetName, name, voidValue) {
-        if (voidValue === void 0) { voidValue = null; }
-        var node = this.getNode((0, util_1.resolveName)(sheetName, name));
+    }
+    voidCell(sheetName, name, voidValue = null) {
+        const node = this.getNode(resolveName(sheetName, name));
         node._run = null;
         node.dynamic = false;
         node.value = voidValue;
-    };
-    Spreadsheet.prototype.deleteCell = function (sheetName, name) {
+    }
+    deleteCell(sheetName, name) {
         this.voidCell(sheetName, name);
-        this.nodes.delete((0, util_1.resolveName)(sheetName, name));
-    };
-    Spreadsheet.prototype.addDependencies = function (sheetName, cellName, deps) {
-        var _this = this;
-        var name = (0, util_1.resolveName)(sheetName, cellName);
-        deps = deps.map(function (dep) {
-            if (!(0, util_1.unresolveName)(dep).sheet) {
-                return (0, util_1.resolveName)(sheetName, dep);
+        this.nodes.delete(resolveName(sheetName, name));
+    }
+    addDependencies(sheetName, cellName, deps) {
+        const name = resolveName(sheetName, cellName);
+        deps = deps.map(dep => {
+            if (!unresolveName(dep).sheet) {
+                return resolveName(sheetName, dep);
             }
             return dep;
         });
-        var node = this.getNode(name);
-        var newDeps = deps.filter(function (dep) { return (node._dependencies || []).indexOf(dep) === -1; });
+        const node = this.getNode(name);
+        const newDeps = deps.filter(dep => (node._dependencies || []).indexOf(dep) === -1);
         if (newDeps.length > 0) {
             node._dependencies = (node._dependencies || []).concat(newDeps);
-            newDeps.forEach(function (dep) {
-                _this.graph.addEdge(dep, name);
+            newDeps.forEach(dep => {
+                this.graph.addEdge(dep, name);
             });
             this.recompute(name);
         }
-    };
-    Spreadsheet.prototype.removeDependencies = function (sheetName, cellName, deps) {
-        var _this = this;
-        var name = (0, util_1.resolveName)(sheetName, cellName);
-        deps = deps.map(function (dep) {
-            if (!(0, util_1.unresolveName)(dep).sheet) {
-                return (0, util_1.resolveName)(sheetName, dep);
+    }
+    removeDependencies(sheetName, cellName, deps) {
+        const name = resolveName(sheetName, cellName);
+        deps = deps.map(dep => {
+            if (!unresolveName(dep).sheet) {
+                return resolveName(sheetName, dep);
             }
             return dep;
         });
-        var node = this.getNode(name);
-        node._dependencies = (node._dependencies || []).filter(function (dep) { return deps.indexOf(dep) === -1; });
-        deps.forEach(function (dep) {
-            _this.graph.removeEdge(dep, name);
+        const node = this.getNode(name);
+        node._dependencies = (node._dependencies || []).filter(dep => deps.indexOf(dep) === -1);
+        deps.forEach(dep => {
+            this.graph.removeEdge(dep, name);
         });
         this.recompute(name);
-    };
-    Spreadsheet.prototype._markDirty = function (name) {
+    }
+    _markDirty(name) {
         this.dirtyCells.push(name);
-    };
-    Spreadsheet.prototype.triggerDatabaseChanges = function (oldValues, newValues) {
-        var _this = this;
-        var tables = new Set(__spreadArray(__spreadArray([], oldValues.keys(), true), newValues.keys(), true));
+    }
+    triggerDatabaseChanges(oldValues, newValues) {
+        const tables = new Set([...oldValues.keys(), ...newValues.keys()]);
         this.startTransaction();
         // TODO: Create an index of deps so we don't have to iterate
         // across all nodes
-        this.nodes.forEach(function (node) {
+        this.nodes.forEach(node => {
             if (node.sql &&
-                node.sql.state.dependencies.some(function (dep) { return tables.has(dep); })) {
-                _this._markDirty(node.name);
+                node.sql.state.dependencies.some(dep => tables.has(dep))) {
+                this._markDirty(node.name);
             }
         });
         this.endTransaction();
-    };
-    return Spreadsheet;
-}());
-exports.Spreadsheet = Spreadsheet;
+    }
+}

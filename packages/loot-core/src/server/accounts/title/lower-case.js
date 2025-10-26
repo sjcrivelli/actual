@@ -1,16 +1,4 @@
-"use strict";
-var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
-    if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
-        if (ar || !(i in from)) {
-            if (!ar) ar = Array.prototype.slice.call(from, 0, i);
-            ar[i] = from[i];
-        }
-    }
-    return to.concat(ar || Array.prototype.slice.call(from));
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.lowerCaseSet = void 0;
-var conjunctions = [
+const conjunctions = [
     'for', //
     'and',
     'nor',
@@ -19,12 +7,12 @@ var conjunctions = [
     'yet',
     'so',
 ];
-var articles = [
+const articles = [
     'a', //
     'an',
     'the',
 ];
-var prepositions = [
+const prepositions = [
     'aboard',
     'about',
     'above',
@@ -95,4 +83,8 @@ var prepositions = [
     'within',
     'without',
 ];
-exports.lowerCaseSet = new Set(__spreadArray(__spreadArray(__spreadArray([], conjunctions, true), articles, true), prepositions, true));
+export const lowerCaseSet = new Set([
+    ...conjunctions,
+    ...articles,
+    ...prepositions,
+]);

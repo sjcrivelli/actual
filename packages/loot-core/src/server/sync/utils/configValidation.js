@@ -1,7 +1,4 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.validateConfig = validateConfig;
-function validateConfig(config) {
+export function validateConfig(config) {
     if (!config) {
         throw new Error('[sync] Missing configuration object.');
         // Placeholder validation — expand later

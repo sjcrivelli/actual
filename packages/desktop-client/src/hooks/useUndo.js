@@ -17,7 +17,7 @@ var react_i18next_1 = require("react-i18next");
 var useResponsive_1 = require("@actual-app/components/hooks/useResponsive");
 var notificationsSlice_1 = require("@desktop-client/notifications/notificationsSlice");
 var redux_1 = require("@desktop-client/redux");
-var undo_1 = require("@desktop-client/undo");
+import * as undo_1 from "@desktop-client/undo";
 var timeout = 10000;
 function useUndo() {
     var dispatch = (0, redux_1.useDispatch)();

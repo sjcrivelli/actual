@@ -1,75 +1,8 @@
-"use strict";
-var __assign = (this && this.__assign) || function () {
-    __assign = Object.assign || function(t) {
-        for (var s, i = 1, n = arguments.length; i < n; i++) {
-            s = arguments[i];
-            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
-                t[p] = s[p];
-        }
-        return t;
-    };
-    return __assign.apply(this, arguments);
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.getShortYearRegex = exports.getShortYearFormat = exports.getMonthYearRegex = exports.getMonthYearFormat = exports.getDayMonthRegex = exports.getDayMonthFormat = exports.getDateFormatRegex = exports.parseDate = void 0;
-exports._parse = _parse;
-exports.yearFromDate = yearFromDate;
-exports.monthFromDate = monthFromDate;
-exports.weekFromDate = weekFromDate;
-exports.firstDayOfMonth = firstDayOfMonth;
-exports.lastDayOfMonth = lastDayOfMonth;
-exports.dayFromDate = dayFromDate;
-exports.currentMonth = currentMonth;
-exports.currentWeek = currentWeek;
-exports.currentYear = currentYear;
-exports.currentDate = currentDate;
-exports.currentDay = currentDay;
-exports.nextMonth = nextMonth;
-exports.prevYear = prevYear;
-exports.prevMonth = prevMonth;
-exports.addYears = addYears;
-exports.addMonths = addMonths;
-exports.addWeeks = addWeeks;
-exports.differenceInCalendarMonths = differenceInCalendarMonths;
-exports.differenceInCalendarDays = differenceInCalendarDays;
-exports.subMonths = subMonths;
-exports.subWeeks = subWeeks;
-exports.subYears = subYears;
-exports.addDays = addDays;
-exports.subDays = subDays;
-exports.isBefore = isBefore;
-exports.isAfter = isAfter;
-exports.isCurrentMonth = isCurrentMonth;
-exports.isCurrentDay = isCurrentDay;
-exports.bounds = bounds;
-exports._yearRange = _yearRange;
-exports.yearRangeInclusive = yearRangeInclusive;
-exports._weekRange = _weekRange;
-exports.weekRangeInclusive = weekRangeInclusive;
-exports._range = _range;
-exports.range = range;
-exports.rangeInclusive = rangeInclusive;
-exports._dayRange = _dayRange;
-exports.dayRange = dayRange;
-exports.dayRangeInclusive = dayRangeInclusive;
-exports.getMonthFromIndex = getMonthFromIndex;
-exports.getMonthIndex = getMonthIndex;
-exports.getYear = getYear;
-exports.getMonth = getMonth;
-exports.getDay = getDay;
-exports.getMonthEnd = getMonthEnd;
-exports.getWeekEnd = getWeekEnd;
-exports.getYearStart = getYearStart;
-exports.getYearEnd = getYearEnd;
-exports.sheetForMonth = sheetForMonth;
-exports.nameForMonth = nameForMonth;
-exports.format = format;
-exports.formatDistance = formatDistance;
 // @ts-strict-ignore
-var d = require("date-fns");
-var memoize_one_1 = require("memoize-one");
-var Platform = require("./platform");
-function _parse(value) {
+import * as d from 'date-fns';
+import memoizeOne from 'memoize-one';
+import * as Platform from './platform';
+export function _parse(value) {
     if (typeof value === 'string') {
         // Dates are hard. We just want to deal with months in the format
         // 2020-01 and days in the format 2020-01-01, but life is never
@@ -124,7 +57,7 @@ function _parse(value) {
         // than 12 hours (god let's hope not) so no matter how far DST has
         // shifted backwards or forwards, doing date logic will stay
         // within the day we want.
-        var _a = value.split('-'), year = _a[0], month = _a[1], day = _a[2];
+        const [year, month, day] = value.split('-');
         if (day != null) {
             return new Date(parseInt(year), parseInt(month) - 1, parseInt(day), 12);
         }
@@ -140,27 +73,27 @@ function _parse(value) {
     }
     return value;
 }
-exports.parseDate = _parse;
-function yearFromDate(date) {
+export const parseDate = _parse;
+export function yearFromDate(date) {
     return d.format(_parse(date), 'yyyy');
 }
-function monthFromDate(date) {
+export function monthFromDate(date) {
     return d.format(_parse(date), 'yyyy-MM');
 }
-function weekFromDate(date, firstDayOfWeekIdx) {
-    var converted = parseInt(firstDayOfWeekIdx || '0');
+export function weekFromDate(date, firstDayOfWeekIdx) {
+    const converted = parseInt(firstDayOfWeekIdx || '0');
     return d.format(_parse(d.startOfWeek(_parse(date), { weekStartsOn: converted })), 'yyyy-MM-dd');
 }
-function firstDayOfMonth(date) {
+export function firstDayOfMonth(date) {
     return dayFromDate(d.startOfMonth(_parse(date)));
 }
-function lastDayOfMonth(date) {
+export function lastDayOfMonth(date) {
     return dayFromDate(d.endOfMonth(_parse(date)));
 }
-function dayFromDate(date) {
+export function dayFromDate(date) {
     return d.format(_parse(date), 'yyyy-MM-dd');
 }
-function currentMonth() {
+export function currentMonth() {
     if (global.IS_TESTING || Platform.isPlaywright) {
         return global.currentMonth || '2017-01';
     }
@@ -168,16 +101,16 @@ function currentMonth() {
         return d.format(new Date(), 'yyyy-MM');
     }
 }
-function currentWeek(firstDayOfWeekIdx) {
+export function currentWeek(firstDayOfWeekIdx) {
     if (global.IS_TESTING || Platform.isPlaywright) {
         return global.currentWeek || '2017-01-01';
     }
     else {
-        var converted = parseInt(firstDayOfWeekIdx || '0');
+        const converted = parseInt(firstDayOfWeekIdx || '0');
         return d.format(_parse(d.startOfWeek(new Date(), { weekStartsOn: converted })), 'yyyy-MM-dd');
     }
 }
-function currentYear() {
+export function currentYear() {
     if (global.IS_TESTING || Platform.isPlaywright) {
         return global.currentMonth || '2017';
     }
@@ -185,13 +118,13 @@ function currentYear() {
         return d.format(new Date(), 'yyyy');
     }
 }
-function currentDate() {
+export function currentDate() {
     if (global.IS_TESTING || Platform.isPlaywright) {
         return d.parse(currentDay(), 'yyyy-MM-dd', new Date());
     }
     return new Date();
 }
-function currentDay() {
+export function currentDay() {
     if (global.IS_TESTING || Platform.isPlaywright) {
         return '2017-01-01';
     }
@@ -199,71 +132,69 @@ function currentDay() {
         return d.format(new Date(), 'yyyy-MM-dd');
     }
 }
-function nextMonth(month) {
+export function nextMonth(month) {
     return d.format(d.addMonths(_parse(month), 1), 'yyyy-MM');
 }
-function prevYear(month, format) {
-    if (format === void 0) { format = 'yyyy-MM'; }
+export function prevYear(month, format = 'yyyy-MM') {
     return d.format(d.subMonths(_parse(month), 12), format);
 }
-function prevMonth(month) {
+export function prevMonth(month) {
     return d.format(d.subMonths(_parse(month), 1), 'yyyy-MM');
 }
-function addYears(year, n) {
+export function addYears(year, n) {
     return d.format(d.addYears(_parse(year), n), 'yyyy');
 }
-function addMonths(month, n) {
+export function addMonths(month, n) {
     return d.format(d.addMonths(_parse(month), n), 'yyyy-MM');
 }
-function addWeeks(date, n) {
+export function addWeeks(date, n) {
     return d.format(d.addWeeks(_parse(date), n), 'yyyy-MM-dd');
 }
-function differenceInCalendarMonths(month1, month2) {
+export function differenceInCalendarMonths(month1, month2) {
     return d.differenceInCalendarMonths(_parse(month1), _parse(month2));
 }
-function differenceInCalendarDays(month1, month2) {
+export function differenceInCalendarDays(month1, month2) {
     return d.differenceInCalendarDays(_parse(month1), _parse(month2));
 }
-function subMonths(month, n) {
+export function subMonths(month, n) {
     return d.format(d.subMonths(_parse(month), n), 'yyyy-MM');
 }
-function subWeeks(date, n) {
+export function subWeeks(date, n) {
     return d.format(d.subWeeks(_parse(date), n), 'yyyy-MM-dd');
 }
-function subYears(year, n) {
+export function subYears(year, n) {
     return d.format(d.subYears(_parse(year), n), 'yyyy');
 }
-function addDays(day, n) {
+export function addDays(day, n) {
     return d.format(d.addDays(_parse(day), n), 'yyyy-MM-dd');
 }
-function subDays(day, n) {
+export function subDays(day, n) {
     return d.format(d.subDays(_parse(day), n), 'yyyy-MM-dd');
 }
-function isBefore(month1, month2) {
+export function isBefore(month1, month2) {
     return d.isBefore(_parse(month1), _parse(month2));
 }
-function isAfter(month1, month2) {
+export function isAfter(month1, month2) {
     return d.isAfter(_parse(month1), _parse(month2));
 }
-function isCurrentMonth(month) {
+export function isCurrentMonth(month) {
     return month === currentMonth();
 }
-function isCurrentDay(day) {
+export function isCurrentDay(day) {
     return day === currentDay();
 }
 // TODO: This doesn't really fit in this module anymore, should
 // probably live elsewhere
-function bounds(month) {
+export function bounds(month) {
     return {
         start: parseInt(d.format(d.startOfMonth(_parse(month)), 'yyyyMMdd')),
         end: parseInt(d.format(d.endOfMonth(_parse(month)), 'yyyyMMdd')),
     };
 }
-function _yearRange(start, end, inclusive) {
-    if (inclusive === void 0) { inclusive = false; }
-    var years = [];
-    var year = yearFromDate(start);
-    var endYear = yearFromDate(end);
+export function _yearRange(start, end, inclusive = false) {
+    const years = [];
+    let year = yearFromDate(start);
+    const endYear = yearFromDate(end);
     while (d.isBefore(_parse(year), _parse(endYear))) {
         years.push(year);
         year = addYears(year, 1);
@@ -273,14 +204,13 @@ function _yearRange(start, end, inclusive) {
     }
     return years;
 }
-function yearRangeInclusive(start, end) {
+export function yearRangeInclusive(start, end) {
     return _yearRange(start, end, true);
 }
-function _weekRange(start, end, inclusive, firstDayOfWeekIdx) {
-    if (inclusive === void 0) { inclusive = false; }
-    var weeks = [];
-    var week = weekFromDate(start, firstDayOfWeekIdx);
-    var endWeek = weekFromDate(end, firstDayOfWeekIdx);
+export function _weekRange(start, end, inclusive = false, firstDayOfWeekIdx) {
+    const weeks = [];
+    let week = weekFromDate(start, firstDayOfWeekIdx);
+    const endWeek = weekFromDate(end, firstDayOfWeekIdx);
     while (d.isBefore(_parse(week), _parse(endWeek))) {
         weeks.push(week);
         week = addWeeks(week, 1);
@@ -290,14 +220,13 @@ function _weekRange(start, end, inclusive, firstDayOfWeekIdx) {
     }
     return weeks;
 }
-function weekRangeInclusive(start, end, firstDayOfWeekIdx) {
+export function weekRangeInclusive(start, end, firstDayOfWeekIdx) {
     return _weekRange(start, end, true, firstDayOfWeekIdx);
 }
-function _range(start, end, inclusive) {
-    if (inclusive === void 0) { inclusive = false; }
-    var months = [];
-    var month = monthFromDate(start);
-    var endMonth = monthFromDate(end);
+export function _range(start, end, inclusive = false) {
+    const months = [];
+    let month = monthFromDate(start);
+    const endMonth = monthFromDate(end);
     while (d.isBefore(_parse(month), _parse(endMonth))) {
         months.push(month);
         month = addMonths(month, 1);
@@ -307,16 +236,15 @@ function _range(start, end, inclusive) {
     }
     return months;
 }
-function range(start, end) {
+export function range(start, end) {
     return _range(start, end);
 }
-function rangeInclusive(start, end) {
+export function rangeInclusive(start, end) {
     return _range(start, end, true);
 }
-function _dayRange(start, end, inclusive) {
-    if (inclusive === void 0) { inclusive = false; }
-    var days = [];
-    var day = start;
+export function _dayRange(start, end, inclusive = false) {
+    const days = [];
+    let day = start;
     while (d.isBefore(_parse(day), _parse(end))) {
         days.push(dayFromDate(day));
         day = addDays(day, 1);
@@ -326,67 +254,70 @@ function _dayRange(start, end, inclusive) {
     }
     return days;
 }
-function dayRange(start, end) {
+export function dayRange(start, end) {
     return _dayRange(start, end);
 }
-function dayRangeInclusive(start, end) {
+export function dayRangeInclusive(start, end) {
     return _dayRange(start, end, true);
 }
-function getMonthFromIndex(year, monthIndex) {
-    var formatMonth = "".concat(monthIndex + 1).padStart(2, '0');
-    return "".concat(year, "-").concat(formatMonth);
+export function getMonthFromIndex(year, monthIndex) {
+    const formatMonth = `${monthIndex + 1}`.padStart(2, '0');
+    return `${year}-${formatMonth}`;
 }
-function getMonthIndex(month) {
+export function getMonthIndex(month) {
     return parseInt(month.slice(5, 7)) - 1;
 }
-function getYear(month) {
+export function getYear(month) {
     return month.slice(0, 4);
 }
-function getMonth(day) {
+export function getMonth(day) {
     return day.slice(0, 7);
 }
-function getDay(day) {
+export function getDay(day) {
     return Number(d.format(_parse(day), 'dd'));
 }
-function getMonthEnd(day) {
+export function getMonthEnd(day) {
     return subDays(nextMonth(day.slice(0, 7)) + '-01', 1);
 }
-function getWeekEnd(date, firstDayOfWeekIdx) {
-    var converted = parseInt(firstDayOfWeekIdx || '0');
+export function getWeekEnd(date, firstDayOfWeekIdx) {
+    const converted = parseInt(firstDayOfWeekIdx || '0');
     return d.format(_parse(d.endOfWeek(_parse(date), { weekStartsOn: converted })), 'yyyy-MM-dd');
 }
-function getYearStart(month) {
+export function getYearStart(month) {
     return getYear(month) + '-01';
 }
-function getYearEnd(month) {
+export function getYearEnd(month) {
     return getYear(month) + '-12';
 }
-function sheetForMonth(month) {
+export function sheetForMonth(month) {
     return 'budget' + month.replace('-', '');
 }
-function nameForMonth(month, locale) {
-    return d.format(_parse(month), 'MMMM ‘yy', { locale: locale });
+export function nameForMonth(month, locale) {
+    return d.format(_parse(month), 'MMMM ‘yy', { locale });
 }
-function format(month, format, locale) {
-    return d.format(_parse(month), format, { locale: locale });
+export function format(month, format, locale) {
+    return d.format(_parse(month), format, { locale });
 }
-function formatDistance(date1, date2, locale, options) {
-    return d.formatDistance(_parse(date1), _parse(date2), __assign({ locale: locale }, options));
+export function formatDistance(date1, date2, locale, options) {
+    return d.formatDistance(_parse(date1), _parse(date2), {
+        locale,
+        ...options,
+    });
 }
-exports.getDateFormatRegex = (0, memoize_one_1.default)(function (format) {
+export const getDateFormatRegex = memoizeOne((format) => {
     return new RegExp(format
         .replace(/d+/g, '\\d{1,2}')
         .replace(/M+/g, '\\d{1,2}')
         .replace(/y+/g, '\\d{4}'));
 });
-exports.getDayMonthFormat = (0, memoize_one_1.default)(function (format) {
+export const getDayMonthFormat = memoizeOne((format) => {
     return format
         .replace(/y+/g, '')
         .replace(/[^\w]$/, '')
         .replace(/^[^\w]/, '');
 });
-exports.getDayMonthRegex = (0, memoize_one_1.default)(function (format) {
-    var regex = format
+export const getDayMonthRegex = memoizeOne((format) => {
+    const regex = format
         .replace(/y+/g, '')
         .replace(/[^\w]$/, '')
         .replace(/^[^\w]/, '')
@@ -394,7 +325,7 @@ exports.getDayMonthRegex = (0, memoize_one_1.default)(function (format) {
         .replace(/M+/g, '\\d{1,2}');
     return new RegExp('^' + regex + '$');
 });
-exports.getMonthYearFormat = (0, memoize_one_1.default)(function (format) {
+export const getMonthYearFormat = memoizeOne((format) => {
     return format
         .replace(/d+/g, '')
         .replace(/[^\w]$/, '')
@@ -403,8 +334,8 @@ exports.getMonthYearFormat = (0, memoize_one_1.default)(function (format) {
         .replace(/\.\./, '.')
         .replace(/--/, '-');
 });
-exports.getMonthYearRegex = (0, memoize_one_1.default)(function (format) {
-    var regex = format
+export const getMonthYearRegex = memoizeOne((format) => {
+    const regex = format
         .replace(/d+/g, '')
         .replace(/[^\w]$/, '')
         .replace(/^[^\w]/, '')
@@ -413,11 +344,11 @@ exports.getMonthYearRegex = (0, memoize_one_1.default)(function (format) {
         .replace(/y+/g, '\\d{2,4}');
     return new RegExp('^' + regex + '$');
 });
-exports.getShortYearFormat = (0, memoize_one_1.default)(function (format) {
+export const getShortYearFormat = memoizeOne((format) => {
     return format.replace(/y+/g, 'yy');
 });
-exports.getShortYearRegex = (0, memoize_one_1.default)(function (format) {
-    var regex = format
+export const getShortYearRegex = memoizeOne((format) => {
+    const regex = format
         .replace(/[^\w]$/, '')
         .replace(/^[^\w]/, '')
         .replace(/d+/g, '\\d{1,2}')

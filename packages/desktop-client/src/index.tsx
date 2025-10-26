@@ -1,16 +1,10 @@
-import './version-shim'
-// @ts-strict-ignore
-// This file will initialize the app if we are in a real browser
-// environment (not electron)
+import "./version-shim.esm.js"; // @ts-strict-ignore
 import './browser-preload.browser.js';
-
 import './fonts.scss';
-
-import './i18n';
+import "./i18n.esm.js";
 
 import React from 'react';
 import { Provider } from 'react-redux';
-
 import { bindActionCreators } from '@reduxjs/toolkit';
 import { createRoot } from 'react-dom/client';
 
@@ -19,21 +13,23 @@ import { q } from 'loot-core/shared/query';
 
 import * as accountsSlice from './accounts/accountsSlice';
 import * as appSlice from './app/appSlice';
-import { AuthProvider } from './auth/AuthProvider';
+
+import { AuthProvider } from "./auth/AuthProvider";
 import * as budgetSlice from './budget/budgetSlice';
 import * as budgetfilesSlice from './budgetfiles/budgetfilesSlice';
-import { App } from './components/App';
-import { ServerProvider } from './components/ServerContext';
+import { App } from "./components/App";
+import { ServerProvider } from "./components/ServerContext";
 import * as modalsSlice from './modals/modalsSlice';
 import * as notificationsSlice from './notifications/notificationsSlice';
 import * as payeesSlice from './payees/payeesSlice';
 import * as prefsSlice from './prefs/prefsSlice';
-import { aqlQuery } from './queries/aqlQuery';
+import { aqlQuery } from "./queries/aqlQuery";
 import { store } from './redux/store';
 import * as tagsSlice from './tags/tagsSlice';
 import * as transactionsSlice from './transactions/transactionsSlice';
-import { redo, undo } from './undo';
+import { redo, undo } from "./undo";
 import * as usersSlice from './users/usersSlice';
+
 
 const boundActions = bindActionCreators(
   {
@@ -72,7 +68,6 @@ function inputFocused(e: KeyboardEvent) {
   );
 }
 
-// Expose this to the main process to menu items can access it
 window.__actionsForMenu = {
   ...boundActions,
   undo,
@@ -81,13 +76,12 @@ window.__actionsForMenu = {
   uploadFile,
 };
 
-// Expose send for fun!
 window.$send = send;
 window.$query = aqlQuery;
 window.$q = q;
 
-const container = document.getElementById('root');
-const root = createRoot(container);
+const rootEl = document.getElementById('root')!;
+const root = createRoot(rootEl);
 root.render(
   <Provider store={store}>
     <ServerProvider>
@@ -95,11 +89,10 @@ root.render(
         <App />
       </AuthProvider>
     </ServerProvider>
-  </Provider>,
+  </Provider>
 );
 
 declare global {
-  // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
   interface Window {
     __actionsForMenu: typeof boundActions & {
       undo: typeof undo;
@@ -107,7 +100,6 @@ declare global {
       appFocused: typeof appFocused;
       uploadFile: typeof uploadFile;
     };
-
     $send: typeof send;
     $query: typeof aqlQuery;
     $q: typeof q;
@@ -128,10 +120,8 @@ document.addEventListener('keydown', e => {
       }
       e.preventDefault();
       if (e.shiftKey) {
-        // Redo
         window.__actionsForMenu.redo();
       } else {
-        // Undo
         window.__actionsForMenu.undo();
       }
     }

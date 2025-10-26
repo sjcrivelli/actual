@@ -52,7 +52,7 @@ function format(value, type, formatter, decimalPlaces) {
             }
             return {
                 numericValue: localValue,
-                formattedString: (0, util_1.integerToCurrency)(localValue, formatter, decimalPlaces),
+                formattedString: (0, util_1.amountToCurrency)(localValue, formatter, decimalPlaces),
             };
         }
         default:

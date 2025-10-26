@@ -1,12 +1,9 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.number = number;
-function number(v) {
+export function number(v) {
     if (typeof v === 'number') {
         return v;
     }
     else if (typeof v === 'string') {
-        var parsed = parseFloat(v);
+        const parsed = parseFloat(v);
         if (isNaN(parsed)) {
             return 0;
         }

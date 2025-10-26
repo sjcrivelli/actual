@@ -1,1 +1,0 @@
-{"version":3,"file":"shared.d.ts","sourceRoot":"","sources":["../../../../src/platform/server/fs/shared.ts"],"names":[],"mappings":"AAGA,OAAO,KAAK,KAAK,CAAC,MAAM,GAAG,CAAC;AAG5B,eAAO,MAAM,eAAe,EAAE,CAAC,CAAC,eAA4C,CAAC;AAE7E,eAAO,MAAM,cAAc,WAK1B,CAAC;AAEF,eAAO,MAAM,YAAY,GAAG,OAAE,WAmB7B,CAAC"}

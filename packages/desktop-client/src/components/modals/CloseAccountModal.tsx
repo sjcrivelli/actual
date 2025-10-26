@@ -12,7 +12,8 @@ import { Text } from '@actual-app/components/text';
 import { theme } from '@actual-app/components/theme';
 import { View } from '@actual-app/components/view';
 
-import { integerToCurrency } from 'loot-core/shared/util';
+import { integerToAmount } from 'loot-core/shared/util';
+import { useFormat } from '@desktop-client/hooks/useFormat';
 import { type AccountEntity } from 'loot-core/types/models';
 import { type TransObjectLiteral } from 'loot-core/types/util';
 
@@ -51,11 +52,8 @@ type CloseAccountModalProps = Extract<
   { name: 'close-account' }
 >['options'];
 
-export function CloseAccountModal({
-  account,
-  balance,
-  canDelete,
-}: CloseAccountModalProps) {
+export function CloseAccountModal({ account, balance, canDelete }: CloseAccountModalProps) {
+  const format = useFormat();
   const { t } = useTranslation(); // Initialize translation hook
   const accounts = useAccounts().filter(a => a.closed === 0);
   const { grouped: categoryGroups, list: categories } = useCategories();
@@ -70,14 +68,14 @@ export function CloseAccountModal({
   const dispatch = useDispatch();
   const { isNarrowWidth } = useResponsive();
 
-  const onSelectAccount = accId => {
+  const onSelectAccount = (accId: string) => {
     setTransferAccountId(accId);
     if (transferError && accId) {
       setTransferError(false);
     }
   };
 
-  const onSelectCategory = catId => {
+  const onSelectCategory = (catId: string) => {
     setCategoryId(catId);
     if (categoryError && catId) {
       setCategoryError(false);
@@ -100,7 +98,7 @@ export function CloseAccountModal({
 
     const categoryError =
       needsCategory(account, transferAccountId, accounts) && !categoryId;
-    setCategoryError(categoryError);
+  setCategoryError(Boolean(categoryError));
 
     if (transferError || categoryError) {
       return false;
@@ -111,8 +109,8 @@ export function CloseAccountModal({
     dispatch(
       closeAccount({
         id: account.id,
-        transferAccountId: transferAccountId || null,
-        categoryId: categoryId || null,
+  transferAccountId: transferAccountId || undefined,
+  categoryId: categoryId || undefined,
       }),
     );
     return true;
@@ -170,7 +168,7 @@ export function CloseAccountModal({
                       <strong>
                         {
                           {
-                            balance: integerToCurrency(balance),
+                            balance: format(integerToAmount(balance), 'financial'),
                           } as TransObjectLiteral
                         }
                       </strong>

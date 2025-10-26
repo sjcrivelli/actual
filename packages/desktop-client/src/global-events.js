@@ -1,9 +1,9 @@
+import * as undo from "@desktop-client/undo";
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.handleGlobalEvents = handleGlobalEvents;
 // @ts-strict-ignore
 var fetch_1 = require("loot-core/platform/client/fetch");
-var undo = require("loot-core/platform/client/undo");
 var accountsSlice_1 = require("./accounts/accountsSlice");
 var appSlice_1 = require("./app/appSlice");
 var budgetSlice_1 = require("./budget/budgetSlice");

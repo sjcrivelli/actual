@@ -83,7 +83,9 @@
     "remark-gfm": "^4.0.1",
     "rollup-plugin-visualizer": "^6.0.4",
     "sass": "^1.93.2",
-    "vite": "7.1.12"
+    "vite": "7.1.12",
+    "vite-plugin-pwa": "^0.20.0",
+    "vite-tsconfig-paths": "^5.1.4"
   },
   "dependencies": {
     "@react-spring/web": "^10.0.3",

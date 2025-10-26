@@ -2,7 +2,7 @@
 import { t } from 'i18next';
 import { v4 as uuidv4 } from 'uuid';
 
-import { captureException, captureBreadcrumb } from '../../exceptions';
+import * as exceptions from '../../exceptions';
 import * as undo from '../undo';
 
 import type * as T from './index-types';
@@ -112,7 +112,7 @@ function connectWorker(worker, onOpen, onError) {
       });
       onError(msg);
     } else if (msg.type === 'capture-exception') {
-      captureException(
+      exceptions.exceptions.captureException(
         msg.stack
           ? new ReconstructedError(
               msg.message,
@@ -132,7 +132,7 @@ function connectWorker(worker, onOpen, onError) {
         );
       }
     } else if (msg.type === 'capture-breadcrumb') {
-      captureBreadcrumb(msg.data);
+      exceptions.exceptions.captureBreadcrumb(msg.data);
     } else {
       handleMessage(msg);
     }

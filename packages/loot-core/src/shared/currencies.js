@@ -1,7 +1,3 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.currencies = void 0;
-exports.getCurrency = getCurrency;
 // When adding a new currency with a higher decimal precision, make sure to update
 // the MAX_SAFE_NUMBER in util.ts.
 // When adding a currency, also update the translation map in
@@ -12,7 +8,7 @@ exports.getCurrency = getCurrency;
 // https://www.localeplanet.com/icu/decimal-symbols.html
 // https://www.localeplanet.com/api/auto/currencymap.html
 // prettier-ignore
-exports.currencies = [
+export const currencies = [
     { code: '', name: 'None', symbol: '', decimalPlaces: 2, numberFormat: 'comma-dot', symbolFirst: true },
     { code: 'AED', name: 'UAE Dirham', symbol: 'د.إ', decimalPlaces: 2, numberFormat: 'comma-dot', symbolFirst: false },
     { code: 'ARS', name: 'Argentinian Peso', symbol: 'Arg$', decimalPlaces: 2, numberFormat: 'dot-comma', symbolFirst: true },
@@ -46,6 +42,6 @@ exports.currencies = [
     { code: 'USD', name: 'US Dollar', symbol: '$', decimalPlaces: 2, numberFormat: 'comma-dot', symbolFirst: true },
     { code: 'UZS', name: 'Uzbek Soum', symbol: 'UZS', decimalPlaces: 2, numberFormat: 'space-comma', symbolFirst: false },
 ];
-function getCurrency(code) {
-    return exports.currencies.find(function (c) { return c.code === code; }) || exports.currencies[0];
+export function getCurrency(code) {
+    return currencies.find(c => c.code === code) || currencies[0];
 }

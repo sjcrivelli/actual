@@ -1,1 +1,0 @@
-{"version":3,"file":"platform.web.d.ts","sourceRoot":"","sources":["../../src/shared/platform.web.ts"],"names":[],"mappings":"AAQA,eAAO,MAAM,YAAY,SAAuC,CAAC;AAEjE,eAAO,MAAM,EAAE,EAAE,SAAS,GAAG,KAAK,GAAG,OAAO,GAAG,SAIlC,CAAC;AACd,eAAO,MAAM,GAAG,EAAE,KAAK,GAAG,QAAQ,GAAG,SAAiB,CAAC;AACvD,eAAO,MAAM,SAAS,OAAO,CAAC;AAG9B,eAAO,MAAM,UAAU,SAAyC,CAAC"}

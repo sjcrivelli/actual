@@ -1,22 +1,18 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.qif2json = qif2json;
-function qif2json(qif, options) {
-    if (options === void 0) { options = {}; }
-    var lines = qif.split('\n').filter(Boolean);
-    var line = lines.shift();
-    var type = /!Type:([^$]*)$/.exec(line.trim());
-    var data = {
+export function qif2json(qif, options = {}) {
+    const lines = qif.split('\n').filter(Boolean);
+    let line = lines.shift();
+    const type = /!Type:([^$]*)$/.exec(line.trim());
+    const data = {
         dateFormat: options.dateFormat,
         transactions: [],
     };
-    var transactions = data.transactions;
-    var transaction = {};
+    const transactions = data.transactions;
+    let transaction = {};
     if (!type || !type.length) {
         throw new Error('File does not appear to be a valid qif file: ' + line);
     }
     data.type = type[1];
-    var division = {};
+    let division = {};
     while ((line = lines.shift())) {
         line = line.trim();
         if (line === '^') {
@@ -44,7 +40,7 @@ function qif2json(qif, options) {
                 transaction.payee = line.substring(1).replace(/&amp;/g, '&');
                 break;
             case 'L':
-                var lArray = line.substring(1).split(':');
+                const lArray = line.substring(1).split(':');
                 transaction.category = lArray[0];
                 if (lArray[1] !== undefined) {
                     transaction.subcategory = lArray[1];
@@ -54,7 +50,7 @@ function qif2json(qif, options) {
                 transaction.clearedStatus = line.substring(1);
                 break;
             case 'S':
-                var sArray = line.substring(1).split(':');
+                const sArray = line.substring(1).split(':');
                 division.category = sArray[0];
                 if (sArray[1] !== undefined) {
                     division.subcategory = sArray[1];

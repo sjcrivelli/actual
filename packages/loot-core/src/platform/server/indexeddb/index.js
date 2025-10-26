@@ -1,50 +1,11 @@
-"use strict";
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var __generator = (this && this.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g = Object.create((typeof Iterator === "function" ? Iterator : Object).prototype);
-    return g.next = verb(0), g["throw"] = verb(1), g["return"] = verb(2), typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
-    function verb(n) { return function (v) { return step([n, v]); }; }
-    function step(op) {
-        if (f) throw new TypeError("Generator is already executing.");
-        while (g && (g = 0, op[0] && (_ = 0)), _) try {
-            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [op[0] & 2, t.value];
-            switch (op[0]) {
-                case 0: case 1: t = op; break;
-                case 4: _.label++; return { value: op[1], done: false };
-                case 5: _.label++; y = op[1]; op = [0]; continue;
-                case 7: op = _.ops.pop(); _.trys.pop(); continue;
-                default:
-                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
-                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
-                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
-                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
-                    if (t[2]) _.ops.pop();
-                    _.trys.pop(); continue;
-            }
-            op = body.call(thisArg, _);
-        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
-        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
-    }
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.closeDatabase = exports.openDatabase = exports.getDatabase = exports.del = exports.set = exports.get = exports.getStore = void 0;
-var openedDb = _openDatabase();
+let openedDb = _openDatabase();
 // The web version uses IndexedDB to store data
 function _openDatabase() {
-    return new Promise(function (resolve, reject) {
-        var dbVersion = 9;
-        var openRequest = indexedDB.open('actual', dbVersion);
+    return new Promise((resolve, reject) => {
+        const dbVersion = 9;
+        const openRequest = indexedDB.open('actual', dbVersion);
         openRequest.onupgradeneeded = function (e) {
-            var db = e.target.result;
+            const db = e.target.result;
             // Remove old stores
             if (db.objectStoreNames.contains('filesystem')) {
                 db.deleteObjectStore('filesystem');
@@ -60,20 +21,19 @@ function _openDatabase() {
                 db.createObjectStore('files', { keyPath: 'filepath' });
             }
         };
-        openRequest.onblocked = function (e) { return console.log('blocked', e); };
-        openRequest.onerror = function () {
+        openRequest.onblocked = e => console.log('blocked', e);
+        openRequest.onerror = () => {
             console.log('openRequest error');
             reject(new Error('indexeddb-failure: Could not open IndexedDB'));
         };
         openRequest.onsuccess = function (e) {
-            var db = e.target.result;
-            db.onversionchange = function () {
+            const db = e.target.result;
+            db.onversionchange = () => {
                 // TODO: Notify the user somehow
                 db.close();
             };
             db.onerror = function (event) {
-                var _a;
-                var error = (_a = event.target) === null || _a === void 0 ? void 0 : _a.error;
+                const error = event.target?.error;
                 console.log('Database error: ' + error);
                 if (event.target && error) {
                     if (error.name === 'QuotaExceededError') {
@@ -85,66 +45,47 @@ function _openDatabase() {
         };
     });
 }
-var getStore = function (db, name) {
-    var trans = db.transaction([name], 'readwrite');
-    return { trans: trans, store: trans.objectStore(name) };
+export const getStore = function (db, name) {
+    const trans = db.transaction([name], 'readwrite');
+    return { trans, store: trans.objectStore(name) };
 };
-exports.getStore = getStore;
-var get = function (store, key) {
-    return __awaiter(this, void 0, void 0, function () {
-        return __generator(this, function (_a) {
-            return [2 /*return*/, new Promise(function (resolve, reject) {
-                    var req = store.get(key);
-                    req.onsuccess = function () {
-                        resolve(req.result);
-                    };
-                    req.onerror = function (e) { return reject(e); };
-                })];
-        });
+export const get = async function (store, key) {
+    return new Promise((resolve, reject) => {
+        const req = store.get(key);
+        req.onsuccess = () => {
+            resolve(req.result);
+        };
+        req.onerror = e => reject(e);
     });
 };
-exports.get = get;
-var set = function (store, item) {
-    return __awaiter(this, void 0, void 0, function () {
-        return __generator(this, function (_a) {
-            return [2 /*return*/, new Promise(function (resolve, reject) {
-                    var req = store.put(item);
-                    req.onsuccess = function () { return resolve(undefined); };
-                    req.onerror = function (e) { return reject(e); };
-                })];
-        });
+export const set = async function (store, item) {
+    return new Promise((resolve, reject) => {
+        const req = store.put(item);
+        req.onsuccess = () => resolve(undefined);
+        req.onerror = e => reject(e);
     });
 };
-exports.set = set;
-var del = function (store, key) {
-    return __awaiter(this, void 0, void 0, function () {
-        return __generator(this, function (_a) {
-            return [2 /*return*/, new Promise(function (resolve, reject) {
-                    var req = store.delete(key);
-                    req.onsuccess = function () { return resolve(undefined); };
-                    req.onerror = function (e) { return reject(e); };
-                })];
-        });
+export const del = async function (store, key) {
+    return new Promise((resolve, reject) => {
+        const req = store.delete(key);
+        req.onsuccess = () => resolve(undefined);
+        req.onerror = e => reject(e);
     });
 };
-exports.del = del;
-var getDatabase = function () {
+export const getDatabase = function () {
     return openedDb;
 };
-exports.getDatabase = getDatabase;
-var openDatabase = function () {
+export const openDatabase = function () {
     if (openedDb == null) {
         openedDb = _openDatabase();
     }
     return openedDb;
 };
-exports.openDatabase = openDatabase;
-var closeDatabase = function () {
+export const closeDatabase = function () {
     if (openedDb) {
-        openedDb.then(function (db) {
+        openedDb.then(db => {
             db.close();
         });
         openedDb = null;
     }
 };
-exports.closeDatabase = closeDatabase;

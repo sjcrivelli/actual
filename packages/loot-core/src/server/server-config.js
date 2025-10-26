@@ -1,30 +1,12 @@
-"use strict";
-var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
-    if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
-        if (ar || !(i in from)) {
-            if (!ar) ar = Array.prototype.slice.call(from, 0, i);
-            ar[i] = from[i];
-        }
-    }
-    return to.concat(ar || Array.prototype.slice.call(from));
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.isValidBaseURL = isValidBaseURL;
-exports.setServer = setServer;
-exports.getServer = getServer;
-var fs = require("../platform/server/fs");
-var log_1 = require("../platform/server/log");
-var config = null;
-function joinURL(base) {
-    var paths = [];
-    for (var _i = 1; _i < arguments.length; _i++) {
-        paths[_i - 1] = arguments[_i];
-    }
-    var url = new URL(base);
-    url.pathname = fs.join.apply(fs, __spreadArray([url.pathname], paths, false));
+import * as fs from '../platform/server/fs';
+import { logger } from '../platform/server/log';
+let config = null;
+function joinURL(base, ...paths) {
+    const url = new URL(base);
+    url.pathname = fs.join(url.pathname, ...paths);
     return url.toString();
 }
-function isValidBaseURL(base) {
+export function isValidBaseURL(base) {
     try {
         return Boolean(new URL(base));
     }
@@ -32,7 +14,7 @@ function isValidBaseURL(base) {
         return false;
     }
 }
-function setServer(url) {
+export function setServer(url) {
     if (url == null) {
         config = null;
     }
@@ -41,7 +23,7 @@ function setServer(url) {
     }
 }
 // `url` is optional; if not given it will provide the global config
-function getServer(url) {
+export function getServer(url) {
     if (url) {
         try {
             return {
@@ -54,7 +36,7 @@ function getServer(url) {
             };
         }
         catch (error) {
-            log_1.logger.warn('Unable to parse server URL - using the global config.', { config: config }, error);
+            logger.warn('Unable to parse server URL - using the global config.', { config }, error);
             return config;
         }
     }

@@ -9,7 +9,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 import { logger } from '../../platform/server/log';
 import * as monthUtils from '../../shared/months';
-import { sortByKey, groupBy } from '../../shared/util';
+import { groupBy } from '../../shared/util';
 
 import * as YNAB5 from './ynab5-types';
 
@@ -45,7 +45,7 @@ async function importCategories(
   const incomeCatId = findIdByName(categories, 'Income');
   const ynabIncomeCategories = ['To be Budgeted', 'Inflow: Ready to Assign'];
 
-  function checkSpecialCat(cat) {
+  function checkSpecialCat(cat: YNAB5.Category) {
     if (
       cat.category_group_id ===
       findIdByName(data.category_groups, 'Internal Master Category')
@@ -75,7 +75,7 @@ async function importCategories(
 
   for (const group of data.category_groups) {
     if (!group.deleted) {
-      let groupId;
+      let groupId: string | undefined;
       // Ignores internal category and credit cards
       if (
         !equalsIgnoreCase(group.name, 'Internal Master Category') &&
@@ -94,8 +94,10 @@ async function importCategories(
               is_income: false,
               hidden: group.hidden,
             });
-            entityIdMap.set(group.id, groupId);
-            if (group.note) {
+            if (typeof groupId === 'string' && typeof group.id === 'string') {
+              entityIdMap.set(group.id, groupId);
+            }
+            if (group.note && typeof groupId === 'string') {
               send('notes-save', { id: groupId, note: group.note });
             }
             run = false;
@@ -104,7 +106,11 @@ async function importCategories(
             count += 1;
             if (count >= MAX_RETRY) {
               run = false;
-              throw Error(e.message);
+              if (e instanceof Error) {
+                throw Error(e.message);
+              } else {
+                throw e;
+              }
             }
           }
         }
@@ -112,7 +118,9 @@ async function importCategories(
 
       if (equalsIgnoreCase(group.name, 'Income')) {
         groupId = incomeCatId;
-        entityIdMap.set(group.id, groupId);
+        if (typeof groupId === 'string' && typeof group.id === 'string') {
+          entityIdMap.set(group.id, groupId);
+        }
       }
 
       const cats = data.categories.filter(
@@ -127,7 +135,9 @@ async function importCategories(
             case 'income': {
               // doesn't create new category, only assigns id
               const id = incomeCatId;
-              entityIdMap.set(cat.id, id);
+              if (id !== undefined) {
+                entityIdMap.set(cat.id, id);
+              }
               break;
             }
             case 'creditCard': // ignores it
@@ -155,7 +165,11 @@ async function importCategories(
                   count += 1;
                   if (count >= MAX_RETRY) {
                     run = false;
-                    throw Error(e.message);
+                    if (e instanceof Error) {
+                      throw Error(e.message);
+                    } else {
+                      throw e;
+                    }
                   }
                 }
               }
@@ -198,8 +212,8 @@ async function importTransactions(
   );
 
   const payeesByTransferAcct = payees
-    .filter(payee => payee?.transfer_acct)
-    .map(payee => [payee.transfer_acct, payee] as [string, YNAB5.Payee]);
+  .filter((payee: YNAB5.Payee) => payee?.transfer_acct)
+  .map((payee: YNAB5.Payee) => [payee.transfer_acct, payee] as [string, YNAB5.Payee]);
   const payeeTransferAcctHashMap = new Map<string, YNAB5.Payee>(
     payeesByTransferAcct,
   );
@@ -233,7 +247,8 @@ async function importTransactions(
       if (!orphanTransferMap.has(key)) {
         orphanTransferMap.set(key, [transaction]);
       } else {
-        orphanTransferMap.get(key).push(transaction);
+        const arr = orphanTransferMap.get(key);
+        if (arr) arr.push(transaction);
       }
     }
 
@@ -258,7 +273,9 @@ async function importTransactions(
       if (!map.has(key)) {
         map.set(key, [subtransaction]);
       } else {
-        map.get(key).push(subtransaction);
+      const list = map.get(key) ?? [];
+      if (!map.has(key)) map.set(key, list);
+        list.push(subtransaction);
       }
       return map;
     },
@@ -291,6 +308,7 @@ async function importTransactions(
     const amount_b = 'date' in b ? b.amount : -b.amount;
 
     // Transaction are ordered first by date, then by amount, and lastly by memo
+    if (!date_a || !date_b) return 0;
     if (date_a > date_b) return 1;
     if (date_a < date_b) return -1;
     if (amount_a > amount_b) return 1;
@@ -323,11 +341,11 @@ async function importTransactions(
             // subtransaction are related (same date, amount and memo)
             orphanTrxIdSubtrxIdMap.set(
               transactions[transactionIdx].id,
-              entityIdMap.get(subtransactions[subtransactionIdx].id),
+              entityIdMap.get(subtransactions[subtransactionIdx].id) ?? '',
             );
             orphanTrxIdSubtrxIdMap.set(
               subtransactions[subtransactionIdx].id,
-              entityIdMap.get(transactions[transactionIdx].id),
+              entityIdMap.get(transactions[transactionIdx].id) ?? '',
             );
             transactionIdx++;
             subtransactionIdx++;
@@ -358,7 +376,7 @@ async function importTransactions(
     [...transactionsGrouped.keys()].map(async accountId => {
       const transactions = transactionsGrouped.get(accountId);
 
-      const toImport = transactions
+      const toImport = (transactions ?? [])
         .map(transaction => {
           if (transaction.deleted) {
             return null;
@@ -402,30 +420,73 @@ async function importTransactions(
           // Handle transactions and subtransactions payee
           const transactionPayeeUpdate = (
             trx: YNAB5.Transaction | YNAB5.Subtransaction,
-            newTrx,
+            newTrx: {
+              payee: string | null;
+              imported_payee: string | null;
+            },
+            entityIdMap: Map<string, string>,
+            data: YNAB5.Budget
           ) => {
             if (trx.transfer_account_id) {
               const mappedTransferAccountId = entityIdMap.get(
                 trx.transfer_account_id,
               );
-              newTrx.payee = payeeTransferAcctHashMap.get(
-                mappedTransferAccountId,
-              )?.id;
+              newTrx.payee = mappedTransferAccountId
+                ? payeeTransferAcctHashMap.get(mappedTransferAccountId)?.id ?? null
+                : null;
             } else {
-              newTrx.payee = entityIdMap.get(trx.payee_id);
-              newTrx.imported_payee = data.payees.find(
-                p => !p.deleted && p.id === trx.payee_id,
-              )?.name;
+              newTrx.payee = trx.payee_id ? entityIdMap.get(trx.payee_id) ?? null : null;
+              newTrx.imported_payee = trx.payee_id
+                ? (data.payees.find(
+                    (p: YNAB5.Payee) => !p.deleted && p.id === trx.payee_id,
+                  )?.name ?? null)
+                : null;
             }
           };
 
-          transactionPayeeUpdate(transaction, newTransaction);
+          // Compute mappedPayeeId and mappedTransferAccountId for transaction
+          let mappedPayeeId: string | undefined = undefined;
+          let mappedTransferAccountId: string | undefined = undefined;
+          if (transaction.transfer_account_id) {
+            mappedTransferAccountId = entityIdMap.get(transaction.transfer_account_id);
+            mappedPayeeId = payeeTransferAcctHashMap.get(mappedTransferAccountId ?? '')?.id;
+          } else {
+            mappedPayeeId = entityIdMap.get(transaction.payee_id);
+          }
+          newTransaction.payee = null;
+          // transactionPayeeUpdate sets imported_payee as well
+          transactionPayeeUpdate(
+            transaction,
+            newTransaction,
+            entityIdMap,
+            data
+          );
+
           if (newTransaction.subtransactions) {
-            subtransactions.forEach(subtrans => {
-              const newSubtransaction = newTransaction.subtransactions.find(
-                newSubtrans => newSubtrans.id === entityIdMap.get(subtrans.id),
+            (subtransactions ?? []).forEach((subtrans: YNAB5.Subtransaction) => {
+              const mappedId = entityIdMap.get(subtrans.id);
+              if (!mappedId) return;
+              // newTransaction.subtransactions is array of Actual subtransaction objects, not YNAB5.Subtransaction
+              const newSubtransaction = (newTransaction.subtransactions ?? []).find(
+                (s: { id: string | undefined }) => s.id === mappedId
               );
-              transactionPayeeUpdate(subtrans, newSubtransaction);
+              if (newSubtransaction) {
+                // Compute mappedPayeeId for subtransaction
+                let mappedSubPayeeId: string | undefined = undefined;
+                if (subtrans.transfer_account_id) {
+                  const mappedSubTransferAccountId = entityIdMap.get(subtrans.transfer_account_id);
+                  mappedSubPayeeId = payeeTransferAcctHashMap.get(mappedSubTransferAccountId ?? '')?.id;
+                } else {
+                  mappedSubPayeeId = entityIdMap.get(subtrans.payee_id);
+                }
+                newSubtransaction.payee = null;
+                transactionPayeeUpdate(
+                  subtrans,
+                  newSubtransaction,
+                  entityIdMap,
+                  data
+                );
+              }
             });
           }
 
@@ -434,7 +495,7 @@ async function importTransactions(
             transaction.payee_id === startingPayeeYNAB &&
             entityIdMap.get(transaction.category_id) === incomeCatId
           ) {
-            newTransaction.category = startingBalanceCatId;
+            newTransaction.category = startingBalanceCatId ?? null;
             newTransaction.payee = null;
           }
           return newTransaction;
@@ -460,7 +521,11 @@ async function importBudgets(
   // Also, there could be a way to set rollover using
   // Deferred Income Subcat and Immediate Income Subcat
 
-  const budgets = sortByKey(data.months, 'month');
+  const budgets = [...data.months].sort((a, b) => {
+    if (a.month < b.month) return -1;
+    if (a.month > b.month) return 1;
+    return 0;
+  });
 
   const internalCatIdYnab = findIdByName(
     data.category_groups,
@@ -476,7 +541,7 @@ async function importBudgets(
       const month = monthUtils.monthFromDate(budget.month);
 
       await Promise.all(
-        budget.categories.map(async catBudget => {
+        budget.categories.map(async (catBudget: any) => {
           const catId = entityIdMap.get(catBudget.id);
           const amount = Math.round(catBudget.budgeted / 10);
 

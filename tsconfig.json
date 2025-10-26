@@ -1,25 +1,23 @@
+
+
 {
   "files": [],
-  "references": [
-    { "path": "packages/types" },
-    { "path": "packages/loot-core" },
-    { "path": "packages/desktop-client" },
-    { "path": "packages/sync-server" },
-    
-  ],
   "compilerOptions": {
     "target": "ES2022",
-    "module": "NodeNext",
-    "moduleResolution": "NodeNext",
-    "lib": ["ES2022", "DOM"],
-    "esModuleInterop": true,
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "jsx": "react-jsx",
+    "allowJs": true,
+    "checkJs": false,
+    "strict": true,
+    "noImplicitAny": true,
     "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
-    "strict": false,
+    "baseUrl": ".",
     "resolveJsonModule": true,
-    "isolatedModules": true,
     "allowSyntheticDefaultImports": true,
-    "composite": true
+    "esModuleInterop": true,
+    "isolatedModules": true,
+    "noEmit": true
   },
-  "include": []
+  "exclude": ["node_modules", "dist", "**/*.bak", "**/*.tmp", "**/__tests__/**"]
 }

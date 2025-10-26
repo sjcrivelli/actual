@@ -8,7 +8,7 @@
   if (window.__actualWebSocket) return;
 
   // Start the worker that orchestrates loading the backend bundle
-  const worker = new Worker(new URL('./browser-server.js', import.meta.url), {
+  let worker = new Worker(new URL('./browser-server.js', import.meta.url), {
   type: 'classic'
 });
 
@@ -18,7 +18,7 @@ const code = `
   importScripts('${location.origin}/src/browser-server.js');
 `;
 const blob = new Blob([code], { type: 'text/javascript' });
-const worker = new Worker(URL.createObjectURL(blob)); // classic by construction
+worker = new Worker(URL.createObjectURL(blob)); // classic by construction
 
   // Minimal socket-like bridge that the app expects
   const socket = {

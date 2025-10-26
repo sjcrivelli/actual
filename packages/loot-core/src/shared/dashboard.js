@@ -1,7 +1,4 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.DEFAULT_DASHBOARD_STATE = void 0;
-exports.DEFAULT_DASHBOARD_STATE = [
+export const DEFAULT_DASHBOARD_STATE = [
     {
         type: 'net-worth-card',
         width: 8,

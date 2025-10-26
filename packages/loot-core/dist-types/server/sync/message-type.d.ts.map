@@ -1,1 +1,0 @@
-{"version":3,"file":"message-type.d.ts","sourceRoot":"","sources":["../../../src/server/sync/message-type.ts"],"names":[],"mappings":"AAGA,MAAM,MAAM,WAAW,GAAG;IACxB,OAAO,EAAE,MAAM,CAAC;IAChB,GAAG,EAAE,MAAM,CAAC;IACZ,MAAM,EAAE,MAAM,CAAC;IACf,KAAK,EAAE,MAAM,CAAC;IAGd,SAAS,CAAC,EAAE,OAAO,CAAC;IACpB,GAAG,CAAC,EAAE,OAAO,CAAC;IACd,CAAC,GAAG,EAAE,MAAM,GAAG,OAAO,CAAC;CACxB,CAAC"}

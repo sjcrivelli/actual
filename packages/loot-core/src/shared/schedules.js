@@ -1,46 +1,11 @@
-"use strict";
-var __assign = (this && this.__assign) || function () {
-    __assign = Object.assign || function(t) {
-        for (var s, i = 1, n = arguments.length; i < n; i++) {
-            s = arguments[i];
-            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
-                t[p] = s[p];
-        }
-        return t;
-    };
-    return __assign.apply(this, arguments);
-};
-var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
-    if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
-        if (ar || !(i in from)) {
-            if (!ar) ar = Array.prototype.slice.call(from, 0, i);
-            ar[i] = from[i];
-        }
-    }
-    return to.concat(ar || Array.prototype.slice.call(from));
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.getStatus = getStatus;
-exports.getStatusLabel = getStatusLabel;
-exports.getHasTransactionsQuery = getHasTransactionsQuery;
-exports.getRecurringDescription = getRecurringDescription;
-exports.recurConfigToRSchedule = recurConfigToRSchedule;
-exports.extractScheduleConds = extractScheduleConds;
-exports.getNextDate = getNextDate;
-exports.getDateWithSkippedWeekend = getDateWithSkippedWeekend;
-exports.getScheduledAmount = getScheduledAmount;
-exports.describeSchedule = describeSchedule;
-exports.getUpcomingDays = getUpcomingDays;
-exports.scheduleIsRecurring = scheduleIsRecurring;
-var d = require("date-fns");
-var i18next_1 = require("i18next");
-var rules_1 = require("../server/rules");
-var monthUtils = require("./months");
-var query_1 = require("./query");
-function getStatus(nextDate, completed, hasTrans, upcomingLength) {
-    if (upcomingLength === void 0) { upcomingLength = '7'; }
-    var upcomingDays = getUpcomingDays(upcomingLength);
-    var today = monthUtils.currentDay();
+import * as d from 'date-fns';
+import { t } from 'i18next';
+import { Condition } from '../server/rules';
+import * as monthUtils from './months';
+import { q } from './query';
+export function getStatus(nextDate, completed, hasTrans, upcomingLength = '7') {
+    const upcomingDays = getUpcomingDays(upcomingLength);
+    const today = monthUtils.currentDay();
     if (completed) {
         return 'completed';
     }
@@ -61,25 +26,25 @@ function getStatus(nextDate, completed, hasTrans, upcomingLength) {
         return 'scheduled';
     }
 }
-function getStatusLabel(status) {
+export function getStatusLabel(status) {
     switch (status) {
         case 'completed':
-            return (0, i18next_1.t)('completed');
+            return t('completed');
         case 'paid':
-            return (0, i18next_1.t)('paid');
+            return t('paid');
         case 'due':
-            return (0, i18next_1.t)('due');
+            return t('due');
         case 'upcoming':
-            return (0, i18next_1.t)('upcoming');
+            return t('upcoming');
         case 'missed':
-            return (0, i18next_1.t)('missed');
+            return t('missed');
         case 'scheduled':
-            return (0, i18next_1.t)('scheduled');
+            return t('scheduled');
     }
 }
-function getHasTransactionsQuery(schedules) {
-    var filters = schedules.map(function (schedule) {
-        var dateCond = schedule._conditions.find(function (c) { return c.field === 'date'; });
+export function getHasTransactionsQuery(schedules) {
+    const filters = schedules.map(schedule => {
+        const dateCond = schedule._conditions.find(c => c.field === 'date');
         return {
             $and: {
                 schedule: schedule.id,
@@ -91,7 +56,7 @@ function getHasTransactionsQuery(schedules) {
             },
         };
     });
-    return (0, query_1.q)('transactions')
+    return q('transactions')
         .options({ splits: 'all' })
         .filter({ $or: filters })
         .orderBy({ date: 'desc' })
@@ -103,63 +68,63 @@ function makeNumberSuffix(num, locale) {
     return monthUtils.format(new Date(2020, 0, num, 12), 'do', locale);
 }
 function prettyDayName(day) {
-    var days = {
-        SU: (0, i18next_1.t)('Sunday'),
-        MO: (0, i18next_1.t)('Monday'),
-        TU: (0, i18next_1.t)('Tuesday'),
-        WE: (0, i18next_1.t)('Wednesday'),
-        TH: (0, i18next_1.t)('Thursday'),
-        FR: (0, i18next_1.t)('Friday'),
-        SA: (0, i18next_1.t)('Saturday'),
+    const days = {
+        SU: t('Sunday'),
+        MO: t('Monday'),
+        TU: t('Tuesday'),
+        WE: t('Wednesday'),
+        TH: t('Thursday'),
+        FR: t('Friday'),
+        SA: t('Saturday'),
     };
     return days[day];
 }
-function getRecurringDescription(config, dateFormat, locale) {
-    var interval = config.interval || 1;
-    var endModeSuffix = '';
+export function getRecurringDescription(config, dateFormat, locale) {
+    const interval = config.interval || 1;
+    let endModeSuffix = '';
     switch (config.endMode) {
         case 'after_n_occurrences':
             if (config.endOccurrences === 1) {
-                endModeSuffix = (0, i18next_1.t)('once');
+                endModeSuffix = t('once');
             }
             else {
-                endModeSuffix = (0, i18next_1.t)('{{endOccurrences}} times', {
+                endModeSuffix = t('{{endOccurrences}} times', {
                     endOccurrences: config.endOccurrences,
                 });
             }
             break;
         case 'on_date':
-            endModeSuffix = (0, i18next_1.t)('until {{dateFormatted}}', {
+            endModeSuffix = t('until {{dateFormatted}}', {
                 dateFormatted: monthUtils.format(config.endDate, dateFormat),
             });
             break;
         default:
     }
-    var weekendSolveModeString = config.weekendSolveMode
+    const weekendSolveModeString = config.weekendSolveMode
         ? config.weekendSolveMode === 'after'
-            ? (0, i18next_1.t)('(after weekend)')
-            : (0, i18next_1.t)('(before weekend)')
+            ? t('(after weekend)')
+            : t('(before weekend)')
         : '';
-    var weekendSolveSuffix = config.skipWeekend ? weekendSolveModeString : '';
-    var suffix = endModeSuffix
-        ? ", ".concat(endModeSuffix, " ").concat(weekendSolveSuffix)
-        : "".concat(weekendSolveSuffix);
-    var desc = null;
+    const weekendSolveSuffix = config.skipWeekend ? weekendSolveModeString : '';
+    const suffix = endModeSuffix
+        ? `, ${endModeSuffix} ${weekendSolveSuffix}`
+        : `${weekendSolveSuffix}`;
+    let desc = null;
     switch (config.frequency) {
         case 'daily':
             desc =
                 interval !== 1
-                    ? (0, i18next_1.t)("Every {{interval}} days", { interval: interval })
-                    : (0, i18next_1.t)('Every day');
+                    ? t(`Every {{interval}} days`, { interval })
+                    : t('Every day');
             break;
         case 'weekly':
             desc =
                 interval !== 1
-                    ? (0, i18next_1.t)("Every {{interval}} weeks on {{dateFormatted}}", {
-                        interval: interval,
+                    ? t(`Every {{interval}} weeks on {{dateFormatted}}`, {
+                        interval,
                         dateFormatted: monthUtils.format(config.start, 'EEEE', locale),
                     })
-                    : (0, i18next_1.t)('Every week on {{dateFormatted}}', {
+                    : t('Every week on {{dateFormatted}}', {
                         dateFormatted: monthUtils.format(config.start, 'EEEE', locale),
                     });
             break;
@@ -168,25 +133,25 @@ function getRecurringDescription(config, dateFormat, locale) {
                 // Sort the days ascending. We filter out -1 because that
                 // represents "last days" and should always be last, but this
                 // sort would put them first
-                var patterns = __spreadArray([], config.patterns, true).sort(function (p1, p2) {
-                    var typeOrder = (p1.type === 'day' ? 1 : 0) - (p2.type === 'day' ? 1 : 0);
-                    var valOrder = p1.value - p2.value;
+                let patterns = [...config.patterns]
+                    .sort((p1, p2) => {
+                    const typeOrder = (p1.type === 'day' ? 1 : 0) - (p2.type === 'day' ? 1 : 0);
+                    const valOrder = p1.value - p2.value;
                     if (typeOrder === 0) {
                         return valOrder;
                     }
                     return typeOrder;
                 })
-                    .filter(function (p) { return p.value !== -1; });
+                    .filter(p => p.value !== -1);
                 // Add on all -1 values to the end
-                patterns = patterns.concat(config.patterns.filter(function (p) { return p.value === -1; }));
-                var strs = [];
-                var uniqueDays = new Set(patterns.map(function (p) { return p.type; }));
-                var isSameDay = uniqueDays.size === 1 && !uniqueDays.has('day');
-                for (var _i = 0, patterns_1 = patterns; _i < patterns_1.length; _i++) {
-                    var pattern = patterns_1[_i];
+                patterns = patterns.concat(config.patterns.filter(p => p.value === -1));
+                const strs = [];
+                const uniqueDays = new Set(patterns.map(p => p.type));
+                const isSameDay = uniqueDays.size === 1 && !uniqueDays.has('day');
+                for (const pattern of patterns) {
                     if (pattern.type === 'day') {
                         if (pattern.value === -1) {
-                            strs.push((0, i18next_1.t)('last day'));
+                            strs.push(t('last day'));
                         }
                         else {
                             // Example: 15th day
@@ -194,10 +159,10 @@ function getRecurringDescription(config, dateFormat, locale) {
                         }
                     }
                     else {
-                        var dayName = isSameDay ? '' : ' ' + prettyDayName(pattern.type);
+                        const dayName = isSameDay ? '' : ' ' + prettyDayName(pattern.type);
                         if (pattern.value === -1) {
                             // Example: last Monday
-                            strs.push((0, i18next_1.t)('last') + dayName);
+                            strs.push(t('last') + dayName);
                         }
                         else {
                             // Example: 3rd Monday
@@ -205,34 +170,34 @@ function getRecurringDescription(config, dateFormat, locale) {
                         }
                     }
                 }
-                var range = '';
+                let range = '';
                 if (strs.length > 2) {
                     range += strs.slice(0, strs.length - 1).join(', ');
-                    range += ", ".concat((0, i18next_1.t)('and'), " ");
+                    range += `, ${t('and')} `;
                     range += strs[strs.length - 1];
                 }
                 else {
-                    range += strs.join(" ".concat((0, i18next_1.t)('and'), " "));
+                    range += strs.join(` ${t('and')} `);
                 }
                 if (isSameDay) {
                     range += ' ' + prettyDayName(patterns[0].type);
                 }
                 desc =
                     interval !== 1
-                        ? (0, i18next_1.t)("Every {{interval}} months on the {{range}}", {
-                            interval: interval,
-                            range: range,
+                        ? t(`Every {{interval}} months on the {{range}}`, {
+                            interval,
+                            range,
                         })
-                        : (0, i18next_1.t)('Every month on the {{range}}', { range: range });
+                        : t('Every month on the {{range}}', { range });
             }
             else {
                 desc =
                     interval !== 1
-                        ? (0, i18next_1.t)("Every {{interval}} months on the {{dateFormatted}}", {
-                            interval: interval,
+                        ? t(`Every {{interval}} months on the {{dateFormatted}}`, {
+                            interval,
                             dateFormatted: monthUtils.format(config.start, 'do', locale),
                         })
-                        : (0, i18next_1.t)('Every month on the {{dateFormatted}}', {
+                        : t('Every month on the {{dateFormatted}}', {
                             dateFormatted: monthUtils.format(config.start, 'do', locale),
                         });
             }
@@ -240,21 +205,21 @@ function getRecurringDescription(config, dateFormat, locale) {
         case 'yearly':
             desc =
                 interval !== 1
-                    ? (0, i18next_1.t)("Every {{interval}} years on {{dateFormatted}}", {
-                        interval: interval,
+                    ? t(`Every {{interval}} years on {{dateFormatted}}`, {
+                        interval,
                         dateFormatted: monthUtils.format(config.start, 'LLL do', locale),
                     })
-                    : (0, i18next_1.t)('Every year on {{dateFormatted}}', {
+                    : t('Every year on {{dateFormatted}}', {
                         dateFormatted: monthUtils.format(config.start, 'LLL do', locale),
                     });
             break;
         default:
-            return (0, i18next_1.t)('Recurring error');
+            return t('Recurring error');
     }
-    return "".concat(desc).concat(suffix).trim();
+    return `${desc}${suffix}`.trim();
 }
-function recurConfigToRSchedule(config) {
-    var base = {
+export function recurConfigToRSchedule(config) {
+    const base = {
         start: monthUtils.parseDate(config.start),
         // @ts-ignore: issues with https://gitlab.com/john.carroll.p/rschedule/-/issues/86
         frequency: config.frequency.toUpperCase(),
@@ -273,7 +238,7 @@ function recurConfigToRSchedule(config) {
             break;
         default:
     }
-    var abbrevDay = function (name) { return name.slice(0, 2).toUpperCase(); };
+    const abbrevDay = name => name.slice(0, 2).toUpperCase();
     switch (config.frequency) {
         case 'daily':
             // Nothing to do
@@ -283,11 +248,14 @@ function recurConfigToRSchedule(config) {
             return [base];
         case 'monthly':
             if (config.patterns && config.patterns.length > 0) {
-                var days = config.patterns.filter(function (p) { return p.type === 'day'; });
-                var dayNames = config.patterns.filter(function (p) { return p.type !== 'day'; });
+                const days = config.patterns.filter(p => p.type === 'day');
+                const dayNames = config.patterns.filter(p => p.type !== 'day');
                 return [
-                    days.length > 0 && __assign(__assign({}, base), { byDayOfMonth: days.map(function (p) { return p.value; }) }),
-                    dayNames.length > 0 && __assign(__assign({}, base), { byDayOfWeek: dayNames.map(function (p) { return [abbrevDay(p.type), p.value]; }) }),
+                    days.length > 0 && { ...base, byDayOfMonth: days.map(p => p.value) },
+                    dayNames.length > 0 && {
+                        ...base,
+                        byDayOfWeek: dayNames.map(p => [abbrevDay(p.type), p.value]),
+                    },
                 ].filter(Boolean);
             }
             else {
@@ -300,43 +268,37 @@ function recurConfigToRSchedule(config) {
             throw new Error('Invalid recurring date config');
     }
 }
-function extractScheduleConds(conditions) {
+export function extractScheduleConds(conditions) {
     return {
-        payee: conditions.find(function (cond) { return cond.op === 'is' && cond.field === 'payee'; }) ||
-            conditions.find(function (cond) { return cond.op === 'is' && cond.field === 'description'; }) ||
+        payee: conditions.find(cond => cond.op === 'is' && cond.field === 'payee') ||
+            conditions.find(cond => cond.op === 'is' && cond.field === 'description') ||
             null,
-        account: conditions.find(function (cond) { return cond.op === 'is' && cond.field === 'account'; }) ||
-            conditions.find(function (cond) { return cond.op === 'is' && cond.field === 'acct'; }) ||
+        account: conditions.find(cond => cond.op === 'is' && cond.field === 'account') ||
+            conditions.find(cond => cond.op === 'is' && cond.field === 'acct') ||
             null,
-        amount: conditions.find(function (cond) {
-            return (cond.op === 'is' ||
-                cond.op === 'isapprox' ||
-                cond.op === 'isbetween') &&
-                cond.field === 'amount';
-        }) || null,
-        date: conditions.find(function (cond) {
-            return (cond.op === 'is' || cond.op === 'isapprox') && cond.field === 'date';
-        }) || null,
+        amount: conditions.find(cond => (cond.op === 'is' ||
+            cond.op === 'isapprox' ||
+            cond.op === 'isbetween') &&
+            cond.field === 'amount') || null,
+        date: conditions.find(cond => (cond.op === 'is' || cond.op === 'isapprox') && cond.field === 'date') || null,
     };
 }
-function getNextDate(dateCond, start, noSkipWeekend) {
-    if (start === void 0) { start = new Date(monthUtils.currentDay()); }
-    if (noSkipWeekend === void 0) { noSkipWeekend = false; }
+export function getNextDate(dateCond, start = new Date(monthUtils.currentDay()), noSkipWeekend = false) {
     start = d.startOfDay(start);
-    var cond = new rules_1.Condition(dateCond.op, 'date', dateCond.value, null);
-    var value = cond.getValue();
+    const cond = new Condition(dateCond.op, 'date', dateCond.value, null);
+    const value = cond.getValue();
     if (value.type === 'date') {
         return value.date;
     }
     else if (value.type === 'recur') {
-        var dates = value.schedule.occurrences({ start: start, take: 1 }).toArray();
+        let dates = value.schedule.occurrences({ start, take: 1 }).toArray();
         if (dates.length === 0) {
             // Could be a schedule with limited occurrences, so we try to
             // find the last occurrence
             dates = value.schedule.occurrences({ reverse: true, take: 1 }).toArray();
         }
         if (dates.length > 0) {
-            var date = dates[0].date;
+            let date = dates[0].date;
             if (value.schedule.data.skipWeekend && !noSkipWeekend) {
                 date = getDateWithSkippedWeekend(date, value.schedule.data.weekendSolve);
             }
@@ -345,7 +307,7 @@ function getNextDate(dateCond, start, noSkipWeekend) {
     }
     return null;
 }
-function getDateWithSkippedWeekend(date, solveMode) {
+export function getDateWithSkippedWeekend(date, solveMode) {
     if (d.isWeekend(date)) {
         if (solveMode === 'after') {
             return d.nextMonday(date);
@@ -359,8 +321,7 @@ function getDateWithSkippedWeekend(date, solveMode) {
     }
     return date;
 }
-function getScheduledAmount(amount, inverse) {
-    if (inverse === void 0) { inverse = false; }
+export function getScheduledAmount(amount, inverse = false) {
     // this check is temporary, and required at the moment as a schedule rule
     // allows the amount condition to be deleted which causes a crash
     if (amount == null)
@@ -368,25 +329,23 @@ function getScheduledAmount(amount, inverse) {
     if (typeof amount === 'number') {
         return inverse ? -amount : amount;
     }
-    var avg = (amount.num1 + amount.num2) / 2;
+    const avg = (amount.num1 + amount.num2) / 2;
     return inverse ? -Math.round(avg) : Math.round(avg);
 }
-function describeSchedule(schedule, payee) {
+export function describeSchedule(schedule, payee) {
     if (payee) {
-        return "".concat(payee.name, " (").concat(schedule.next_date, ")");
+        return `${payee.name} (${schedule.next_date})`;
     }
     else {
-        return "".concat((0, i18next_1.t)('Next:'), " ").concat(schedule.next_date);
+        return `${t('Next:')} ${schedule.next_date}`;
     }
 }
-function getUpcomingDays(upcomingLength, today) {
-    if (upcomingLength === void 0) { upcomingLength = '7'; }
-    if (today === void 0) { today = monthUtils.currentDay(); }
-    var month = monthUtils.getMonth(today);
+export function getUpcomingDays(upcomingLength = '7', today = monthUtils.currentDay()) {
+    const month = monthUtils.getMonth(today);
     switch (upcomingLength) {
         case 'currentMonth': {
-            var day = monthUtils.getDay(today);
-            var end = monthUtils.getDay(monthUtils.getMonthEnd(today));
+            const day = monthUtils.getDay(today);
+            const end = monthUtils.getDay(monthUtils.getMonthEnd(today));
             return end - day;
         }
         case 'oneMonth': {
@@ -394,18 +353,18 @@ function getUpcomingDays(upcomingLength, today) {
         }
         default:
             if (upcomingLength.includes('-')) {
-                var _a = upcomingLength.split('-'), num = _a[0], unit = _a[1];
-                var value = Math.max(1, parseInt(num, 10));
+                const [num, unit] = upcomingLength.split('-');
+                const value = Math.max(1, parseInt(num, 10));
                 switch (unit) {
                     case 'day':
                         return value;
                     case 'week':
                         return value * 7;
                     case 'month':
-                        var future = monthUtils.addMonths(today, value);
+                        const future = monthUtils.addMonths(today, value);
                         return monthUtils.differenceInCalendarDays(future, month) + 1;
                     case 'year':
-                        var futureYear = monthUtils.addYears(today, value);
+                        const futureYear = monthUtils.addYears(today, value);
                         return monthUtils.differenceInCalendarDays(futureYear, month) + 1;
                     default:
                         return 7;
@@ -414,11 +373,11 @@ function getUpcomingDays(upcomingLength, today) {
             return parseInt(upcomingLength, 10);
     }
 }
-function scheduleIsRecurring(dateCond) {
+export function scheduleIsRecurring(dateCond) {
     if (!dateCond) {
         return false;
     }
-    var cond = new rules_1.Condition(dateCond.op, 'date', dateCond.value, null);
-    var value = cond.getValue();
+    const cond = new Condition(dateCond.op, 'date', dateCond.value, null);
+    const value = cond.getValue();
     return value.type === 'recur';
 }

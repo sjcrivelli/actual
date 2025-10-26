@@ -1,3 +1,4 @@
+import * as undo from "@desktop-client/undo";
 "use strict";
 var __assign = (this && this.__assign) || function () {
     __assign = Object.assign || function(t) {
@@ -64,7 +65,6 @@ exports.SelectedProviderWithItems = SelectedProviderWithItems;
 // @ts-strict-ignore
 var react_1 = require("react");
 var fetch_1 = require("loot-core/platform/client/fetch");
-var undo = require("loot-core/platform/client/undo");
 function iterateRange(range, func) {
     var from = Math.min(range.start, range.end);
     var to = Math.max(range.start, range.end);

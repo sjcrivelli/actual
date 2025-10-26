@@ -1,12 +1,9 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.resetEvents = exports.getNumClients = exports.send = exports.init = void 0;
 // @ts-strict-ignore
-var errors_1 = require("../../../server/errors");
-var mutators_1 = require("../../../server/mutators");
-var exceptions_1 = require("../../exceptions");
+import { APIError } from '../../../server/errors';
+import { runHandler, isMutating } from '../../../server/mutators';
+import { captureException } from '../../exceptions';
 function getGlobalObject() {
-    var obj = typeof window !== 'undefined'
+    const obj = typeof window !== 'undefined'
         ? window
         : typeof self !== 'undefined'
             ? self
@@ -23,12 +20,12 @@ function coerceError(error) {
     }
     return { type: 'InternalError', message: error.message };
 }
-var init = function (serverChn, handlers) {
-    var serverChannel = serverChn;
+export const init = function (serverChn, handlers) {
+    const serverChannel = serverChn;
     getGlobalObject().__globalServerChannel = serverChannel;
-    serverChannel.addEventListener('message', function (e) {
-        var data = e.data;
-        var msg = typeof data === 'string' ? JSON.parse(data) : data;
+    serverChannel.addEventListener('message', e => {
+        const data = e.data;
+        const msg = typeof data === 'string' ? JSON.parse(data) : data;
         if (msg.type && (msg.type === 'init' || msg.type.startsWith('__'))) {
             return;
         }
@@ -38,40 +35,40 @@ var init = function (serverChn, handlers) {
             clearInterval(reconnectToClientInterval);
             return;
         }
-        var id = msg.id, name = msg.name, args = msg.args, undoTag = msg.undoTag, catchErrors = msg.catchErrors;
+        const { id, name, args, undoTag, catchErrors } = msg;
         if (handlers[name]) {
-            (0, mutators_1.runHandler)(handlers[name], args, { undoTag: undoTag, name: name }).then(function (result) {
+            runHandler(handlers[name], args, { undoTag, name }).then(result => {
                 serverChannel.postMessage({
                     type: 'reply',
-                    id: id,
+                    id,
                     result: catchErrors ? { data: result, error: null } : result,
-                    mutated: (0, mutators_1.isMutating)(handlers[name]),
-                    undoTag: undoTag,
+                    mutated: isMutating(handlers[name]),
+                    undoTag,
                 });
-            }, function (nativeError) {
-                var error = coerceError(nativeError);
+            }, nativeError => {
+                const error = coerceError(nativeError);
                 if (name.startsWith('api/')) {
                     // The API is newer and does automatically forward
                     // errors
-                    serverChannel.postMessage({ type: 'reply', id: id, error: error });
+                    serverChannel.postMessage({ type: 'reply', id, error });
                 }
                 else if (catchErrors) {
                     serverChannel.postMessage({
                         type: 'reply',
-                        id: id,
-                        result: { error: error, data: null },
+                        id,
+                        result: { error, data: null },
                     });
                 }
                 else {
-                    serverChannel.postMessage({ type: 'error', id: id });
+                    serverChannel.postMessage({ type: 'error', id });
                 }
                 // Only report internal errors
                 if (error.type === 'InternalError') {
-                    (0, exceptions_1.captureException)(nativeError);
+                    captureException(nativeError);
                 }
                 if (!catchErrors) {
                     // Notify the frontend that something bad happend
-                    (0, exports.send)('server-error');
+                    send('server-error');
                 }
             });
         }
@@ -79,41 +76,37 @@ var init = function (serverChn, handlers) {
             console.warn('Unknown method: ' + name);
             serverChannel.postMessage({
                 type: 'reply',
-                id: id,
+                id,
                 result: null,
-                error: (0, errors_1.APIError)('Unknown method: ' + name),
+                error: APIError('Unknown method: ' + name),
             });
         }
     }, false);
-    var RECONNECT_INTERVAL_MS = 200;
-    var MAX_RECONNECT_ATTEMPTS = 500;
-    var reconnectAttempts = 0;
-    var reconnectToClientInterval = setInterval(function () {
+    const RECONNECT_INTERVAL_MS = 200;
+    const MAX_RECONNECT_ATTEMPTS = 500;
+    let reconnectAttempts = 0;
+    const reconnectToClientInterval = setInterval(() => {
         console.info('Backend: Trying to connect to client');
         serverChannel.postMessage({ type: 'connect' });
         reconnectAttempts++;
         if (reconnectAttempts >= MAX_RECONNECT_ATTEMPTS) {
             // Failed to connect to client - signal server error
-            (0, exports.send)('server-error');
+            send('server-error');
             clearInterval(reconnectToClientInterval);
         }
     }, RECONNECT_INTERVAL_MS);
 };
-exports.init = init;
-var send = function (name, args) {
-    var __globalServerChannel = getGlobalObject().__globalServerChannel;
+export const send = function (name, args) {
+    const { __globalServerChannel } = getGlobalObject();
     if (__globalServerChannel) {
         __globalServerChannel.postMessage({
             type: 'push',
-            name: name,
-            args: args,
+            name,
+            args,
         });
     }
 };
-exports.send = send;
-var getNumClients = function () {
+export const getNumClients = function () {
     return 1;
 };
-exports.getNumClients = getNumClients;
-var resetEvents = function () { };
-exports.resetEvents = resetEvents;
+export const resetEvents = function () { };
