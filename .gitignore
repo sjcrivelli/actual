@@ -66,3 +66,7 @@ build/
 
 # .d.ts files aren't type-checked with skipLibCheck set to true
 *.d.ts
+
+# Local backup/stub files (do not commit)
+*.bak*
+*.named.js
