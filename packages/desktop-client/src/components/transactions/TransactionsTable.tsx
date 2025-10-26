@@ -515,7 +515,7 @@ function PayeeCell({
 
   const dispatch = useDispatch();
 
-  const transferAccount = transferAccountsByTransaction[transaction.id];
+  const transferAccount = transferAccountsByTransaction[String(transaction.id)];
 
   const displayPayee = useDisplayPayee({ transaction });
 
@@ -1095,7 +1095,7 @@ const Transaction = memo(function Transaction({
   const transferAcct =
     isTemporaryId(id) && payee?.transfer_acct
       ? getAccountsById(accounts)[payee.transfer_acct]
-      : transferAccountsByTransaction[id];
+      : transferAccountsByTransaction[String(id)];
   const isBudgetTransfer = transferAcct && transferAcct.offbudget === 0;
   const isOffBudget = account && account.offbudget === 1;
 
@@ -1830,9 +1830,9 @@ function NewTransaction({
   const isDeposit = transactions[0].amount > 0;
 
   const childTransactions = transactions.filter(
-    t: TransactionEntity => t.parent_id === transactions[0].id,
+  t => t.parent_id === transactions[0].id,
   );
-  const emptyChildTransactions = childTransactions.filter(t: TransactionEntity => t.amount === 0);
+  const emptyChildTransactions = childTransactions.filter(t => t.amount === 0);
 
   const addButtonRef = useRef(null);
   useProperFocus(addButtonRef, focusedField === 'add');
@@ -2071,7 +2071,7 @@ function TransactionTableInner({
     () =>
       props.showReconciled
         ? props.transactions
-        : props.transactions.filter(t: TransactionEntity => !t.reconciled),
+        : props.transactions.filter(t => !t.reconciled),
     [props.transactions, props.showReconciled],
   );
 
@@ -2123,7 +2123,7 @@ function TransactionTableInner({
       : null;
     const emptyChildTransactions = (props.transactionsByParent as Record<string, TransactionEntity[]>)[
       (trans.is_parent ? trans.id : trans.parent_id) || ''
-    ]?.filter(t: TransactionEntity => t.amount === 0);
+    ]?.filter(t => t.amount === 0);
 
     return (
       <Transaction
@@ -2397,7 +2397,7 @@ export const TransactionTable = forwardRef(
         }
         prevSplitsExpanded.current = splitsExpanded;
 
-        result = props.transactions.filter(t: TransactionEntity => {
+        result = props.transactions.filter(t => {
           if (t.parent_id) {
             return splitsExpanded.isExpanded(t.parent_id);
           }
@@ -2419,11 +2419,12 @@ export const TransactionTable = forwardRef(
       return props.transactions.reduce(
         (acc, trans) => {
           if (trans.is_child && trans.parent_id) {
-            acc[trans.parent_id] = [...(acc[trans.parent_id] ?? []), trans];
+            const key = String(trans.parent_id);
+            acc[key] = [...(acc[key] ?? []), trans];
           }
           return acc;
         },
-        {} as { [parentId: TransactionEntity['id']]: TransactionEntity[] },
+        {} as { [parentId: string]: TransactionEntity[] },
       );
     }, [props.transactions]);
 
@@ -2437,13 +2438,13 @@ export const TransactionTable = forwardRef(
       return Object.fromEntries(
         props.transactions.map(t => {
           if (!props.accounts) {
-            return [t.id, null];
+            return [String(t.id), null];
           }
 
           const payee = (t.payee && payees[t.payee]) || undefined;
           const transferAccount =
             payee?.transfer_acct && accounts[payee.transfer_acct];
-          return [t.id, transferAccount || null];
+          return [String(t.id), transferAccount || null];
         }),
       );
     }, [props.transactions, props.payees, props.accounts]);
@@ -2874,7 +2875,7 @@ export const TransactionTable = forwardRef(
           : targetTransactions.find(t => t.id === transaction?.parent_id);
 
         const siblingTransactions = targetTransactions.filter(
-          t: TransactionEntity =>
+          t =>
             t.parent_id &&
             t.parent_id ===
               (transaction?.is_parent
@@ -2883,7 +2884,7 @@ export const TransactionTable = forwardRef(
         );
 
         const emptyTransactions = siblingTransactions.filter(
-          t: TransactionEntity => t.amount === 0,
+          t => t.amount === 0,
         );
         if (!parentTransaction) {
           console.error(

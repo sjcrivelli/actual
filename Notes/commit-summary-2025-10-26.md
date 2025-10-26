@@ -1,0 +1,5 @@
+- 3f999cff9 2025-10-26 11:30:04 +0000 WIP: save work before history rewrite
+- 04d2f8f62 2025-10-26 11:20:20 +0000 chore: move untracked notes/backups into Notes/, archive stubs to Notes/Archive, add .gitignore rules
+- a26699b6f 2025-10-26 11:10:21 +0000 chore: ignore large Notes archives
+- a5e8d92eb 2025-10-26 11:01:35 +0000 WIP: keep Notes & required code; archive dev backups to Notes/Archive (pre-Copilot diagnostics)
+- 6b2e446ee 2025-10-26 00:38:11 +0000 Recovered working state after accidental rollback (preserve config + TransactionsTable)
